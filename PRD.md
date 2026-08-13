@@ -2,8 +2,7 @@
 
 ## Purpose
 
-The Project Health and Risk Tracker helps a program manager monitor tasks, milestones, risks, and overall project health. It demonstrates beginner-level C# and object-oriented programming in a realistic scenario.
-
+The Project Health and Risk Tracker helps a program manager monitor tasks, milestones, risks, and overall project health.
 ## Technology
 
 - **Language:** C#
