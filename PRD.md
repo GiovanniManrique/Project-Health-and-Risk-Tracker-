@@ -70,4 +70,4 @@ WHILE applicationRunning
 END WHILE
 ```
 
-The app showcases branching, loops, methods, classes, collections, enums, validation, encapsulation, inheritance, and overriding within a realistic beginner scope.
+The app showcases branching, loops, methods, classes, collections, enums, validation, encapsulation and inheritance.
