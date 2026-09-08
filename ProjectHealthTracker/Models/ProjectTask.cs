@@ -19,6 +19,6 @@ public class ProjectTask : ProjectItem
 
     public override string GetDetails()
     {
-        return $"Task {Id}: {Title} | Owner: {Owner} | Status: {Status} | Due: {DueDate:d}";
+        return $"Task {Id}: {Title} | Owner: {Owner} | Status: {Status} | Due: {DueDate:d} | Completed: {IsCompleted}";
     }
 }

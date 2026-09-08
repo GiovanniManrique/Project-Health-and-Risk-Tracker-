@@ -19,6 +19,6 @@ public class Milestone : ProjectItem
 
     public override string GetDetails()
     {
-        return $"Milestone {Id}: {Title} | Owner: {Owner} | Status: {Status} | Target: {TargetDate:d}";
+        return $"Milestone {Id}: {Title} | Owner: {Owner} | Status: {Status} | Target: {TargetDate:d} | Achieved: {IsAchieved}";
     }
 }

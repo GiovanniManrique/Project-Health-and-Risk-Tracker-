@@ -33,6 +33,19 @@ public class ProjectService
         return null;
     }
 
+    public ProjectItem? GetItemById(Project project, int itemId)
+    {
+        foreach (ProjectItem item in project.Items)
+        {
+            if (item.Id == itemId)
+            {
+                return item;
+            }
+        }
+
+        return null;
+    }
+
     public bool UpdateItemStatus(int projectId, int itemId, ItemStatus newStatus)
     {
         Project? project = GetProjectById(projectId);
@@ -42,26 +55,37 @@ public class ProjectService
             return false;
         }
 
-        foreach (ProjectItem item in project.Items)
+        ProjectItem? item = GetItemById(project, itemId);
+        if (item == null)
         {
-            if (item.Id == itemId)
-            {
-                item.Status = newStatus;
-
-                if (item is ProjectTask task)
-                {
-                    task.IsCompleted = newStatus == ItemStatus.Completed;
-                }
-                else if (item is Milestone milestone)
-                {
-                    milestone.IsAchieved = newStatus == ItemStatus.Completed;
-                }
-
-                return true;
-            }
+            return false;
         }
 
-        return false;
+        // Risks use Open/Closed. Tasks and milestones use progress statuses.
+        if (item is Risk)
+        {
+            if (newStatus != ItemStatus.Open && newStatus != ItemStatus.Closed)
+            {
+                return false;
+            }
+        }
+        else if (newStatus != ItemStatus.NotStarted && newStatus != ItemStatus.InProgress &&
+                 newStatus != ItemStatus.Completed && newStatus != ItemStatus.Blocked)
+        {
+            return false;
+        }
+
+        item.Status = newStatus;
+        if (item is ProjectTask task)
+        {
+            task.IsCompleted = newStatus == ItemStatus.Completed;
+        }
+        else if (item is Milestone milestone)
+        {
+            milestone.IsAchieved = newStatus == ItemStatus.Completed;
+        }
+
+        return true;
     }
 
     public int CountOpenRisks(Project project)
@@ -94,10 +118,26 @@ public class ProjectService
         return openRisks;
     }
 
+    public int CountLateMilestones(Project project)
+    {
+        int count = 0;
+        foreach (ProjectItem item in project.Items)
+        {
+            if (item is Milestone milestone)
+            {
+                if (!milestone.IsAchieved && milestone.TargetDate.Date < DateTime.Today)
+                {
+                    count++;
+                }
+            }
+        }
+
+        return count;
+    }
+
     public HealthStatus CalculateHealth(Project project)
     {
         bool hasOpenRisk = false;
-        bool hasLateMilestone = false;
 
         foreach (ProjectItem item in project.Items)
         {
@@ -111,16 +151,9 @@ public class ProjectService
                 }
             }
 
-            if (item is Milestone milestone)
-            {
-                if (!milestone.IsAchieved && milestone.TargetDate < DateTime.Today)
-                {
-                    hasLateMilestone = true;
-                }
-            }
         }
 
-        if (hasOpenRisk || hasLateMilestone)
+        if (hasOpenRisk || CountLateMilestones(project) > 0)
         {
             return HealthStatus.AtRisk;
         }
