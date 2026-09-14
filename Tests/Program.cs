@@ -18,6 +18,7 @@ public class Program
         CheckHealthRules();
         CheckStatusUpdates();
         CheckMenu();
+        CheckStatusMenuNumbers();
         Console.WriteLine($"Results: {passed} passed, {failed} failed.");
         return failed == 0 ? 0 : 1;
     }
@@ -120,6 +121,26 @@ public class Program
         }
     }
 
+    private static void CheckStatusMenuNumbers()
+    {
+        foreach (ProjectItem item in MockProjectData.GetProjects()[1].Items)
+        {
+            string[] statuses = { "NotStarted", "InProgress", "Completed", "Blocked" };
+            if (item is Risk)
+            {
+                statuses = new string[] { "Open", "Closed" };
+            }
+
+            for (int i = 0; i < statuses.Length; i++)
+            {
+                string output = RunMenu($"3\n2\n{item.Id}\n{i + 1}\n2\n2\n6\n");
+                string details = $"{item.Id}: {item.Title} | Owner: {item.Owner} | Status: {statuses[i]}";
+                Check(output.Contains($"{i + 1}. {statuses[i]}") && output.Contains(details),
+                    $"Menu choice {i + 1} sets item {item.Id} to {statuses[i]}");
+            }
+        }
+    }
+
     private static void CheckMenu()
     {
         string output = RunMenu("1\n2\n2\n4\n2\n5\n6\n");
@@ -136,7 +157,7 @@ public class Program
         Check(output.Contains("not a valid menu choice"), "Invalid menu choice has a helpful message");
         Check(output.Contains("project ID must be a whole number") && output.Contains("A project with that ID was not found"), "Invalid project IDs are handled");
         Check(output.Contains("item ID must be a whole number") && output.Contains("not found in this project"), "Invalid item IDs are handled");
-        Check(output.Contains("Choose 1 or 2 for a risk") && output.Contains("Choose 1 through 4 for a task or milestone") && output.Contains("Enter one of the status numbers shown"), "Invalid status choices are handled");
+        Check(output.Contains("Choose a status from 1 to 2") && output.Contains("Choose a status from 1 to 4") && output.Contains("Enter one of the status numbers shown"), "Invalid status choices are handled");
         output = RunMenu("3\n2\n0\n3\n2\n203\n0\n5\n6\n");
         Check(output.Contains("Update canceled.") && output.Contains("Totals - OnTrack: 1 | AtRisk: 1 | OffTrack: 1"), "Cancel preserves data");
         Check(RunMenu(" 6 \n").Contains("Goodbye."), "Menu accepts surrounding spaces");

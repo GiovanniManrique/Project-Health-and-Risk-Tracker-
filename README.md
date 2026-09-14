@@ -52,14 +52,14 @@ Sample dates are relative to today so this demonstration works on later days too
 
 | File | Responsibility |
 | --- | --- |
-| `Program.cs` | Runs the `while` menu loop, branches with `switch` and `if/else`, reads input with `TryParse`, and displays results. |
+| `Program.cs` | Runs the `while` menu loop, reads input with `TryParse`, and shares display methods for projects and items. A numbered status list handles updates. |
 | `Models/ProjectItem.cs` | Abstract parent containing the shared ID, title, owner, status, and `GetDetails()` method. |
 | `Models/ProjectTask.cs` | Inherits shared properties and adds a due date and completion flag. |
 | `Models/Milestone.cs` | Inherits shared properties and adds a target date and achievement flag. |
 | `Models/Risk.cs` | Inherits shared properties and adds probability, impact, and a mitigation plan. |
 | `Models/Project.cs` | Holds project details and a `List<ProjectItem>`. |
 | `Models/StatusTypes.cs` | Defines named item and health statuses with enums. |
-| `Services/ProjectService.cs` | Uses `foreach` loops to find items, validate status changes, count risks and late milestones, and calculate health. |
+| `Services/ProjectService.cs` | Finds items, supplies allowed statuses for the menu and validation, and reuses the open-risk list for counts and health. |
 | `Data/MockProjectData.cs` | Creates three sample projects with ordinary constructors and `List.Add`. |
 
 Application files are inside the `ProjectHealthTracker` folder. Each begins with outline comments.
@@ -73,4 +73,4 @@ dotnet build ProjectHealthTracker.slnx --configuration Release
 dotnet run --project Tests/TrackerChecks.csproj --configuration Release
 ```
 
-The optional checks are a separate console project with no testing packages. They test the health boundaries, status changes and reversals, invalid IDs and statuses, menu flows, cancellation, and input ending. A failed check returns a nonzero exit code. The main solution includes only the application so its startup project stays straightforward.
+The optional checks are a separate console project with no testing packages. They test the health boundaries, status changes and reversals, every status-menu number, invalid IDs and statuses, menu flows, cancellation, and input ending. A failed check returns a nonzero exit code. The main solution includes only the application so its startup project stays straightforward.

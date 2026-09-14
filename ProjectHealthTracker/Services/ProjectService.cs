@@ -61,16 +61,7 @@ public class ProjectService
             return false;
         }
 
-        // Risks use Open/Closed. Tasks and milestones use progress statuses.
-        if (item is Risk)
-        {
-            if (newStatus != ItemStatus.Open && newStatus != ItemStatus.Closed)
-            {
-                return false;
-            }
-        }
-        else if (newStatus != ItemStatus.NotStarted && newStatus != ItemStatus.InProgress &&
-                 newStatus != ItemStatus.Completed && newStatus != ItemStatus.Blocked)
+        if (!GetAllowedStatuses(item).Contains(newStatus))
         {
             return false;
         }
@@ -88,19 +79,22 @@ public class ProjectService
         return true;
     }
 
-    public int CountOpenRisks(Project project)
+    public List<ItemStatus> GetAllowedStatuses(ProjectItem item)
     {
-        int count = 0;
-
-        foreach (ProjectItem item in project.Items)
+        if (item is Risk)
         {
-            if (item is Risk risk && risk.Status == ItemStatus.Open)
-            {
-                count++;
-            }
+            return new List<ItemStatus> { ItemStatus.Open, ItemStatus.Closed };
         }
 
-        return count;
+        return new List<ItemStatus>
+        {
+            ItemStatus.NotStarted, ItemStatus.InProgress, ItemStatus.Completed, ItemStatus.Blocked
+        };
+    }
+
+    public int CountOpenRisks(Project project)
+    {
+        return GetOpenRisks(project).Count;
     }
 
     public List<Risk> GetOpenRisks(Project project)
@@ -123,12 +117,10 @@ public class ProjectService
         int count = 0;
         foreach (ProjectItem item in project.Items)
         {
-            if (item is Milestone milestone)
+            if (item is Milestone milestone && !milestone.IsAchieved &&
+                milestone.TargetDate.Date < DateTime.Today)
             {
-                if (!milestone.IsAchieved && milestone.TargetDate.Date < DateTime.Today)
-                {
-                    count++;
-                }
+                count++;
             }
         }
 
@@ -137,23 +129,16 @@ public class ProjectService
 
     public HealthStatus CalculateHealth(Project project)
     {
-        bool hasOpenRisk = false;
-
-        foreach (ProjectItem item in project.Items)
+        List<Risk> risks = GetOpenRisks(project);
+        foreach (Risk risk in risks)
         {
-            if (item is Risk risk && risk.Status == ItemStatus.Open)
+            if (risk.Impact >= 4)
             {
-                hasOpenRisk = true;
-
-                if (risk.Impact >= 4)
-                {
-                    return HealthStatus.OffTrack;
-                }
+                return HealthStatus.OffTrack;
             }
-
         }
 
-        if (hasOpenRisk || CountLateMilestones(project) > 0)
+        if (risks.Count > 0 || CountLateMilestones(project) > 0)
         {
             return HealthStatus.AtRisk;
         }
