@@ -52,6 +52,12 @@ Menu option 8 uses a key stored as `AI_API_KEY` in Windows environment variables
 
 `CloudAiService` sends one HTTPS request to OpenAI's Responses API using `gpt-4.1-mini` and returns text. The model explains what needs attention, the supporting evidence, and one action. It does not assign probabilities, invent facts, edit data, or replace the health rules. Credentials stay outside source control. API usage requires an appropriately configured account and may incur charges; error cases return to the menu. No additional packages, database, or AI framework are introduced.
 
+### Optional Codex risk review for a local demo
+
+Menu option 9 sends the same previewed review and optional answers through the installed Codex CLI using the user's existing ChatGPT sign-in and Codex allowance. `CodexAiService.ExplainRisk` starts `codex exec` with C#'s built-in `Process` class, writes the prompt to standard input, and returns the text from standard output. The model runs online; this is not local inference. No API key, new package, database, or custom login flow is added.
+
+The user confirms before sending. The process requires ChatGPT authentication and runs with a read-only sandbox, a separate working folder, personal configuration disabled, and shell/app/plugin/browser/computer/image-generation/subagent features disabled. The program removes API-key variables from that process. It allows two minutes, handles missing installation and unsuccessful/empty replies, and returns to the menu. AI supplies advice only; the existing C# ratings, priority score, and health rules remain authoritative. Other computers require their own Codex installation and eligible sign-in. `CODEX_EXE` can point Visual Studio to the installed executable; it contains a path, not a key.
+
 ## Planned Development Time
 
 **10 hours:** setup (1), models/inheritance (2), mock data (1), services (2), menu/validation (2), testing (1), and documentation (1).

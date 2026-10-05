@@ -13,8 +13,13 @@ public class Program
     private static int passed = 0;
     private static int failed = 0;
 
-    public static int Main()
+    public static int Main(string[] args)
     {
+        // The process checks launch this test program in place of Codex; no AI is called.
+        if (args.Length > 0 && args[0] == "exec")
+        {
+            return CodexChecks.FakeReply(args);
+        }
         CheckHealthRules();
         CheckStatusUpdates();
         CheckMenu();
@@ -22,6 +27,8 @@ public class Program
         AiChecks.Run(Check);
         CloudAiChecks.Run(Check);
         CheckCloudMenu();
+        CheckCodexMenu();
+        CodexChecks.Run(Check);
         Console.WriteLine($"Results: {passed} passed, {failed} failed.");
         return failed == 0 ? 0 : 1;
     }
@@ -169,6 +176,24 @@ public class Program
         {
             Environment.SetEnvironmentVariable("AI_API_KEY", savedKey);
         }
+    }
+
+    private static void CheckCodexMenu()
+    {
+        Check(RunMenu("9\n1\n6\n").Contains("There are no open risks to review"), "Codex menu handles no open risks");
+        Check(RunMenu("9\n2\n201\n6\n").Contains("not an open risk"), "Codex menu rejects a task");
+        Check(RunMenu("9\n2\n103\n6\n").Contains("not an open risk"), "Codex menu rejects a different project's risk");
+        Check(RunMenu("9\n2\n0\n6\n").Contains("Risk review canceled"), "Codex menu supports cancellation");
+        Check(RunMenu("9\n2\n203\n").Contains("Risk review canceled"), "Codex menu handles input ending during questions");
+        string output = RunMenu("9\n2\n203\n\n\nn\n5\n6\n");
+        Check(output.Contains("20/25") && output.Contains("Unknown; no evidence supplied"), "Codex preview includes metrics and unknown evidence");
+        Check(output.Contains("ChatGPT allowance") && !output.Contains("API usage may cost money"), "Codex confirmation identifies the sign-in allowance");
+        Check(output.Contains("No request was sent") && output.Contains("Totals - OnTrack: 1 | AtRisk: 1 | OffTrack: 1"),
+            "Declining Codex review preserves data and returns to the menu");
+        Check(RunMenu("9\n2\n203\n\n\n").Contains("No request was sent"), "Ending input at confirmation does not send");
+        string longAnswer = new string('a', 501);
+        Check(RunMenu($"9\n2\n203\n{longAnswer}\n\n6\n").Contains("keep each answer to 500 characters"),
+            "Codex rejects long answers before launching a process");
     }
 
     private static void CheckMenu()

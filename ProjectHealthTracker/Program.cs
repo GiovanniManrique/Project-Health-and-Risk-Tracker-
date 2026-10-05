@@ -1,6 +1,6 @@
 // Purpose: Runs the console menu and handles input.
 // Data: Uses sample projects stored in a List<Project>.
-// Methods: Shows projects, items, risks, and health; updates status and asks local AI or OpenAI for advice.
+// Methods: Shows projects, items, risks, and health; updates status and asks AI for advice.
 
 using ProjectHealthTracker.Data;
 using ProjectHealthTracker.Models;
@@ -22,6 +22,7 @@ public class Program
             Console.WriteLine("\n1. List projects\n2. View project details\n3. Update item status");
             Console.WriteLine("4. Show project risks\n5. Show health summary\n6. Exit\n7. Explain a risk with local AI");
             Console.WriteLine("8. Review a risk with OpenAI");
+            Console.WriteLine("9. Review a risk with Codex (ChatGPT sign-in)");
             Console.Write("Choose an option: ");
             string? choice = Console.ReadLine();
             if (choice == null)
@@ -54,10 +55,13 @@ public class Program
                     ExplainRiskWithAi(service);
                     break;
                 case "8":
-                    ReviewRiskWithCloudAi(service);
+                    ReviewRiskWithAi(service, false);
+                    break;
+                case "9":
+                    ReviewRiskWithAi(service, true);
                     break;
                 default:
-                    Console.WriteLine("That is not a valid menu choice. Please enter 1 through 8.");
+                    Console.WriteLine("That is not a valid menu choice. Please enter 1 through 9.");
                     break;
             }
         }
@@ -297,7 +301,8 @@ public class Program
         }
     }
 
-    private static void ReviewRiskWithCloudAi(ProjectService service)
+    // Both options use the same questions. This bool chooses which AI connection to use.
+    private static void ReviewRiskWithAi(ProjectService service, bool useCodex)
     {
         Project? project = ReadProject(service);
         if (project == null)
@@ -347,6 +352,22 @@ public class Program
         }
         string review = service.BuildRiskReview(project, risk, evidence, affectedWork);
         Console.WriteLine("\nRisk review:\n" + review);
+
+        if (useCodex)
+        {
+            Console.Write("Send this review to Codex using your ChatGPT allowance? Enter y to send: ");
+            if (!string.Equals(Console.ReadLine()?.Trim(), "y", StringComparison.OrdinalIgnoreCase))
+            {
+                Console.WriteLine("No request was sent.");
+                return;
+            }
+
+            CodexAiService ai = new CodexAiService();
+            Console.WriteLine("Asking Codex through your ChatGPT sign-in. Allow up to two minutes...");
+            Console.WriteLine(ai.ExplainRisk(review));
+            Console.WriteLine("AI advice does not change project data or the C# health rules.");
+            return;
+        }
 
         string? apiKey = ReadApiKey();
         if (string.IsNullOrWhiteSpace(apiKey))
