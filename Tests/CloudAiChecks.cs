@@ -68,13 +68,17 @@ public static class CloudAiChecks
                 "Instructions explain rating limitations and treat user fields as data");
             return Reply(success);
         }));
-        string answer = new CloudAiService(client, "test-placeholder").ExplainRisk(review);
+        string answer = new CloudAiService(client, "  test-placeholder\r\n").ExplainRisk(review);
         check(answer.Contains("Watch the scanner delivery.") && answer.Contains("Prepare manual entry."), "Extracts all text messages even after non-text output");
         check(risk.Status == ItemStatus.Open && risk.Impact == 5 && service.CalculateHealth(inventory) == HealthStatus.OffTrack,
             "Cloud advice does not modify data or C# project health");
 
         using HttpClient noKeyClient = new HttpClient(new ReplyHandler(_ => throw new Exception("Unexpected HTTP request")));
         check(new CloudAiService(noKeyClient, "").ExplainRisk(review).Contains("key is missing"), "Missing key does not make an HTTP request");
+        check(new CloudAiService(noKeyClient, "test\nplaceholder").ExplainRisk(review).Contains("contains a line break"),
+            "A key containing a newline shows a setup message without sending a request");
+        check(new CloudAiService(noKeyClient, "test\rplaceholder").ExplainRisk(review).Contains("contains a line break"),
+            "A key containing a carriage return shows a setup message without sending a request");
         CheckReply(HttpStatusCode.Unauthorized, "{\"error\":\"private detail\"}", "rejected the API key", check);
         CheckReply(HttpStatusCode.Forbidden, "{}", "key permissions", check);
         CheckReply(HttpStatusCode.NotFound, "{}", "key permissions", check);

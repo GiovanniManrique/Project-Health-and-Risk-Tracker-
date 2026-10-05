@@ -1,6 +1,6 @@
 // Purpose: Runs the console menu and handles input.
 // Data: Uses sample projects stored in a List<Project>.
-// Methods: Shows projects, items, risks, and health; updates status and asks local AI for advice.
+// Methods: Shows projects, items, risks, and health; updates status and asks local AI or OpenAI for advice.
 
 using ProjectHealthTracker.Data;
 using ProjectHealthTracker.Models;
