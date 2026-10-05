@@ -1,89 +1,51 @@
-# Project Health and Risk Tracker - Product Requirements Document
+# Project Health and Risk Tracker — simplified console requirements
 
-## Purpose
+## Purpose and scope
 
-The Project Health and Risk Tracker helps a program manager monitor tasks, milestones, risks, and overall project health.
-## Technology
+A beginner-readable C# .NET 10 console application for a fictional classroom demonstration. It monitors tasks, milestones, risks and overall health, and can ask the user's local Qwen 3.5 9B model through Bionic to explain one risk.
 
-- **Language:** C#
-- **Framework/version:** .NET 10
-- **Application type:** Console application
-- **Storage:** In-memory mock data using `List<T>`
+## Revised design
 
-## Custom Data Types
+This revision intentionally replaces the original abstract `ProjectItem` and its three subclasses with one concrete `ProjectItem` and an `ItemType` enum. It removes `ProjectService`, the separate mock-data class, duplicate completion flags, and the Ollama/OpenAI/Codex provider implementations. No WinForms interface is included.
 
-- `ProjectItem` *(abstract parent)*: `Id`, `Title`, `Owner`, `Status`, and abstract `GetDetails()`.
-  - `ProjectTask : ProjectItem`: adds `DueDate` and `IsCompleted`.
-  - `Milestone : ProjectItem`: adds `TargetDate` and `IsAchieved`.
-  - `Risk : ProjectItem`: adds `Probability`, `Impact`, and `MitigationPlan`.
-- `Project`: project details and a `List<ProjectItem>`.
-- `ProjectService`: updates status, counts risks, and calculates health.
-- Enums: `ItemStatus` and `HealthStatus`.
+Three application classes:
 
-## Preliminary Solution Structure
+- `Program`: menu, input validation, `CreateSampleProjects`, model preflight and AI request.
+- `Project`: ID, name, manager, `List<ProjectItem>`, open-risk counting and health calculation.
+- `ProjectItem`: ID, title, owner, immutable item type, validated status, optional due date, likelihood/impact ratings, fictional scenario and mitigation. Methods return details, allowed statuses and score, and validate status changes.
 
-```text
-ProjectHealthTracker/
-|-- Program.cs                       # Menu, input, branching, loops
-|-- Models/
-|   |-- Project.cs
-|   |-- ProjectItem.cs              # Abstract parent
-|   |-- ProjectTask.cs
-|   |-- Milestone.cs
-|   |-- Risk.cs
-|   `-- StatusTypes.cs              # Enums
-|-- Services/ProjectService.cs      # Business rules
-`-- Data/MockProjectData.cs         # Sample data
-```
+Three enums: `ItemType` (Task, Milestone, Risk), `ItemStatus` (NotStarted, InProgress, Completed, Blocked, Open, Closed), `HealthStatus` (OnTrack, AtRisk, OffTrack). Enums are not application classes. `Status` is privately set; constructor and later changes reject incompatible statuses. Completion is represented solely by Status.
 
-Each code file will start with comments outlining its purpose, properties, and methods.
+## Menu and required behavior
 
-## External Resources
+1. List projects with health, manager, open-risk count and overall summary.
+2. View the selected project's items and details, including risks.
+3. Update an item's status using choices valid for that type.
+4. Explain an open risk using local Qwen after showing the supplied data and obtaining `y` confirmation.
+5. Exit.
 
-No database, cloud service, or API is required. `MockProjectData.cs` will return a small `List<Project>`. A database can replace this source after it is covered in class without changing the remaining application.
+Invalid menu choices, IDs, status numbers, cancellation and end-of-input must be handled without crashing or looping forever. Data is in memory; restarting recreates the three sample projects. No persistence, database, cloud credentials, model training or additional NuGet dependency is required.
 
-### Optional local AI extension
+## Data and health
 
-Menu option 7 connects to an existing Ollama server at `localhost:11434`. The user selects an open risk and an installed local text model. C# calculates a priority score as Probability multiplied by Impact; the model explains the supplied risk information and suggests one action. This score is not a statistical probability. AI advice does not modify data or replace the health rules below. The core tracker remains usable when Ollama or a model is unavailable. No cloud API key, model download, database, or additional NuGet package is required by this extension.
+Three projects, each containing one task, one milestone and one risk:
 
-### Optional OpenAI risk review
+- Website: OnTrack, no open risk or overdue unfinished milestone.
+- Inventory: OffTrack because risk 203 is open with likelihood 4 and impact 5.
+- Training: AtRisk because milestone 302 is overdue and unfinished, with no open risk.
 
-Menu option 8 uses a key stored as `AI_API_KEY` in Windows environment variables or the ignored `.env.local` file beside the solution. The user selects an open risk and can answer two short questions: what evidence suggests the problem may happen, and what work would be affected. Empty answers remain unknown. The review displays the stored likelihood and impact ratings, their product, risk owner and mitigation, open/high-impact risk counts, late milestones, completed tasks, days to the planned end date, and the existing calculated health. It previews the information and sends it only when the user chooses to request advice.
+Dates are relative to the day the data is created. An open impact >=4 risk takes precedence over all other conditions and yields OffTrack. Otherwise any open risk or overdue unfinished milestone yields AtRisk; otherwise OnTrack. Due today is not overdue. Tasks alone do not change health. Priority score is Probability x Impact, not a probability percentage.
 
-`CloudAiService` sends one HTTPS request to OpenAI's Responses API using `gpt-4.1-mini` and returns text. The model explains what needs attention, the supporting evidence, and one action. It does not assign probabilities, invent facts, edit data, or replace the health rules. Credentials stay outside source control. API usage requires an appropriately configured account and may incur charges; error cases return to the menu. No additional packages, database, or AI framework are introduced.
+## Bionic local AI
 
-### Optional Codex risk review for a local demo
+The configured loopback server is `http://127.0.0.1:51500`; the exact installed model key is `qwen/qwen3.5-9b`. These are nonsecret constants in Program. Bionic's Local Model API uses the LM Studio runtime API. The application checks GET `/api/v1/models` and uses that model's loaded instance ID for POST `/api/v1/chat`. It issues no load/download commands and does not silently substitute another model or a stored answer.
 
-Menu option 9 sends the same previewed review and optional answers through the installed Codex CLI using the user's existing ChatGPT sign-in and Codex allowance. `CodexAiService.ExplainRisk` starts `codex exec` with C#'s built-in `Process` class, writes the prompt to standard input, and returns the text from standard output. The model runs online; this is not local inference. No API key, new package, database, or custom login flow is added.
+The request contains the selected fictional project name, calculated health and risk details, including ratings, score, owner, scenario and mitigation. It asks for Risk, Why, and Next action in fewer than 120 words. This is an instruction to the model, not a guarantee of factual accuracy or length. AI never changes stored data or replaces C# calculations. Reasoning is off, chat storage and streaming are off, and no integrations/tools are enabled. Only final message content is displayed in the console.
 
-The user confirms before sending. The process requires ChatGPT authentication and runs with a read-only sandbox, a separate working folder, personal configuration disabled, and shell/app/plugin/browser/computer/image-generation/subagent features disabled. The program removes API-key variables from that process. It allows two minutes, handles missing installation and unsuccessful/empty replies, and returns to the menu. AI supplies advice only; the existing C# ratings, priority score, and health rules remain authoritative. Other computers require their own Codex installation and eligible sign-in. `CODEX_EXE` can point Visual Studio to the installed executable; it contains a path, not a key.
+Preflight has a five-second timeout; the app's HTTP client has a 120-second request timeout. Missing models, network/HTTP failures, timeouts and malformed or empty replies return a helpful message and the menu. The core tracker works without Bionic. Live verification requires an actually loaded local model; automated checks use simulated HTTP responses.
 
-## Planned Development Time
+## Learning deliverable and completion
 
-**10 hours:** setup (1), models/inheritance (2), mock data (1), services (2), menu/validation (2), testing (1), and documentation (1).
+Provide an offline browser guide with exact source, line references, elementary vocabulary, section-by-section explanations, a status/health simulator, fixed file-order presentation cues, and practice with disclosed grading limits. Independent review should check technical accuracy and whether unexplained vocabulary remains; it cannot certify the learner's understanding without their own practice.
 
-## Pseudocode Implementation
-
-```text
-Create a .NET 10 console project named ProjectHealthTracker
-Create the listed folders/files and add outline comments to each code file
-Define ProjectItem; inherit ProjectTask, Milestone, and Risk from it
-Create Project, status enums, and 2-3 mock projects in MockProjectData
-Pass the mock projects into ProjectService
-
-SET applicationRunning to true
-WHILE applicationRunning
-    DISPLAY menu: list projects, view details, update status, show risks,
-                  show health summary, or exit
-    READ user choice
-    USE switch branching to call a method
-    USE foreach loops to display projects/items
-    USE if/else to validate IDs and calculate health:
-        IF a high-impact risk is open, project is OffTrack
-        ELSE IF any risk is open or milestone is late, project is AtRisk
-        ELSE project is OnTrack
-    DISPLAY a helpful message for invalid input
-END WHILE
-```
-
-The app showcases branching, loops, methods, classes, collections, enums, validation, encapsulation and inheritance.
+Completion requires a successful build, behavior checks, a real local answer when authorized, opening/building/launching in Visual Studio, updated documentation and a reviewed teaching guide. Git publication must exclude private settings, credentials and generated build files.

@@ -1,227 +1,202 @@
-// Purpose: Checks the tracker without installing a testing library.
-// Data: Counts checks that pass or fail and creates fresh sample data for each group.
-// Methods: Checks business rules and runs the console menu with sample input.
-
-using ProjectHealthTracker.Data;
+// Run with: dotnet run --project Tests/TrackerChecks.csproj
+// Tests use fake HTTP responses. They never load or run an AI model.
+using System.Net;
+using System.Text;
+using System.Text.Json;
 using ProjectHealthTracker.Models;
-using ProjectHealthTracker.Services;
+using Tracker = ProjectHealthTracker.Program;
 
-namespace TrackerChecks;
-
-public class Program
+int passed = 0;
+void Check(bool condition, string message)
 {
-    private static int passed = 0;
-    private static int failed = 0;
+    if (!condition) throw new Exception("FAILED: " + message);
+    passed++;
+}
 
-    public static int Main(string[] args)
+List<Project> projects = Tracker.CreateSampleProjects();
+Check(projects.Count == 3, "Three sample projects");
+Check(projects.All(p => p.Items.Count == 3), "Three items per project");
+Check(projects[0].CalculateHealth() == HealthStatus.OnTrack, "Website is OnTrack");
+Check(projects[1].CalculateHealth() == HealthStatus.OffTrack, "Inventory is OffTrack");
+Check(projects[2].CalculateHealth() == HealthStatus.AtRisk, "Training is AtRisk");
+Project inventory = projects[1];
+ProjectItem risk = inventory.Items[2];
+Check(risk.CalculateScore() == 20 && risk.GetDetails().Contains("not a percentage"), "20 is a priority score");
+Check(inventory.CountOpenRisks() == 1, "Count open risks");
+Check(!risk.ChangeStatus(ItemStatus.Completed), "Reject work status for risk");
+Check(!risk.ChangeStatus((ItemStatus)999), "Reject undefined status");
+Check(risk.Status == ItemStatus.Open, "Rejected change preserves status");
+Check(risk.ChangeStatus(ItemStatus.Closed), "Close risk");
+Check(inventory.CalculateHealth() == HealthStatus.OnTrack && inventory.CountOpenRisks() == 0, "Closing risk updates health and count");
+Check(risk.ChangeStatus(ItemStatus.Open), "Reopen risk");
+ProjectItem task = inventory.Items[0];
+Check(!task.ChangeStatus(ItemStatus.Closed), "Task cannot use risk status");
+Check(task.ChangeStatus(ItemStatus.Completed), "Complete task without duplicate flag");
+Check(task.ChangeStatus(ItemStatus.Blocked), "Reopen task");
+ProjectItem milestone = projects[2].Items[1];
+Check(milestone.ChangeStatus(ItemStatus.Completed), "Complete milestone");
+Check(projects[2].CalculateHealth() == HealthStatus.OnTrack, "Completion removes overdue problem");
+milestone.ChangeStatus(ItemStatus.InProgress);
+milestone.DueDate = DateTime.Today;
+Check(projects[2].CalculateHealth() == HealthStatus.OnTrack, "Due today is not overdue");
+milestone.DueDate = DateTime.Today.AddDays(-1);
+Check(projects[2].CalculateHealth() == HealthStatus.AtRisk, "Due yesterday is overdue");
+milestone.DueDate = null;
+Check(projects[2].CalculateHealth() == HealthStatus.OnTrack, "Missing due date does not invent overdue state");
+Check(!milestone.GetDetails().Contains("Due date:"), "Missing date displays safely");
+Check(new Project(4, "Empty", "Nobody").CalculateHealth() == HealthStatus.OnTrack, "Empty project");
+risk.Impact = 3;
+Check(inventory.CalculateHealth() == HealthStatus.AtRisk, "Open impact 3 is AtRisk");
+risk.Impact = 4;
+Check(inventory.CalculateHealth() == HealthStatus.OffTrack, "Impact 4 is OffTrack boundary");
+risk.Probability = 1;
+Check(inventory.CalculateHealth() == HealthStatus.OffTrack, "Health rule uses impact, not score");
+inventory.Items.Insert(0, new ProjectItem(299, "Earlier late milestone", "Pat", ItemType.Milestone, ItemStatus.InProgress)
+    { DueDate = DateTime.Today.AddDays(-2) });
+Check(inventory.CalculateHealth() == HealthStatus.OffTrack, "High-impact risk wins regardless of item order");
+risk.ChangeStatus(ItemStatus.Closed);
+Check(inventory.CalculateHealth() == HealthStatus.AtRisk, "Late milestone remains after closing risk");
+foreach (int rating in new[] { 1, 5 })
+{
+    risk.Probability = rating;
+    risk.Impact = rating;
+    Check(risk.CalculateScore() == rating * rating, "Score boundary " + rating);
+}
+foreach (ItemType type in new[] { ItemType.Task, ItemType.Milestone, ItemType.Risk })
+{
+    ItemStatus invalid = type == ItemType.Risk ? ItemStatus.Completed : ItemStatus.Open;
+    bool rejected = false;
+    try { _ = new ProjectItem(1, "Bad status", "Owner", type, invalid); }
+    catch (ArgumentException) { rejected = true; }
+    Check(rejected, "Constructor rejects incompatible status: " + type);
+}
+Check(Tracker.CreateSampleProjects()[1].Items[2].Status == ItemStatus.Open, "New session creates fresh objects");
+
+projects = Tracker.CreateSampleProjects();
+inventory = projects[1];
+risk = inventory.Items[2];
+using (FakeBionic handler = new FakeBionic())
+using (HttpClient client = new HttpClient(handler))
+{
+    string answer = await Tracker.ExplainRiskAsync(client, inventory, risk);
+    Check(answer.Contains("LOCAL AI ANSWER") && answer.Contains("Contact the supplier"), "Final answer is returned");
+    Check(!answer.Contains("PRIVATE REASONING"), "Reasoning is not displayed");
+    Check(handler.Requests == 2 && handler.Posts == 1, "One preflight and one generation request");
+    Check(handler.AllLocal, "Requests stay on configured loopback endpoint");
+    using JsonDocument body = JsonDocument.Parse(handler.LastBody);
+    JsonElement root = body.RootElement;
+    Check(root.GetProperty("model").GetString() == "qwen-demo-instance", "Uses loaded Qwen instance ID");
+    Check(root.GetProperty("reasoning").GetString() == "off", "Qwen reasoning disabled");
+    Check(!root.GetProperty("stream").GetBoolean() && !root.GetProperty("store").GetBoolean(), "No streaming or saved conversation");
+    Check(root.GetProperty("integrations").GetArrayLength() == 0, "No tools or integrations");
+    string prompt = root.GetProperty("input").GetString()!;
+    Check(prompt.Contains("Inventory System") && prompt.Contains("20/25") && prompt.Contains("OffTrack"), "Request includes C# project results");
+    Check(prompt.Contains(risk.Scenario) && prompt.Contains(risk.MitigationPlan), "Request includes fictional facts and mitigation");
+    Check(risk.Status == ItemStatus.Open && inventory.CalculateHealth() == HealthStatus.OffTrack, "AI does not change data");
+}
+foreach (string models in new[]
+{
+    "{\"models\":[]}",
+    "{\"models\":[{\"key\":\"qwen/qwen3.5-9b\",\"loaded_instances\":[]}]}",
+    "{\"models\":[{\"key\":\"other-27b\",\"loaded_instances\":[{\"id\":\"wrong\"}]}]}"
+})
+{
+    using FakeBionic handler = new FakeBionic { Models = models };
+    using HttpClient client = new HttpClient(handler);
+    string answer = await Tracker.ExplainRiskAsync(client, inventory, risk);
+    Check(answer.Contains("not loaded") && handler.Posts == 0, "Missing exact loaded model never triggers generation");
+}
+foreach (string malformed in new[] { "not json", "{}", "{\"models\":null}", "{\"models\":{}}" })
+{
+    using FakeBionic handler = new FakeBionic { Models = malformed };
+    using HttpClient client = new HttpClient(handler);
+    string answer = await Tracker.ExplainRiskAsync(client, inventory, risk);
+    Check(answer.Contains("response") && handler.Posts == 0, "Malformed model list returns useful error");
+}
+foreach (string reply in new[] { "{\"output\":[]}", "{\"output\":[{\"type\":\"message\",\"content\":\" \"}]}" })
+{
+    using FakeBionic handler = new FakeBionic { Reply = reply };
+    using HttpClient client = new HttpClient(handler);
+    Check((await Tracker.ExplainRiskAsync(client, inventory, risk)).Contains("no explanation"), "Empty answer is reported");
+}
+foreach (string reply in new[] { "bad json", "{}", "{\"output\":null}" })
+{
+    using FakeBionic handler = new FakeBionic { Reply = reply };
+    using HttpClient client = new HttpClient(handler);
+    Check((await Tracker.ExplainRiskAsync(client, inventory, risk)).Contains("response"), "Malformed answer is reported");
+}
+foreach (string failure in new[] { "http", "network", "timeout" })
+{
+    using FakeBionic handler = new FakeBionic { Failure = failure };
+    using HttpClient client = new HttpClient(handler);
+    string answer = await Tracker.ExplainRiskAsync(client, inventory, risk);
+    Check(answer.Contains(failure == "timeout" ? "too long" : "could not complete"), "Recover from " + failure);
+}
+using (FakeBionic handler = new FakeBionic())
+using (HttpClient client = new HttpClient(handler))
+{
+    risk.ChangeStatus(ItemStatus.Closed);
+    Check((await Tracker.ExplainRiskAsync(client, inventory, risk)).Contains("open risk"), "Closed risk rejected");
+    risk.ChangeStatus(ItemStatus.Open);
+    Check((await Tracker.ExplainRiskAsync(client, projects[0], risk)).Contains("belongs"), "Foreign risk rejected");
+    Check((await Tracker.ExplainRiskAsync(client, inventory, inventory.Items[0])).Contains("open risk"), "Task rejected");
+    foreach (int rating in new[] { 0, 6 })
     {
-        // The process checks launch this test program in place of Codex; no AI is called.
-        if (args.Length > 0 && args[0] == "exec")
-        {
-            return CodexChecks.FakeReply(args);
-        }
-        CheckHealthRules();
-        CheckStatusUpdates();
-        CheckMenu();
-        CheckStatusMenuNumbers();
-        AiChecks.Run(Check);
-        CloudAiChecks.Run(Check);
-        CheckCloudMenu();
-        CheckCodexMenu();
-        CodexChecks.Run(Check);
-        Console.WriteLine($"Results: {passed} passed, {failed} failed.");
-        return failed == 0 ? 0 : 1;
+        risk.Probability = rating;
+        Check((await Tracker.ExplainRiskAsync(client, inventory, risk)).Contains("between 1 and 5"), "Bad rating rejected");
     }
+    Check(handler.Requests == 0, "Invalid data never contacts Bionic");
+}
 
-    private static void Check(bool condition, string description)
+async Task<string> RunConsole(string input)
+{
+    TextReader originalInput = Console.In;
+    TextWriter originalOutput = Console.Out;
+    using StringWriter output = new StringWriter();
+    try
     {
-        if (condition)
-        {
-            passed++;
-            Console.WriteLine("PASS: " + description);
-        }
-        else
-        {
-            failed++;
-            Console.WriteLine("FAIL: " + description);
-        }
+        Console.SetIn(new StringReader(input));
+        Console.SetOut(output);
+        await Tracker.Main();
+        return output.ToString();
     }
+    finally { Console.SetIn(originalInput); Console.SetOut(originalOutput); }
+}
+string transcript = await RunConsole("1\n2\n2\n3\n2\n203\n2\n1\n3\n3\n302\n3\n1\n5\n");
+Check(transcript.Contains("1 OnTrack, 1 AtRisk, 1 OffTrack"), "Console initial summary");
+Check(transcript.Contains("Scanner hardware") && transcript.Contains("Priority score: 20/25"), "Console details");
+Check(transcript.Contains("2 OnTrack, 1 AtRisk, 0 OffTrack"), "Console close-risk flow");
+Check(transcript.Contains("3 OnTrack, 0 AtRisk, 0 OffTrack"), "Console complete-milestone flow");
+Check(transcript.EndsWith("Goodbye." + Environment.NewLine), "Console exits normally");
+transcript = await RunConsole("bad\n2\n999\n3\n2\n999\n3\n2\n203\n99\n4\n1\n4\n2\n201\n4\n2\n203\nn\n5\n");
+foreach (string expected in new[] { "number from 1 to 5", "project was not found", "not an available choice", "not a valid status", "no open risks", "No AI request was sent" })
+    Check(transcript.Contains(expected), "Console handles " + expected);
+foreach (string input in new[] { "", "2\n", "3\n2\n", "3\n2\n203\n", "4\n2\n203\n", "2\n0\n5\n" })
+    Check((await RunConsole(input)).Contains("Goodbye."), "EOF or cancellation returns safely");
+Console.WriteLine($"PASS: {passed} checks. No model inference was used.");
 
-    private static void CheckHealthRules()
+class FakeBionic : HttpMessageHandler
+{
+    public string Models = "{\"models\":[{\"key\":\"other\",\"loaded_instances\":[{\"id\":\"other\"}]},{\"key\":\"qwen/qwen3.5-9b\",\"loaded_instances\":[{\"id\":\"qwen-demo-instance\"}]}]}";
+    public string Reply = "{\"output\":[{\"type\":\"reasoning\",\"content\":\"PRIVATE REASONING\"},{\"type\":\"message\",\"content\":\"Risk: Late scanners. Why: Delivery missed. Next action: Contact the supplier.\"}]}";
+    public string Failure = "", LastBody = "";
+    public int Requests, Posts;
+    public bool AllLocal = true;
+    protected override async Task<HttpResponseMessage> SendAsync(HttpRequestMessage request, CancellationToken cancellationToken)
     {
-        List<Project> projects = MockProjectData.GetProjects();
-        ProjectService service = new ProjectService(projects);
-        Check(projects.Count == 3, "Three sample projects are available");
-        Check(service.CalculateHealth(projects[0]) == HealthStatus.OnTrack, "Website starts OnTrack");
-        Check(service.CalculateHealth(projects[1]) == HealthStatus.OffTrack, "Inventory starts OffTrack");
-        Check(service.CalculateHealth(projects[2]) == HealthStatus.AtRisk, "Training starts AtRisk");
-
-        Project project = new Project(10, "Boundary checks", "Tester", DateTime.Today, DateTime.Today.AddDays(10));
-        Check(service.CalculateHealth(project) == HealthStatus.OnTrack, "Empty project is OnTrack");
-        Milestone milestone = new Milestone(1, "Review", "Tester", ItemStatus.NotStarted, DateTime.Today.AddHours(12), false);
-        project.Items.Add(milestone);
-        Check(service.CountLateMilestones(project) == 0, "A milestone due today is not late");
-        milestone.TargetDate = DateTime.Today.AddDays(-1);
-        Check(service.CalculateHealth(project) == HealthStatus.AtRisk, "Yesterday's unfinished milestone is AtRisk");
-        milestone.IsAchieved = true;
-        milestone.Status = ItemStatus.Completed;
-        Check(service.CalculateHealth(project) == HealthStatus.OnTrack, "An achieved milestone is not late");
-
-        Risk risk = new Risk(2, "Delay", "Tester", ItemStatus.Open, 1, 3, "Make a backup plan");
-        project.Items.Add(risk);
-        Check(service.CalculateHealth(project) == HealthStatus.AtRisk, "Open impact 3 risk is AtRisk");
-        risk.Impact = 4;
-        Check(service.CalculateHealth(project) == HealthStatus.OffTrack, "Impact 4 is the high-impact boundary");
-        risk.Impact = 5;
-        Check(service.CalculateHealth(project) == HealthStatus.OffTrack, "Impact 5 is OffTrack even with low probability");
-        milestone.IsAchieved = false;
-        milestone.Status = ItemStatus.InProgress;
-        Check(service.CalculateHealth(project) == HealthStatus.OffTrack, "High-impact open risk takes priority over a late milestone");
-        risk.Status = ItemStatus.Closed;
-        Check(service.CalculateHealth(project) == HealthStatus.AtRisk, "Closing a risk still leaves a late milestone AtRisk");
-        Check(service.CountOpenRisks(project) == 0 && service.GetOpenRisks(project).Count == 0, "Closed risks are excluded");
-        risk.Status = ItemStatus.Open;
-        project.Items.Add(new Risk(3, "Another risk", "Tester", ItemStatus.Open, 2, 2, "Monitor it"));
-        Check(service.CountOpenRisks(project) == 2 && service.GetOpenRisks(project).Count == 2, "Multiple open risks are counted");
-    }
-
-    private static void CheckStatusUpdates()
-    {
-        List<Project> projects = MockProjectData.GetProjects();
-        ProjectService service = new ProjectService(projects);
-        ProjectTask task = (ProjectTask)projects[1].Items[0];
-        Milestone milestone = (Milestone)projects[2].Items[1];
-        Check(service.GetProjectById(999) == null, "Unknown project is not found");
-        Check(!service.UpdateItemStatus(999, 201, ItemStatus.Completed), "Unknown project update is rejected");
-        Check(!service.UpdateItemStatus(1, 201, ItemStatus.Completed), "Item from another project is rejected");
-        Check(!service.UpdateItemStatus(2, 201, ItemStatus.Closed), "Task cannot use Closed");
-        Check(!service.UpdateItemStatus(2, 203, ItemStatus.Completed), "Risk cannot use Completed");
-        Check(!service.UpdateItemStatus(2, 201, (ItemStatus)999), "Undefined status is rejected");
-        Check(task.Status == ItemStatus.InProgress && !task.IsCompleted, "Rejected changes preserve task state");
-        Check(service.UpdateItemStatus(2, 201, ItemStatus.Completed) && task.IsCompleted, "Completing a task sets its completion flag");
-        Check(service.UpdateItemStatus(2, 201, ItemStatus.Blocked) && !task.IsCompleted, "Reopening a task clears its completion flag");
-        Check(!service.UpdateItemStatus(3, 302, ItemStatus.Open), "Milestone cannot use Open");
-        Check(service.UpdateItemStatus(3, 302, ItemStatus.Completed) && milestone.IsAchieved, "Completing a milestone sets its achievement flag");
-        Check(service.CalculateHealth(projects[2]) == HealthStatus.OnTrack, "Completing the late milestone restores OnTrack");
-        Check(service.UpdateItemStatus(3, 302, ItemStatus.InProgress) && !milestone.IsAchieved, "Reopening a milestone clears its achievement flag");
-        Check(service.CalculateHealth(projects[2]) == HealthStatus.AtRisk, "Reopening the late milestone restores AtRisk");
-        Check(service.UpdateItemStatus(2, 203, ItemStatus.Closed), "Risk can be closed");
-        Check(service.CalculateHealth(projects[1]) == HealthStatus.OnTrack, "Closing the only open risk restores OnTrack");
-        Check(service.UpdateItemStatus(2, 203, ItemStatus.Open), "Risk can be reopened");
-        Check(service.CalculateHealth(projects[1]) == HealthStatus.OffTrack, "Reopening the high-impact risk restores OffTrack");
-    }
-
-    private static string RunMenu(string input)
-    {
-        TextReader originalInput = Console.In;
-        TextWriter originalOutput = Console.Out;
-        using StringReader reader = new StringReader(input);
-        using StringWriter writer = new StringWriter();
-        try
+        Requests++;
+        AllLocal &= request.RequestUri!.Host == "127.0.0.1" && request.RequestUri.Port == 51500;
+        if (Failure == "network") throw new HttpRequestException("simulated offline");
+        if (Failure == "timeout") throw new TaskCanceledException("simulated timeout");
+        if (request.Method == HttpMethod.Get)
         {
-            Console.SetIn(reader);
-            Console.SetOut(writer);
-            ProjectHealthTracker.Program.Main();
-            return writer.ToString();
+            if (request.RequestUri.AbsolutePath != "/api/v1/models") throw new Exception("Unexpected GET");
+            return new HttpResponseMessage(HttpStatusCode.OK) { Content = new StringContent(Models) };
         }
-        finally
-        {
-            Console.SetIn(originalInput);
-            Console.SetOut(originalOutput);
-        }
-    }
-
-    private static void CheckStatusMenuNumbers()
-    {
-        foreach (ProjectItem item in MockProjectData.GetProjects()[1].Items)
-        {
-            string[] statuses = { "NotStarted", "InProgress", "Completed", "Blocked" };
-            if (item is Risk)
-            {
-                statuses = new string[] { "Open", "Closed" };
-            }
-
-            for (int i = 0; i < statuses.Length; i++)
-            {
-                string output = RunMenu($"3\n2\n{item.Id}\n{i + 1}\n2\n2\n6\n");
-                string details = $"{item.Id}: {item.Title} | Owner: {item.Owner} | Status: {statuses[i]}";
-                Check(output.Contains($"{i + 1}. {statuses[i]}") && output.Contains(details),
-                    $"Menu choice {i + 1} sets item {item.Id} to {statuses[i]}");
-            }
-        }
-    }
-
-    private static void CheckCloudMenu()
-    {
-        // A placeholder ensures these menu checks never need a real key or API request.
-        string? savedKey = Environment.GetEnvironmentVariable("AI_API_KEY");
-        Environment.SetEnvironmentVariable("AI_API_KEY", "test-placeholder");
-        try
-        {
-            Check(RunMenu("8\n1\n6\n").Contains("There are no open risks to review"), "Cloud menu handles a project with no open risks");
-            Check(RunMenu("8\n2\n201\n6\n").Contains("not an open risk"), "Cloud menu rejects tasks");
-            Check(RunMenu("8\n2\n103\n6\n").Contains("not an open risk"), "Cloud menu rejects a different project's risk");
-            Check(RunMenu("8\n2\n0\n6\n").Contains("Risk review canceled"), "Cloud menu permits cancellation");
-            Check(RunMenu("8\n2\n203\n").Contains("Risk review canceled"), "Cloud menu cancels at end of input");
-            string output = RunMenu("8\n2\n203\n\n\nn\n5\n6\n");
-            Check(output.Contains("20/25") && output.Contains("Unknown; no evidence supplied") && output.Contains("Tasks completed: 0 of 1"),
-                "Cloud menu shows score, questions, and computed metrics");
-            Check(output.Contains("No request was sent") && output.Contains("Totals - OnTrack: 1 | AtRisk: 1 | OffTrack: 1"),
-                "Declining cloud request preserves data and returns to menu");
-            string longAnswer = new string('a', 501);
-            Check(RunMenu($"8\n2\n203\n{longAnswer}\n\n6\n").Contains("keep each answer to 500 characters"),
-                "Cloud menu rejects excessively long answers before sending");
-        }
-        finally
-        {
-            Environment.SetEnvironmentVariable("AI_API_KEY", savedKey);
-        }
-    }
-
-    private static void CheckCodexMenu()
-    {
-        Check(RunMenu("9\n1\n6\n").Contains("There are no open risks to review"), "Codex menu handles no open risks");
-        Check(RunMenu("9\n2\n201\n6\n").Contains("not an open risk"), "Codex menu rejects a task");
-        Check(RunMenu("9\n2\n103\n6\n").Contains("not an open risk"), "Codex menu rejects a different project's risk");
-        Check(RunMenu("9\n2\n0\n6\n").Contains("Risk review canceled"), "Codex menu supports cancellation");
-        Check(RunMenu("9\n2\n203\n").Contains("Risk review canceled"), "Codex menu handles input ending during questions");
-        string output = RunMenu("9\n2\n203\n\n\nn\n5\n6\n");
-        Check(output.Contains("20/25") && output.Contains("Unknown; no evidence supplied"), "Codex preview includes metrics and unknown evidence");
-        Check(output.Contains("ChatGPT allowance") && !output.Contains("API usage may cost money"), "Codex confirmation identifies the sign-in allowance");
-        Check(output.Contains("No request was sent") && output.Contains("Totals - OnTrack: 1 | AtRisk: 1 | OffTrack: 1"),
-            "Declining Codex review preserves data and returns to the menu");
-        Check(RunMenu("9\n2\n203\n\n\n").Contains("No request was sent"), "Ending input at confirmation does not send");
-        string longAnswer = new string('a', 501);
-        Check(RunMenu($"9\n2\n203\n{longAnswer}\n\n6\n").Contains("keep each answer to 500 characters"),
-            "Codex rejects long answers before launching a process");
-    }
-
-    private static void CheckMenu()
-    {
-        string output = RunMenu("1\n2\n2\n4\n2\n5\n6\n");
-        Check(output.Contains("Company Website Update") && output.Contains("Employee Training Plan"), "Menu lists projects");
-        Check(output.Contains("Probability: 4/5 | Impact: 5/5") && output.Contains("Plan: Use manual item numbers"), "Details and risks include scores and mitigation");
-        Check(output.Contains("Totals - OnTrack: 1 | AtRisk: 1 | OffTrack: 1"), "Initial summary counts all three health states");
-        output = RunMenu("3\n2\n203\n2\n4\n2\n5\n3\n3\n302\n3\n5\n6\n");
-        Check(output.Contains("Updated Scanner hardware may arrive late to Closed."), "Menu closes a risk");
-        Check(output.Contains("There are no open risks."), "Closed risk disappears from open risk view");
-        Check(output.Contains("Totals - OnTrack: 3 | AtRisk: 0 | OffTrack: 0"), "Status updates are reflected in summary during the session");
-        output = RunMenu("3\n2\n201\n3\n2\n2\n6\n");
-        Check(output.Contains("Status: Completed") && output.Contains("Completed: True"), "Task completion appears in project details");
-        output = RunMenu("oops\n2\nabc\n2\n999\n3\n2\nabc\n3\n2\n101\n3\n2\n203\n3\n3\n2\n201\n5\n3\n2\n201\nabc\n6\n");
-        Check(output.Contains("not a valid menu choice"), "Invalid menu choice has a helpful message");
-        Check(output.Contains("project ID must be a whole number") && output.Contains("A project with that ID was not found"), "Invalid project IDs are handled");
-        Check(output.Contains("item ID must be a whole number") && output.Contains("not found in this project"), "Invalid item IDs are handled");
-        Check(output.Contains("Choose a status from 1 to 2") && output.Contains("Choose a status from 1 to 4") && output.Contains("Enter one of the status numbers shown"), "Invalid status choices are handled");
-        output = RunMenu("3\n2\n0\n3\n2\n203\n0\n5\n6\n");
-        Check(output.Contains("Update canceled.") && output.Contains("Totals - OnTrack: 1 | AtRisk: 1 | OffTrack: 1"), "Cancel preserves data");
-        Check(RunMenu(" 6 \n").Contains("Goodbye."), "Menu accepts surrounding spaces");
-        Check(RunMenu("").Contains("Project Health and Risk Tracker"), "End of input exits without an infinite loop");
-        Check(RunMenu("3\n2\n203\n").Contains("Update canceled."), "End of input during status choice cancels the update");
-        Check(RunMenu("5\n6\n").Contains("Totals - OnTrack: 1 | AtRisk: 1 | OffTrack: 1"), "Restart restores sample data");
-        Check(RunMenu("7\n1\n6\n").Contains("There are no open risks to explain"), "AI menu handles a project without open risks");
-        Check(RunMenu("7\n2\n201\n6\n").Contains("not an open risk"), "AI menu rejects tasks as risks");
-        Check(RunMenu("7\n2\n103\n6\n").Contains("not an open risk"), "AI menu rejects risks from a different project");
-        Check(RunMenu("7\n2\n0\n6\n").Contains("AI explanation canceled"), "AI menu allows cancel before contacting Ollama");
+        if (request.Method != HttpMethod.Post || request.RequestUri.AbsolutePath != "/api/v1/chat") throw new Exception("Unexpected request");
+        Posts++;
+        LastBody = await request.Content!.ReadAsStringAsync(cancellationToken);
+        return new HttpResponseMessage(Failure == "http" ? HttpStatusCode.InternalServerError : HttpStatusCode.OK)
+            { Content = new StringContent(Reply, Encoding.UTF8, "application/json") };
     }
 }

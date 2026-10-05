@@ -1,0 +1,1045 @@
+[
+  {
+    "file": "Models/StatusTypes.cs",
+    "start": 1,
+    "end": 27,
+    "title": "Name the choices",
+    "kind": "Three enums, not three classes",
+    "plain": "An enum is a type with named choices. ItemType says what an item is. ItemStatus says its current state. HealthStatus says how the whole project is doing.",
+    "why": "Named choices are easier to check than text such as \"open\", \"Open\", or a misspelling. The status-changing method still checks which choices fit each kind of item.",
+    "connection": "ProjectItem uses ItemType and ItemStatus. Project.CalculateHealth returns a HealthStatus. These definitions do not start the program.",
+    "say": "I used enums to give the program consistent names for its choices. A risk can be Open or Closed. The item's method checks that a status is appropriate for its type.",
+    "notes": [
+      {
+        "line": 3,
+        "text": "namespace groups related code under a name. It does not create an object."
+      },
+      {
+        "line": 5,
+        "text": "public makes this enum usable by other code. enum introduces the fixed named choices; ItemType is the type's name."
+      },
+      {
+        "line": 9,
+        "text": "Risk is one value of ItemType. ItemType.Risk means the Risk choice inside that enum."
+      },
+      {
+        "line": 12,
+        "text": "ItemStatus is a separate enum. Its list includes choices for all item types; not every choice is valid for every item."
+      },
+      {
+        "line": 22,
+        "text": "HealthStatus defines the three results a health calculation can return. Braces { } surround each enum's members."
+      }
+    ],
+    "question": "Does a .cs file have to contain one class?",
+    "answer": "No. .cs means C# source file. This file contains three enums and no class."
+  },
+  {
+    "file": "Models/ProjectItem.cs",
+    "start": 1,
+    "end": 10,
+    "title": "Define what one item holds",
+    "kind": "Class declaration and properties",
+    "plain": "ProjectItem is the class: a definition for one item. Each object made from it has its own ID, title, owner, type, and status. The scanner risk is one such object.",
+    "why": "One class avoids separate Task, Milestone, and Risk classes. Its Type property tells methods which rules to use. This reduces files, but some properties only make sense for certain types.",
+    "connection": "A Project stores these objects in its Items list. Program uses their properties to show the menu and their methods to change status.",
+    "say": "This class defines the information that each item has. Each actual task, milestone, or risk is a separate ProjectItem object. Type tells the program which kind it is.",
+    "notes": [
+      {
+        "line": 4,
+        "text": "class defines a new type named ProjectItem. This line is not creating a scanner risk yet."
+      },
+      {
+        "line": 6,
+        "text": "Id is a property holding an int, a whole number. get lets other code read it; set lets other code replace it."
+      },
+      {
+        "line": 7,
+        "text": "Title is a string property: text such as Scanner hardware may arrive late."
+      },
+      {
+        "line": 8,
+        "text": "Owner holds this item's person's name. A property is a named value on an object, not an action."
+      },
+      {
+        "line": 9,
+        "text": "Type has only get. The constructor sets it; outside code cannot later assign a different type."
+      },
+      {
+        "line": 10,
+        "text": "Other code can read Status. private set means only code inside ProjectItem can assign it directly. ChangeStatus checks requests first."
+      }
+    ],
+    "question": "Is ProjectItem the scanner risk?",
+    "answer": "ProjectItem is the class. The scanner risk is one object created using that class."
+  },
+  {
+    "file": "Models/ProjectItem.cs",
+    "start": 11,
+    "end": 16,
+    "title": "Add dates and risk information",
+    "kind": "More properties",
+    "plain": "Some items need a due date. A risk needs two ratings, a description of the situation, and a plan to reduce the problem.",
+    "why": "This keeps one understandable item class. The tradeoff is that tasks also have unused risk fields. Separate subclasses would avoid that, but add more concepts and files.",
+    "connection": "GetDetails reads these fields. CalculateScore multiplies the ratings. CalculateHealth checks impact and dates. AI receives the selected risk's details.",
+    "say": "I kept the information together in one class. Probability is just a one-to-five likelihood rating, not a measured percentage. These sample values come from the code, not from the model.",
+    "notes": [
+      {
+        "line": 11,
+        "text": "DateTime represents a date/time. The ? allows no date, called null. A risk does not need a due date."
+      },
+      {
+        "line": 12,
+        "text": "Probability is an int rating from 1 to 5 in our sample data. The AI method checks that range before sending it."
+      },
+      {
+        "line": 13,
+        "text": "Impact is a separate 1-to-5 rating for how serious the consequence is."
+      },
+      {
+        "line": 14,
+        "text": "Scenario is text describing the fictional problem. = \"\" starts it as empty text."
+      },
+      {
+        "line": 15,
+        "text": "MitigationPlan is text describing an action that reduces the problem."
+      }
+    ],
+    "question": "What is the difference between Probability and Impact?",
+    "answer": "Probability rates how likely the problem seems; Impact rates how serious it would be. Both are invented classroom ratings here."
+  },
+  {
+    "file": "Models/ProjectItem.cs",
+    "start": 17,
+    "end": 25,
+    "title": "Create a valid item",
+    "kind": "Constructor",
+    "plain": "A constructor runs when new ProjectItem(...) creates an object. It receives starting values and puts them into that object's properties.",
+    "why": "Requiring these values gives each new item an identity. Calling ChangeStatus here reuses the same status rule used for later updates.",
+    "connection": "CreateSampleProjects calls this constructor for each sample item. If a programmer supplies an incompatible status, construction stops with an error.",
+    "say": "This constructor fills in one new item's starting information. It also checks the starting status so a risk cannot begin as Completed.",
+    "notes": [
+      {
+        "line": 17,
+        "text": "The name matches the class. A constructor has no return type. int id and the other parameters are named inputs."
+      },
+      {
+        "line": 19,
+        "text": "Id = id copies the input named id into this object's property named Id. C# treats capitals and lowercase as different names."
+      },
+      {
+        "line": 20,
+        "text": "Title receives title; the next lines do the same for Owner and Type."
+      },
+      {
+        "line": 23,
+        "text": "ChangeStatus(status) calls a method with the starting status. ! means not. If it returns false, throw reports an invalid argument instead of creating a bad item."
+      }
+    ],
+    "question": "Why is Type assigned before ChangeStatus is called?",
+    "answer": "ChangeStatus asks which statuses are allowed for this Type. Type must already be set."
+  },
+  {
+    "file": "Models/ProjectItem.cs",
+    "start": 26,
+    "end": 34,
+    "title": "Return the allowed statuses",
+    "kind": "Method returning a list",
+    "plain": "A method is a named group of instructions. This one returns the list of status choices that fit this particular item.",
+    "why": "Each rule has one home. The menu and status validation can ask the same method instead of maintaining duplicate lists.",
+    "connection": "UpdateStatus prints these choices. ChangeStatus checks whether a requested value is in this list.",
+    "say": "This method supplies the valid choices for one item. Risks get Open and Closed; tasks and milestones get four progress choices.",
+    "notes": [
+      {
+        "line": 26,
+        "text": "List<ItemStatus> is the return type: a list whose elements are ItemStatus values. GetAllowedStatuses is the method name. () means it takes no inputs."
+      },
+      {
+        "line": 28,
+        "text": "if runs the following statement only when the condition is true. == compares two values; it does not assign."
+      },
+      {
+        "line": 29,
+        "text": "new creates a list. { ... } fills it with two choices. return sends this list back and ends the method."
+      },
+      {
+        "line": 30,
+        "text": "|| means OR: a task or a milestone uses the next list."
+      },
+      {
+        "line": 32,
+        "text": "An unknown type receives an empty list. The constructor/status check will reject every status for that type."
+      }
+    ],
+    "question": "Is List<ItemStatus> a method?",
+    "answer": "No. It names a list type. GetAllowedStatuses() is the method that returns a list of that type."
+  },
+  {
+    "file": "Models/ProjectItem.cs",
+    "start": 35,
+    "end": 41,
+    "title": "Check before changing status",
+    "kind": "Method returning true or false",
+    "plain": "ChangeStatus asks: is this new status allowed? If no, it leaves the object alone. If yes, it changes Status and reports success.",
+    "why": "Without this check, the menu could treat a risk like a task. The private setter steers normal changes through this method.",
+    "connection": "Program.UpdateStatus calls it. Project.CalculateHealth later sees the changed value on the same item object.",
+    "say": "I put the check and the change together. A valid update returns true; an invalid update returns false and keeps the old status.",
+    "notes": [
+      {
+        "line": 35,
+        "text": "bool is the return type: true or false. newStatus is an input of type ItemStatus."
+      },
+      {
+        "line": 37,
+        "text": "GetAllowedStatuses() creates the valid choices. Contains(newStatus) checks membership. ! means 'not in that list'; return false ends the method early."
+      },
+      {
+        "line": 38,
+        "text": "= assigns the requested value to this object's Status property."
+      },
+      {
+        "line": 39,
+        "text": "return true tells the caller the assignment succeeded. It does not print anything."
+      }
+    ],
+    "question": "What happens if we ask a risk to become Completed?",
+    "answer": "The allowed list contains only Open and Closed, so the method returns false and does not change Status."
+  },
+  {
+    "file": "Models/ProjectItem.cs",
+    "start": 42,
+    "end": 46,
+    "title": "Calculate a priority score",
+    "kind": "Method returning a whole number",
+    "plain": "This method multiplies the item's likelihood rating by its impact rating. For the scanner risk, 4 × 5 gives 20.",
+    "why": "Putting the formula in a method avoids repeating it when displaying details. This simple classroom score is easy to explain; it is not a statistical model.",
+    "connection": "GetDetails displays the score out of 25. The AI receives that text. Project health uses separate rules and does not use this score.",
+    "say": "I used multiplication to give risks a simple priority score. Twenty out of twenty-five is not an eighty-percent chance, and it does not directly decide project health.",
+    "notes": [
+      {
+        "line": 42,
+        "text": "int says the answer is a whole number. CalculateScore is the method's name."
+      },
+      {
+        "line": 44,
+        "text": "* means multiply. The two values belong to this item object. return sends their product back to the caller."
+      }
+    ],
+    "question": "If a project contains an open risk with likelihood 1 and impact 4, can the project be OnTrack because that risk's score is only 4?",
+    "answer": "No. The risk's priority score is 4/25. The project's health is OffTrack because it contains an open risk with impact at least 4. Risks have ratings and scores; projects have health results."
+  },
+  {
+    "file": "Models/ProjectItem.cs",
+    "start": 47,
+    "end": 56,
+    "title": "Turn an item into readable text",
+    "kind": "Method returning text",
+    "plain": "GetDetails builds a text description. It adds risk fields for a risk, or a date when another item has one.",
+    "why": "Keeping formatting here lets the console and AI prompt reuse the same details. It avoids copying the same sentence-building code.",
+    "connection": "Program.ViewItems prints the returned text. The AI methods also use it to show and send the chosen risk's information.",
+    "say": "This method prepares the item's description. It returns a string; Console.WriteLine is what actually puts that string on screen.",
+    "notes": [
+      {
+        "line": 47,
+        "text": "string means the returned answer is text. The method does not return a new risk."
+      },
+      {
+        "line": 49,
+        "text": "details is a local variable, used inside this method. $ before a string lets {Id}, {Title}, and other values be inserted. \\n starts a new line."
+      },
+      {
+        "line": 50,
+        "text": "For a risk, the next return includes ratings, the score from CalculateScore(), the scenario, and the plan."
+      },
+      {
+        "line": 53,
+        "text": "HasValue checks that a date exists before Value reads it. += adds text to details. :d formats a short date."
+      },
+      {
+        "line": 54,
+        "text": "If it was not a risk, return the description built so far. The last brace closes the class."
+      }
+    ],
+    "question": "Is details a property or a local variable?",
+    "answer": "It is a local variable inside GetDetails. Title is a property stored on the item object."
+  },
+  {
+    "file": "Models/Project.cs",
+    "start": 1,
+    "end": 10,
+    "title": "Define a project and its item list",
+    "kind": "Class declaration and properties",
+    "plain": "Project defines the information for a whole project: its ID, name, manager, and a list of item objects.",
+    "why": "A project needs several related items, so a list is more useful than separate variables called item1, item2, and item3.",
+    "connection": "Program creates three Project objects. Their Items lists connect the Project class to the ProjectItem class.",
+    "say": "A Project contains ProjectItem objects. That is a contains relationship, not inheritance. Project is not the parent class of ProjectItem.",
+    "notes": [
+      {
+        "line": 4,
+        "text": "Project is the class name. This definition describes what every Project object can hold and do."
+      },
+      {
+        "line": 6,
+        "text": "Id holds this project's numeric identifier."
+      },
+      {
+        "line": 7,
+        "text": "Name holds text such as Inventory System. Another project can have a different Name."
+      },
+      {
+        "line": 8,
+        "text": "Manager holds this project's manager's name."
+      },
+      {
+        "line": 9,
+        "text": "List<ProjectItem> means a list containing ProjectItem objects. new creates a separate empty list for each Project. get-only prevents replacing Items, but Items.Add(...) can still add elements."
+      }
+    ],
+    "question": "Is Inventory System a class or an object?",
+    "answer": "The Project object whose Name is Inventory System is an object. Project is its class; the words Inventory System are its Name value."
+  },
+  {
+    "file": "Models/Project.cs",
+    "start": 11,
+    "end": 17,
+    "title": "Give each project its own values",
+    "kind": "Constructor",
+    "plain": "When a new Project is created, this constructor receives three inputs and stores them on that new object.",
+    "why": "Required inputs keep object creation clear: which project, what name, and which manager. The Items property already starts with its own empty list.",
+    "connection": "Program's CreateSampleProjects calls new Project(2, \"Inventory System\", \"Taylor Smith\"). That runs this constructor with id=2, name=\"Inventory System\", manager=\"Taylor Smith\".",
+    "say": "This constructor sets up one Project object. Reusing the class does not mean sharing the same name or manager between all projects.",
+    "notes": [
+      {
+        "line": 11,
+        "text": "Project matches the class name, so this is a constructor. The values passed between (...) become its parameter values."
+      },
+      {
+        "line": 13,
+        "text": "Id = id copies the number into this object's Id property."
+      },
+      {
+        "line": 14,
+        "text": "Name = name copies the supplied text into this object's Name."
+      },
+      {
+        "line": 15,
+        "text": "Manager = manager stores the supplied manager. Semicolons end these statements."
+      }
+    ],
+    "question": "Does new Project(...) create the class again?",
+    "answer": "No. The class definition already exists. new creates another object using that class."
+  },
+  {
+    "file": "Models/Project.cs",
+    "start": 18,
+    "end": 27,
+    "title": "Count only the open risks",
+    "kind": "Method returning a number",
+    "plain": "Start at zero. Look at every item in this project. Add one only when the item is a risk and is still open.",
+    "why": "One loop is direct and readable for a small list. A query expression could be shorter, but would introduce more syntax.",
+    "connection": "ShowProjects uses the count in its summary. ReviewRiskAsync uses zero to avoid offering an AI review when there is no open risk.",
+    "say": "This method counts matching items, not all items. An open risk counts; a closed risk or a task does not.",
+    "notes": [
+      {
+        "line": 18,
+        "text": "int is the return type. No inputs are needed because this object already has its Items list."
+      },
+      {
+        "line": 20,
+        "text": "count is a local whole-number variable starting at zero."
+      },
+      {
+        "line": 21,
+        "text": "foreach repeats the block once per item. item refers to the current ProjectItem object from Items; it does not create a copy."
+      },
+      {
+        "line": 23,
+        "text": "&& means AND: both checks must be true. count++ adds one."
+      },
+      {
+        "line": 25,
+        "text": "After the loop, return gives the total back to the caller."
+      }
+    ],
+    "question": "Why not return Items.Count?",
+    "answer": "Items.Count includes tasks, milestones, and closed risks. We only want open risks."
+  },
+  {
+    "file": "Models/Project.cs",
+    "start": 28,
+    "end": 47,
+    "title": "Decide the whole project's health",
+    "kind": "Method with rules and a loop",
+    "plain": "Look through this project's items. An open risk with impact 4 or 5 immediately makes the project OffTrack. Otherwise, any open risk or late unfinished milestone makes it AtRisk. If neither exists, it is OnTrack.",
+    "why": "The most serious condition wins. A true/false flag remembers a less serious problem while the loop keeps checking for a high-impact risk.",
+    "connection": "Changing an item's status changes what this method sees next time it runs. Health is recalculated; there is no separate Health property to get out of date.",
+    "say": "I used simple, visible rules for health. The model does not decide this result. The early return gives high-impact open risks priority, even if another item was checked first.",
+    "notes": [
+      {
+        "line": 30,
+        "text": "needsAttention starts false. It remembers whether any AtRisk condition was found."
+      },
+      {
+        "line": 33,
+        "text": "Check only open risks. A closed risk does not affect health."
+      },
+      {
+        "line": 35,
+        "text": ">= means greater than or equal to. return OffTrack ends the whole method immediately."
+      },
+      {
+        "line": 36,
+        "text": "A lower-impact open risk sets the flag, but the loop keeps going."
+      },
+      {
+        "line": 38,
+        "text": "A milestone must be unfinished AND have a date AND be earlier than today to set the flag. && checks left to right, so Value is read only after HasValue is true."
+      },
+      {
+        "line": 44,
+        "text": "After all items: true flag returns AtRisk; otherwise line 45 returns OnTrack. A task alone does not affect these rules; due today is not late."
+      }
+    ],
+    "question": "Why not return AtRisk as soon as the first smaller problem appears?",
+    "answer": "A later item might contain a high-impact open risk. Returning too early would miss the more serious OffTrack condition."
+  },
+  {
+    "file": "Program.cs",
+    "start": 1,
+    "end": 13,
+    "title": "Set the address of the local AI",
+    "kind": "Imports, class, and constants",
+    "plain": "Program coordinates the application. These opening lines make library names available and define the local server address and model name.",
+    "why": "Constants keep these two settings in one obvious place. A configuration framework would be unnecessary for this small, single-computer demo.",
+    "connection": "The networking methods read these constants. Neither constant is an API key; the app uses the local Bionic server.",
+    "say": "Program contains the entry point, menu, sample data, and AI connection. These constants tell it where Bionic is and which local model to use.",
+    "notes": [
+      {
+        "line": 2,
+        "text": "using System.Text makes names such as StringBuilder available without writing their full namespace. The next using does the same for JSON tools."
+      },
+      {
+        "line": 4,
+        "text": "This imports our Models namespace so we can write Project rather than its full namespace-qualified name."
+      },
+      {
+        "line": 8,
+        "text": "Program is the third application class we wrote. We also use classes supplied by .NET, such as HttpClient and List. Program's methods are static, so we call them without creating a Program object. project.CalculateHealth(), by comparison, uses a particular Project object and its items."
+      },
+      {
+        "line": 11,
+        "text": "const means this value cannot be changed while the app runs. string is text. 127.0.0.1 means this computer; 51500 selects its local service port."
+      },
+      {
+        "line": 12,
+        "text": "ModelKey names the installed Qwen model; it is not the model's weights or a password."
+      }
+    ],
+    "question": "Is Qwen stored inside Program.cs?",
+    "answer": "No. Bionic's runtime loads the separate model on this computer. Program.cs sends requests to that runtime."
+  },
+  {
+    "file": "Program.cs",
+    "start": 14,
+    "end": 21,
+    "title": "Start the program and make the list",
+    "kind": "Main method: setup",
+    "plain": "Execution starts in Main. It asks CreateSampleProjects for a list of the three projects, then creates an HTTP client: the object used to send requests to Bionic. HTTP is a set of rules programs use to send requests and receive responses. Here HttpClient sends the messages, Bionic's local server receives them, and Qwen generates the advice.",
+    "why": "This keeps one project list alive for the run and reuses one HTTP client. The sample-data method gives repeatable starting examples without a database.",
+    "connection": "Execution reaches line 16 and calls CreateSampleProjects. It follows that method starting at line 231, creates the sample objects, then reaches its return at line 260. That return supplies the list to line 16. Main stores the list in projects and continues at line 17. The computer does not simply execute every source file from top to bottom.",
+    "say": "Main is where execution starts. List<Project> says what kind of value projects can hold: a list of Project objects. CreateSampleProjects() is a method call that creates and returns that list.",
+    "notes": [
+      {
+        "line": 14,
+        "text": "public allows access; static means the method belongs to the class. async allows await inside. Task represents work that can complete later; this is a .NET type, not ItemType.Task."
+      },
+      {
+        "line": 16,
+        "text": "List<Project> is the type. projects is the local variable name. = assigns the returned list reference. CreateSampleProjects() calls a method in this same Program class; there is no MockProjectData class anymore."
+      },
+      {
+        "line": 17,
+        "text": "new HttpClient() creates the request-sending object. This using is different from an import: it releases the client when Main ends."
+      },
+      {
+        "line": 18,
+        "text": "Timeout limits how long an HTTP request may wait: 120 seconds."
+      },
+      {
+        "line": 19,
+        "text": "Console.WriteLine prints text and ends the line. The next line explains that data is fictional and changes will reset."
+      }
+    ],
+    "question": "Why is projects a variable, while Project is a class?",
+    "answer": "Project defines what one project can hold and do. projects is the local name referring to a particular list of Project objects."
+  },
+  {
+    "file": "Program.cs",
+    "start": 22,
+    "end": 41,
+    "title": "Keep showing the menu",
+    "kind": "Loop and switch inside Main",
+    "plain": "The program waits for a menu number, runs the matching method, and shows the menu again. Exit ends Main.",
+    "why": "A switch makes five menu choices easy to read. A loop avoids copying the same menu after every operation.",
+    "connection": "Options 1–4 call other Program methods. Those methods usually return here when they finish. Option 5 returns from Main itself and exits.",
+    "say": "This loop keeps the menu available. switch picks an action from the typed number. break leaves the switch; return leaves Main and ends the program.",
+    "notes": [
+      {
+        "line": 22,
+        "text": "while (true) repeats until code leaves the method. It does not mean the program ignores input."
+      },
+      {
+        "line": 27,
+        "text": "ReadLine waits for a line of keyboard input. string? allows null when input ends, as well as typed text."
+      },
+      {
+        "line": 28,
+        "text": "Trim removes outer spaces. ?. calls it only when choice is not null. switch compares the result with each case."
+      },
+      {
+        "line": 30,
+        "text": "ShowProjects(projects) passes the list into another method. break leaves this switch, so the loop can show the menu again."
+      },
+      {
+        "line": 33,
+        "text": "await waits for the AI operation to finish before the menu continues. It does not make this console menu interactive during the wait."
+      },
+      {
+        "line": 35,
+        "text": "Both option 5 and end-of-input print Goodbye and return from Main. default handles other entries."
+      }
+    ],
+    "question": "What is the difference between break and return here?",
+    "answer": "break exits the switch, then the loop repeats. return exits Main, so this program ends."
+  },
+  {
+    "file": "Program.cs",
+    "start": 42,
+    "end": 55,
+    "title": "Print projects and a summary",
+    "kind": "ShowProjects method",
+    "plain": "For each project, calculate current health, print its information, and add one to the matching summary count.",
+    "why": "Recalculating avoids storing a second health value that could disagree with the items. Counters are easy to follow for a small exercise.",
+    "connection": "ReadProject reuses this list display before asking for an ID. The project object performs the health/count work; Program prints the results.",
+    "say": "This method handles display. It asks each project to calculate its own health, then counts how many projects fall into each category.",
+    "notes": [
+      {
+        "line": 42,
+        "text": "private means this method is used inside Program. static means no Program object is needed. void means it sends no value back. List<Project> projects is its input parameter."
+      },
+      {
+        "line": 44,
+        "text": "Three local counters start at zero for this display operation."
+      },
+      {
+        "line": 45,
+        "text": "foreach selects each Project object from the supplied list."
+      },
+      {
+        "line": 47,
+        "text": "The dot selects a member of this object. () calls its CalculateHealth method; the returned enum value is stored in health."
+      },
+      {
+        "line": 48,
+        "text": "$ inserts property and method results into the printed string."
+      },
+      {
+        "line": 49,
+        "text": "if / else if / else chooses one counter to increment; line 53 prints the totals after the loop."
+      }
+    ],
+    "question": "Does Program decide the health rule here?",
+    "answer": "No. It calls Project.CalculateHealth, then displays and counts the returned result."
+  },
+  {
+    "file": "Program.cs",
+    "start": 56,
+    "end": 72,
+    "title": "Find the selected project",
+    "kind": "ReadProject method",
+    "plain": "Show the choices, read an ID, and find the matching Project object. If cancelled or invalid, return no project.",
+    "why": "TryParse safely checks typed numbers. Returning null for failure lets calling methods stop cleanly instead of using an invalid project.",
+    "connection": "ViewItems, UpdateStatus, and ReviewRiskAsync all reuse this method. They receive the selected existing object, not a new project.",
+    "say": "This method translates the user's typed ID into a Project object the rest of the code can work with. The question mark allows it to return null when there is no selection.",
+    "notes": [
+      {
+        "line": 56,
+        "text": "Project? is the return type: a Project reference or null. ReadProject is the method name; projects is the input list."
+      },
+      {
+        "line": 61,
+        "text": "|| means OR: ended input or 0 cancels. return null communicates no selected project."
+      },
+      {
+        "line": 62,
+        "text": "TryParse tries to convert text to an int. It returns true on success and puts the converted number in id through the out parameter."
+      },
+      {
+        "line": 66,
+        "text": "== compares each object's Id to the typed id. On a match, return that same object."
+      },
+      {
+        "line": 70,
+        "text": "If nothing matched, return null after printing the problem."
+      }
+    ],
+    "question": "Does entering 2 mean 'the second position in the list'?",
+    "answer": "No. This method searches for Id equal to 2. ID and list position are different concepts."
+  },
+  {
+    "file": "Program.cs",
+    "start": 73,
+    "end": 83,
+    "title": "Show the selected project's items",
+    "kind": "ViewItems method",
+    "plain": "Ask for a project. If one was selected, print its health and each item's details.",
+    "why": "The early null check keeps the main work straightforward and prevents reading properties on a missing object.",
+    "connection": "ReadProject supplies the object; Project.CalculateHealth supplies health; ProjectItem.GetDetails supplies text; Console.WriteLine displays it.",
+    "say": "This method connects selection to display. It delegates the calculations and text building to the objects that hold that information.",
+    "notes": [
+      {
+        "line": 75,
+        "text": "project stores the selected Project reference returned by ReadProject."
+      },
+      {
+        "line": 76,
+        "text": "If no project was selected, a bare return exits this void method."
+      },
+      {
+        "line": 78,
+        "text": "Only the selected project's Items are looped over."
+      },
+      {
+        "line": 80,
+        "text": "GetDetails returns text. WriteLine prints it. This call does not change the item."
+      }
+    ],
+    "question": "Why call GetDetails rather than repeat all the property formatting here?",
+    "answer": "Both item viewing and AI need the same details. One method keeps that formatting consistent."
+  },
+  {
+    "file": "Program.cs",
+    "start": 84,
+    "end": 105,
+    "title": "Find an item with an optional filter",
+    "kind": "ReadItem method",
+    "plain": "Choose an item belonging to the selected project. One input tells the method whether to offer all items or only open risks.",
+    "why": "This reuses one selection method for normal updates and AI reviews. The same filter checks both what is displayed and what is accepted.",
+    "connection": "UpdateStatus passes false, because any item's status can be changed. ReviewRiskAsync passes true, because AI only explains an open risk.",
+    "say": "I used a true-or-false input so the same selection code can serve two menus. It also checks the typed ID against the selected project, so another project's item is rejected.",
+    "notes": [
+      {
+        "line": 84,
+        "text": "ProjectItem? means return an item or null. project is the selected Project; openRisksOnly is a bool input."
+      },
+      {
+        "line": 88,
+        "text": "!openRisksOnly means 'the filter is off'. Otherwise the item must be a Risk AND Open. Parentheses group the AND checks."
+      },
+      {
+        "line": 94,
+        "text": "TryParse checks the ID is a number before searching."
+      },
+      {
+        "line": 98,
+        "text": "The second loop checks both the ID and the filter. Printing allowed choices alone would not prevent typing a hidden ID."
+      },
+      {
+        "line": 103,
+        "text": "No allowed match means null; the caller then returns to the menu."
+      }
+    ],
+    "question": "Why check the filter twice?",
+    "answer": "First to show only allowed options; again to reject a user typing an ID that was not offered."
+  },
+  {
+    "file": "Program.cs",
+    "start": 106,
+    "end": 126,
+    "title": "Apply a status change",
+    "kind": "UpdateStatus method",
+    "plain": "Select a project, select its item, show allowed statuses, validate a numbered choice, and ask the item to change itself.",
+    "why": "The user sees choices starting at 1, while C# list positions start at 0. The range check makes subtracting one safe.",
+    "connection": "ReadItem returns a reference to the existing item in the project's list. The local variable item and that list entry reach the same object. ChangeStatus changes that object, so the next health calculation sees the change. No copying back into the list is necessary.",
+    "say": "This method gathers input, but the item owns the status rule. If a risk changes from Open to Closed, the next health calculation stops counting it as an open risk.",
+    "notes": [
+      {
+        "line": 108,
+        "text": "ReadProject returns the selected object; each following null check stops when selection was cancelled."
+      },
+      {
+        "line": 110,
+        "text": "false means ReadItem offers every item in this project, not only risks."
+      },
+      {
+        "line": 112,
+        "text": "choices holds the List<ItemStatus> returned by the selected item's method."
+      },
+      {
+        "line": 113,
+        "text": "for uses an index i: start at 0, continue while i is below Count, then add 1 after each pass."
+      },
+      {
+        "line": 114,
+        "text": "i + 1 is the friendly menu number. choices[i] reads the element at position i."
+      },
+      {
+        "line": 118,
+        "text": "Reject non-numbers and numbers outside 1..Count. Short-circuit OR stops once failure is known."
+      },
+      {
+        "line": 123,
+        "text": "number - 1 converts the valid menu number back to a list position. ChangeStatus returns true if it applied the change."
+      }
+    ],
+    "question": "Why does status choice 2 select Closed for a risk?",
+    "answer": "The list is [Open, Closed]. Its positions are 0 and 1. Menu number 2 becomes position 1 after subtracting one."
+  },
+  {
+    "file": "Program.cs",
+    "start": 127,
+    "end": 150,
+    "title": "Show what will be sent to AI",
+    "kind": "ReviewRiskAsync method",
+    "plain": "Select an open risk, show its information, and ask for y before sending it. Then print the returned answer in this same console.",
+    "why": "Keeping selection separate from the request makes the request method easier to check independently. Cancellation avoids an unwanted model request.",
+    "connection": "ExplainRiskAsync returns the text. Console.WriteLine displays it. Nothing here replaces the item's ratings or status.",
+    "say": "This method is the user-facing AI flow. It previews our fictional information, sends it only after confirmation, and shows the answer without opening a separate chat window.",
+    "notes": [
+      {
+        "line": 127,
+        "text": "async Task lets this method await work that finishes later. It does not return an answer value to Main."
+      },
+      {
+        "line": 131,
+        "text": "If there are no open risks, explain that and return before any AI request."
+      },
+      {
+        "line": 136,
+        "text": "true filters the selectable items to open risks."
+      },
+      {
+        "line": 141,
+        "text": "StringComparison.OrdinalIgnoreCase accepts y or Y. Trim removes surrounding spaces. Any other input cancels."
+      },
+      {
+        "line": 147,
+        "text": "await ExplainRiskAsync(...) waits for the text result and stores it in the local string variable answer."
+      },
+      {
+        "line": 148,
+        "text": "WriteLine displays that returned string, which may be an AI answer or a friendly error."
+      }
+    ],
+    "question": "Does choosing option 4 alone run Qwen?",
+    "answer": "No. We must select a valid open risk and enter y. Only then does the code check the model and request an explanation."
+  },
+  {
+    "file": "Program.cs",
+    "start": 151,
+    "end": 168,
+    "title": "Check that Qwen is loaded",
+    "kind": "GetLoadedModelAsync method",
+    "plain": "Ask the local server which models are loaded. Find the exact Qwen model and return the ID of one loaded instance: a copy loaded into memory and ready for requests.",
+    "why": "A downloaded model is just a file until the runtime loads it into memory. Checking first gives a helpful message when it is not ready and avoids silently choosing a different model.",
+    "connection": "ExplainRiskAsync uses the returned ID in its chat request. This method sends a GET request for information; it does not ask the model to write an answer or issue a load command.",
+    "say": "This method checks readiness. An API is a way for programs to talk to each other. Here our program asks Bionic for its loaded model list.",
+    "notes": [
+      {
+        "line": 152,
+        "text": "Task<string?> means work that will finish with either text or null. The text is a loaded model ID."
+      },
+      {
+        "line": 154,
+        "text": "A cancellation token carries a stop signal. This CancellationTokenSource sends that signal after five seconds to limit the model-list request. using releases the helper afterwards."
+      },
+      {
+        "line": 155,
+        "text": "GET retrieves information. BionicUrl is this computer's address; /api/v1/models selects the server's model-list operation."
+      },
+      {
+        "line": 156,
+        "text": "JSON is structured text with named fields and lists. Parse turns that text into a structure C# can inspect."
+      },
+      {
+        "line": 159,
+        "text": "Skip any model whose key does not match our constant. continue moves to the next loop item."
+      },
+      {
+        "line": 160,
+        "text": "Look through loaded_instances for the matching model. GetString reads its ID as text; a nonempty ID is returned."
+      },
+      {
+        "line": 166,
+        "text": "null means the exact model had no usable loaded instance."
+      }
+    ],
+    "question": "Do you have to keep Bionic's chat page in front?",
+    "answer": "No. The local server/runtime must be running with Qwen loaded. The C# app talks to the API, not the chat page."
+  },
+  {
+    "file": "Program.cs",
+    "start": 169,
+    "end": 181,
+    "title": "Build a prompt from project data",
+    "kind": "ExplainRiskAsync: checks and prompt",
+    "plain": "The request method first checks that this is a valid open risk in this project with ratings from 1 to 5. It then checks the model and builds the text to send.",
+    "why": "These checks protect the method even if it is called without the menu. Passing the existing project and risk is clearer than finding them again by ID.",
+    "connection": "GetDetails supplies the selected risk's fields. CalculateHealth supplies C#'s result. These become the prompt; AI is asked to explain this information.",
+    "say": "The AI receives a small text summary of the selected risk, not my entire code or computer. C# supplies the ratings and health before the model sees anything.",
+    "notes": [
+      {
+        "line": 170,
+        "text": "Task<string> means this method eventually returns text. client, project, and risk are its three inputs."
+      },
+      {
+        "line": 172,
+        "text": "Reject an item that is not in this project, is not a Risk, or is not Open."
+      },
+      {
+        "line": 174,
+        "text": "Reject ratings outside 1 through 5. These public properties do not enforce the range on every assignment; this method checks before sending."
+      },
+      {
+        "line": 176,
+        "text": "try surrounds operations that might fail. Later catch blocks turn known failures into readable messages."
+      },
+      {
+        "line": 178,
+        "text": "await gets the loaded model ID. If it is null, return a setup message instead of requesting a reply."
+      },
+      {
+        "line": 181,
+        "text": "prompt combines the project name, calculated health, and risk.GetDetails() into text. \\n separates lines."
+      }
+    ],
+    "question": "Does this method ask the model to calculate our score?",
+    "answer": "No. GetDetails already includes the score calculated by C#. The prompt asks for an explanation of those supplied facts."
+  },
+  {
+    "file": "Program.cs",
+    "start": 182,
+    "end": 193,
+    "title": "Package the prompt and instructions",
+    "kind": "JSON request object",
+    "plain": "Put the model ID, our prompt, and instructions into a request the local server understands. Serialize turns the C# values into JSON text.",
+    "why": "The server needs named fields, not just an unlabelled sentence. A temporary object avoids adding a whole request class for this one small operation.",
+    "connection": "This JSON becomes the body of the POST request in the next section. The prompt asks for a short Risk / Why / Next action answer, but the model may not follow every instruction perfectly.",
+    "say": "I send the fictional facts as input and separate instructions about the answer format. The model writes advice. It has no tools enabled in this request, and its reply does not modify the project.",
+    "notes": [
+      {
+        "line": 182,
+        "text": "new { ... } creates a temporary object with properties whose names and types C# infers. We do not write a separate named request class. JsonSerializer.Serialize converts those property names and values into JSON text."
+      },
+      {
+        "line": 184,
+        "text": "model is shorthand for a property named model containing the value of the local variable model."
+      },
+      {
+        "line": 185,
+        "text": "input is the field name the API expects; prompt is the text value we prepared."
+      },
+      {
+        "line": 186,
+        "text": "system_prompt gives the model instructions about format, fictional facts, and using the supplied ratings. Instructions are not a guarantee of accuracy."
+      },
+      {
+        "line": 191,
+        "text": "reasoning off requests no separate reasoning mode. stream false waits for one whole reply. store false requests no stored chat from this API."
+      },
+      {
+        "line": 192,
+        "text": "max_output_tokens limits generated pieces of text, not words. An output token is a piece of generated text; it is unrelated to the cancellation token that signals an operation to stop. integrations is an empty list: this request enables no tools."
+      }
+    ],
+    "question": "Why not just concatenate JSON text by hand?",
+    "answer": "The serializer handles quotes and special characters inside project names and descriptions, reducing malformed requests."
+  },
+  {
+    "file": "Program.cs",
+    "start": 194,
+    "end": 207,
+    "title": "Send the request and read the answer",
+    "kind": "HTTP call and response parsing",
+    "plain": "Send the JSON to Bionic, wait for a reply, and extract final message text from the response. Return that text so the console can print it.",
+    "why": "The response is a structured envelope, so printing the raw JSON would be confusing. Only message entries belong in the displayed answer.",
+    "connection": "ReviewRiskAsync receives this string and prints it. Project and ProjectItem objects are only read during this operation; their data stays the same.",
+    "say": "POST sends the prepared information to the chat operation. I then read the reply, take its message content, and return plain text to the console.",
+    "notes": [
+      {
+        "line": 194,
+        "text": "StringContent wraps the JSON as an HTTP request body. UTF8 encodes text; application/json tells the server the format."
+      },
+      {
+        "line": 195,
+        "text": "PostAsync sends to /api/v1/chat. await waits for the response. using releases the request/response helpers when this scope ends."
+      },
+      {
+        "line": 196,
+        "text": "A failed HTTP status raises an error handled by a catch below."
+      },
+      {
+        "line": 197,
+        "text": "Read the response text, then Parse makes its JSON fields accessible."
+      },
+      {
+        "line": 198,
+        "text": "StringBuilder collects text pieces. The loop examines entries in the response's output list."
+      },
+      {
+        "line": 201,
+        "text": "Keep only entries whose type is message. AppendLine adds their content and a line break."
+      },
+      {
+        "line": 204,
+        "text": "An empty answer returns a helpful message. Otherwise line 206 returns the model label and trimmed text."
+      }
+    ],
+    "question": "Where does the answer become visible?",
+    "answer": "This method returns the string; ReviewRiskAsync prints it with Console.WriteLine(answer). No separate chat window is required."
+  },
+  {
+    "file": "Program.cs",
+    "start": 208,
+    "end": 229,
+    "title": "Recover from common AI failures",
+    "kind": "Catch blocks",
+    "plain": "If the server fails, takes too long, or sends unexpected data, return a readable message instead of letting that error end the program.",
+    "why": "These cases are worth handling because AI needs another running program. Repeating two format messages is simpler here than adding a separate error framework.",
+    "connection": "The returned message follows the same route as an answer: ReviewRiskAsync prints it, then Main shows the menu. These are error messages, never pretend AI answers.",
+    "say": "I catch expected network and response errors so the core tracker stays usable when AI is unavailable. This does not guarantee every possible bug is caught.",
+    "notes": [
+      {
+        "line": 208,
+        "text": "HttpRequestException covers network and unsuccessful HTTP requests."
+      },
+      {
+        "line": 212,
+        "text": "OperationCanceledException covers timeout/cancellation from the HTTP operation."
+      },
+      {
+        "line": 216,
+        "text": "JsonException means the response text could not be parsed as expected JSON."
+      },
+      {
+        "line": 220,
+        "text": "KeyNotFoundException handles missing fields we tried to read."
+      },
+      {
+        "line": 224,
+        "text": "InvalidOperationException handles incompatible JSON element types. Each catch returns an explanation as text."
+      }
+    ],
+    "question": "If Bionic is off, can you still list projects and update statuses?",
+    "answer": "Yes. Those menu options run ordinary C# without the local AI server."
+  },
+  {
+    "file": "Program.cs",
+    "start": 230,
+    "end": 241,
+    "title": "Create the first sample project",
+    "kind": "CreateSampleProjects method: Website",
+    "plain": "This method creates the fictional objects used for the demonstration. Main calls it once at startup. The first project is the Website example.",
+    "why": "Hardcoded sample objects keep the demo repeatable without files, forms, or a database. The values are invented for the classroom.",
+    "connection": "The constructors we studied are actually called here. Items.Add puts each new item object into this Project object's list.",
+    "say": "This is the sample-data method. It creates actual Project and ProjectItem objects from our class definitions. It is a method inside Program, not another class named MockProjectData.",
+    "notes": [
+      {
+        "line": 231,
+        "text": "List<Project> is the return type. This method takes no inputs; its values are written below."
+      },
+      {
+        "line": 233,
+        "text": "new Project(...) runs the Project constructor. website is a local variable referring to that new object."
+      },
+      {
+        "line": 234,
+        "text": "website.Items selects that object's list. Add adds an element. new ProjectItem(...) creates the element by calling its constructor."
+      },
+      {
+        "line": 235,
+        "text": "The { DueDate = ... } part is an object initializer: it sets a property after the constructor runs. Today.AddDays(-5) is five days before today."
+      },
+      {
+        "line": 238,
+        "text": "The Website risk starts Closed. Its following initializer assigns its ratings, scenario, and plan."
+      }
+    ],
+    "question": "Are website and Project the same thing?",
+    "answer": "No. Project is a class/type. website is a variable referring to one Project object."
+  },
+  {
+    "file": "Program.cs",
+    "start": 242,
+    "end": 251,
+    "title": "Create the sample risk used in the demo",
+    "kind": "CreateSampleProjects continued: Inventory",
+    "plain": "Inventory is a second Project object. Its scanner risk is a ProjectItem object that starts Open with likelihood 4 and impact 5.",
+    "why": "This example clearly demonstrates both the 20/25 score and OffTrack health. A concrete fictional situation gives the model something to explain.",
+    "connection": "Menu project ID 2 and item ID 203 select these objects. Closing this risk later changes this same object; it does not change the class definition.",
+    "say": "This block creates the problem I demonstrate. C# gives the scanner risk its initial ratings. The model reads those fictional facts and suggests an action.",
+    "notes": [
+      {
+        "line": 242,
+        "text": "inventory is a new, separate Project object reference. Name is Inventory System; Manager is Taylor Smith."
+      },
+      {
+        "line": 243,
+        "text": "Task 201 starts InProgress and is due seven days from today."
+      },
+      {
+        "line": 245,
+        "text": "Milestone 202 starts NotStarted and is due ten days from today, so it is not overdue."
+      },
+      {
+        "line": 247,
+        "text": "Risk 203 starts Open. Its type is the enum value ItemType.Risk, not a Risk subclass."
+      },
+      {
+        "line": 248,
+        "text": "4 × 5 gives score 20/25. Impact 5 while Open gives OffTrack through a separate rule."
+      },
+      {
+        "line": 249,
+        "text": "The scenario and mitigation are fictional starting text. They are sent to AI; they are not generated here."
+      }
+    ],
+    "question": "Does AI invent the starting scanner story when the app launches?",
+    "answer": "No. This code supplies that fictional story. AI generates its explanation only when you request it."
+  },
+  {
+    "file": "Program.cs",
+    "start": 252,
+    "end": 262,
+    "title": "Return all three projects to Main",
+    "kind": "CreateSampleProjects continued: Training and return",
+    "plain": "Training is the third object. Its unfinished milestone is three days late, so it starts AtRisk. Finally, the method returns a list containing all three projects.",
+    "why": "The examples cover all three health results at startup. Using dates relative to today keeps the late/future examples meaningful on demo day.",
+    "connection": "Main stores this returned list in projects. The initial method call at the top of Program is now explained: create objects, collect them, return the list.",
+    "say": "This returns the three project objects to Main. There are three Project objects and nine ProjectItem objects in the initial sample data. They are kept in memory; restarting creates them again.",
+    "notes": [
+      {
+        "line": 252,
+        "text": "Create the third Project object, with its own name, manager, and item list."
+      },
+      {
+        "line": 255,
+        "text": "Milestone 302 is InProgress, so it is unfinished."
+      },
+      {
+        "line": 256,
+        "text": "Today.AddDays(-3) sets a date three days ago. This late milestone produces AtRisk even though the training risk is closed."
+      },
+      {
+        "line": 257,
+        "text": "Risk 303 begins Closed, so it does not contribute to health."
+      },
+      {
+        "line": 260,
+        "text": "new List<Project> { ... } creates a list containing references to the three existing objects. return gives it to Main; it does not copy all of their data."
+      }
+    ],
+    "question": "Will a status change survive restarting the program?",
+    "answer": "No. There is no save file or database. CreateSampleProjects builds fresh starting objects on the next run."
+  }
+]

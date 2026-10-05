@@ -1,7 +1,4 @@
-// Purpose: Stores basic project information and all items assigned to the project.
-// Properties: Id, Name, Manager, StartDate, EndDate, and Items.
-// Methods: The constructor sets the project information and creates the item list.
-
+// One project owns its items and calculates health using simple classroom rules.
 namespace ProjectHealthTracker.Models;
 
 public class Project
@@ -9,17 +6,42 @@ public class Project
     public int Id { get; set; }
     public string Name { get; set; }
     public string Manager { get; set; }
-    public DateTime StartDate { get; set; }
-    public DateTime EndDate { get; set; }
-    public List<ProjectItem> Items { get; set; }
+    public List<ProjectItem> Items { get; } = new List<ProjectItem>();
 
-    public Project(int id, string name, string manager, DateTime startDate, DateTime endDate)
+    public Project(int id, string name, string manager)
     {
         Id = id;
         Name = name;
         Manager = manager;
-        StartDate = startDate;
-        EndDate = endDate;
-        Items = new List<ProjectItem>();
+    }
+
+    public int CountOpenRisks()
+    {
+        int count = 0;
+        foreach (ProjectItem item in Items)
+        {
+            if (item.Type == ItemType.Risk && item.Status == ItemStatus.Open) count++;
+        }
+        return count;
+    }
+
+    public HealthStatus CalculateHealth()
+    {
+        bool needsAttention = false;
+        foreach (ProjectItem item in Items)
+        {
+            if (item.Type == ItemType.Risk && item.Status == ItemStatus.Open)
+            {
+                if (item.Impact >= 4) return HealthStatus.OffTrack;
+                needsAttention = true;
+            }
+            if (item.Type == ItemType.Milestone && item.Status != ItemStatus.Completed &&
+                item.DueDate.HasValue && item.DueDate.Value.Date < DateTime.Today)
+            {
+                needsAttention = true;
+            }
+        }
+        if (needsAttention) return HealthStatus.AtRisk;
+        return HealthStatus.OnTrack;
     }
 }

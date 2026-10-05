@@ -1,7 +1,13 @@
-// Purpose: Stores the status choices used by the project tracker.
-// Enums: ItemStatus is for project items, and HealthStatus is for projects.
+// Enums are fixed sets of named choices. They are not classes or methods.
 
 namespace ProjectHealthTracker.Models;
+
+public enum ItemType
+{
+    Task,
+    Milestone,
+    Risk
+}
 
 public enum ItemStatus
 {

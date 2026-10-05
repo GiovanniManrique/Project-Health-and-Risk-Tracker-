@@ -1,0 +1,350 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light">
+<title>Understand & present · Project Health Tracker</title>
+<style>
+:root{--ink:#152c3b;--muted:#496170;--paper:#f3f5f2;--white:#fff;--line:#ccd8d6;--teal:#006b61;--tint:#e4f3ec;--blue:#eaf1ff;--amber:#fff2d6;--red:#9b283d}*{box-sizing:border-box}body{margin:0;background:var(--paper);color:var(--ink);font:17px/1.65 system-ui,-apple-system,"Segoe UI",sans-serif}button,input,select,textarea{font:inherit}button,select{cursor:pointer}button{border:1px solid var(--line);background:white;border-radius:8px;padding:9px 15px;color:var(--ink);font-weight:650}button:hover{background:var(--tint)}button:disabled{opacity:.5;cursor:default}button.primary{background:var(--teal);border-color:var(--teal);color:white}button.primary:hover{background:#00544d}button:focus-visible,a:focus-visible,summary:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-visible{outline:3px solid #157ed3;outline-offset:3px}h1,h2,h3{line-height:1.2;margin:.25em 0 .65em;letter-spacing:-.025em}h1{font-size:clamp(30px,4vw,49px);max-width:800px}h2{font-size:30px}h3{font-size:21px}p{margin:.6em 0 1em}code{font: .91em/1.5 Consolas,"Cascadia Code",monospace;background:#edf1f4;border-radius:4px;padding:2px 5px;overflow-wrap:anywhere}a{color:var(--teal)}strong{font-weight:720}.wrap{max-width:1330px;margin:auto;padding:24px 32px}.top{background:var(--ink);color:white}.top .wrap{padding-top:29px;padding-bottom:26px}.top p{color:#d3e3e6;margin:0;max-width:780px}.eyebrow{text-transform:uppercase;letter-spacing:.13em;font-size:12px;font-weight:800;margin:0 0 12px}.nav{display:flex;gap:8px;flex-wrap:wrap;margin-top:23px}.nav button{background:#26434f;color:#fff;border-color:#49636d}.nav button[aria-selected=true]{background:white;color:var(--ink);border-color:white}.panel[hidden], [hidden]{display:none!important}.lead{font-size:21px;max-width:900px}.small{font-size:14px;color:var(--muted)}.muted{color:var(--muted)}.grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:18px}.two{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:20px}.card{background:white;border:1px solid var(--line);border-radius:12px;padding:23px;margin:18px 0}.grid>.card,.two>.card{margin:0}.notice{border-left:4px solid var(--teal);background:var(--tint);padding:16px 20px;border-radius:0 8px 8px 0;margin:20px 0}.warning{border-color:#b77a00;background:var(--amber)}.talk{background:var(--blue);border-left:4px solid #4774b1;padding:18px 20px;margin:18px 0;border-radius:0 8px 8px 0}.label{font-size:12px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);margin:0 0 8px}.talk .label{color:#385d8f}.talk p:last-child,.notice p:last-child{margin-bottom:0}.buttons{display:flex;gap:10px;align-items:center;flex-wrap:wrap}.space{justify-content:space-between}.vocab{display:grid;grid-template-columns:160px 1fr;gap:12px 22px}.vocab dt{font-weight:750}.vocab dd{margin:0;padding-bottom:12px;border-bottom:1px solid var(--line)}.object{border:2px solid var(--teal);padding:18px;border-radius:10px;background:#f5fffa}.object ul{margin:8px 0;padding-left:22px}.object strong{color:var(--teal)}.tokens{display:flex;gap:7px;flex-wrap:wrap;margin:12px 0}.tokens button{font-family:Consolas,monospace}.tokens button[aria-pressed=true]{background:var(--teal);color:white}.flow{display:flex;gap:10px;align-items:stretch;flex-wrap:wrap}.flow>div{flex:1;min-width:150px;padding:14px;background:#fff;border:1px solid var(--line);border-radius:8px}.flow b{display:block}.flow span{font-size:15px;color:var(--muted)}.filebar{display:flex;gap:8px;flex-wrap:wrap;margin:14px 0}.filebar button{font-size:14px}.filebar button[aria-current=true]{background:var(--ink);color:white}.lesson-controls{display:grid;grid-template-columns:1fr auto;gap:16px;align-items:end}.lesson-controls select{width:100%;max-width:760px;padding:10px;border:1px solid var(--line);border-radius:8px;background:#fff;color:var(--ink)}progress{width:100%;height:7px;accent-color:var(--teal)}.lesson-grid{display:grid;grid-template-columns:minmax(0,1.07fr) minmax(0,1fr);gap:22px;align-items:start;margin-top:20px}.source-pane{min-width:0;position:sticky;top:14px;background:#152b39;color:#e6f0f3;border-radius:12px;overflow:hidden}.source-head{padding:15px 18px;border-bottom:1px solid #34505e;font-size:14px}.source-head .path{overflow-wrap:anywhere;color:#acd6d2}.source-head button{font-size:13px;padding:5px 10px}.code-scroll{max-height:74vh;overflow:auto;padding:12px 0}.source-pane code{display:block;background:none;padding:0;border-radius:0;font-size:14px;line-height:1.65;color:inherit;white-space:pre;overflow-wrap:normal}.codeline{display:block;min-height:23px;width:max-content;min-width:100%;padding-right:18px}.codeline .ln{display:inline-block;width:43px;padding-right:12px;text-align:right;color:#92aeba;user-select:none}.codeline.hl{background:#314f42}.codeline.flash{background:#56511e}.comment{color:#98c6a6}.string{color:#ffd09e}.keyword{color:#9bcdff}.line-note{display:grid;grid-template-columns:52px 1fr;gap:12px;align-items:start;margin:14px 0}.line-note button{padding:3px;font-size:14px}.line-note p{margin:0}.lesson-explain .card{margin-top:0}.lesson-explain .plain{font-size:20px}.lesson-explain details{margin:16px 0;background:white;border:1px solid var(--line);border-radius:8px;padding:14px 17px}summary{cursor:pointer;font-weight:700}details p{margin-bottom:0}.bottom-nav{border-top:1px solid var(--line);margin-top:24px;padding-top:20px}.metric{font-size:38px;line-height:1.2;font-weight:800}.badge{display:inline-block;padding:5px 11px;background:var(--tint);border-radius:30px;font-size:15px;font-weight:700}.badge.bad{background:#fce5e8;color:var(--red)}.badge.warn{background:var(--amber);color:#744700}label.field{display:block;font-weight:600;margin:12px 0}select,input[type=number],textarea{border:1px solid #91a8ab;border-radius:6px;padding:8px;color:var(--ink);background:#fff}label.field select{display:block;width:100%;margin-top:4px}input[type=range]{width:100%;accent-color:var(--teal)}.rule-step{border-left:3px solid var(--line);padding:8px 15px;margin:10px 0}.rule-step.active{border-color:var(--teal);background:var(--tint)}.timeline{counter-reset:section}.timeline>article{background:white;border:1px solid var(--line);border-radius:12px;padding:23px;margin:16px 0}.time{font-size:14px;font-weight:750;color:var(--teal);margin-bottom:8px}.script-text{font-size:19px;max-width:980px}.demo{background:#162c39;color:#e6f0f3;border-radius:10px;padding:20px;white-space:pre-wrap;font:15px/1.6 Consolas,monospace;overflow-wrap:anywhere}.table-scroll{overflow-x:auto}table{width:100%;border-collapse:collapse;font-size:15px}th,td{text-align:left;padding:12px;border-bottom:1px solid var(--line);vertical-align:top}th{background:#ecf1f1}td:first-child{font-weight:650;min-width:130px}.question{background:white;border:1px solid var(--line);border-radius:10px;padding:20px;margin:15px 0;min-width:0}.question legend{font-weight:700;padding:0 7px}.option{display:block;cursor:pointer;border-radius:6px;padding:7px}.option:hover{background:#eef6f2}.option input{margin-right:9px;accent-color:var(--teal)}textarea{width:100%;min-height:110px;resize:vertical;line-height:1.6}.feedback{margin-top:12px;padding:12px;background:#eef4f8;border-radius:6px}.feedback.correct{background:var(--tint)}.feedback.wrong{background:#fcecf0}.rubric label{display:block;padding:8px}.result{font-size:23px;font-weight:750}.study-note{border-top:1px solid var(--line);padding-top:18px;margin-top:28px}.footer{margin-top:28px;border-top:1px solid var(--line);font-size:13px;color:var(--muted)}.skip{position:absolute;left:-10000px}.skip:focus{left:20px;top:10px;background:white;padding:10px;z-index:3}#term-search{width:100%;max-width:500px}#timer{font-variant-numeric:tabular-nums;font-size:25px;font-weight:750}
+.codeline{display:flex;width:100%;min-width:0}.codeline .ln{flex:0 0 43px}.code-text{min-width:0;white-space:pre-wrap;overflow-wrap:anywhere}
+@media(max-width:900px){.wrap{padding:20px}.grid{grid-template-columns:1fr}.lesson-grid{grid-template-columns:1fr}.source-pane{position:static}.code-scroll{max-height:440px}.two{grid-template-columns:1fr}.lesson-controls{grid-template-columns:1fr}.vocab{grid-template-columns:115px 1fr}.source-pane code{font-size:13px}h2{font-size:26px}}
+@media print{.top,.nav,.filebar,.lesson-controls,.bottom-nav,.buttons,.footer{display:none!important}.panel{display:block!important;break-before:page}.source-pane{position:static}.code-scroll{max-height:none}body{font-size:12px}.wrap{padding:0}.card,.timeline>article{break-inside:avoid}.lesson-grid{display:block}#quiz-form{display:none}}
+</style>
+</head>
+<body>
+<a class="skip" href="#main">Skip to learning content</a>
+<header class="top"><div class="wrap">
+<div class="eyebrow">Project Health & Risk Tracker · Your code, explained</div>
+<h1>Understand it. Then explain it.</h1>
+<p>Start with one project and one risk. Learn the words, follow the actual code, then rehearse a short demonstration.</p>
+<nav class="nav" aria-label="Guide sections" role="tablist">
+<button role="tab" id="tab-start" aria-controls="start" aria-selected="true" data-tab="start">1 · Start here</button>
+<button role="tab" id="tab-code" aria-controls="code" aria-selected="false" data-tab="code">2 · Read the code</button>
+<button role="tab" id="tab-trace" aria-controls="trace" aria-selected="false" data-tab="trace">3 · See it happen</button>
+<button role="tab" id="tab-present" aria-controls="present" aria-selected="false" data-tab="present">4 · Present in 9 minutes</button>
+<button role="tab" id="tab-practice" aria-controls="practice" aria-selected="false" data-tab="practice">5 · Practice</button>
+</nav></div></header>
+<main id="main" class="wrap">
+<section class="panel" id="start" role="tabpanel" aria-labelledby="tab-start">
+<p class="eyebrow">Begin with the purpose</p><h2>“This program tells me which projects need attention.”</h2>
+<p class="lead">It holds three fictional projects. You can view their work, change a status, and ask a local AI to explain an open risk. C# calculates health. Qwen writes advice.</p>
+<div class="talk"><div class="label">Your opening sentence</div><p>“My project is a console-based project health tracker. It stores tasks, milestones, and risks, applies simple rules to calculate health, and uses a local AI model to explain one selected risk. I’ll show the data structure first, then the rules, then how the menu connects everything.”</p></div>
+<p><strong>C#</strong> is the language these instructions are written in. <strong>.NET</strong> supplies reusable classes and runs the built application. <strong>Visual Studio</strong> helps us edit, build, and debug it. <strong>Bionic</strong> is a separate program that receives our local AI requests and uses Qwen to generate advice.</p>
+<div class="grid">
+<article class="card"><div class="label">Class 1 · the coordinator</div><h3>Program</h3><p>Starts the app, creates the examples, handles typed choices, and talks to Bionic.</p><p class="small">Think: the instructions that keep the demonstration moving.</p></article>
+<article class="card"><div class="label">Class 2 · one whole project</div><h3>Project</h3><p>Holds a project's name, manager, and item list. Counts risks and calculates health.</p><p class="small">Think: one project record with work inside it.</p></article>
+<article class="card"><div class="label">Class 3 · one piece of work</div><h3>ProjectItem</h3><p>Holds one task, milestone, or risk. Checks status changes and returns details.</p><p class="small">Think: one entry inside a project's list.</p></article>
+</div>
+<div class="notice"><strong>None is a custom parent class.</strong> Inheritance means defining a class using another class as its starting point. The starting class is the parent or base class; the new class is the child or subclass. Here Project <em>contains</em> ProjectItem objects; it does not provide their class definition. Task, Milestone, and Risk are enum choices. All C# classes implicitly inherit from the built-in <code>object</code> type; we did not design our own inheritance hierarchy.</div>
+<article class="card"><h3>Seven words to learn first</h3><dl class="vocab">
+<dt>Type</dt><dd>Tells C# what kind of value something can hold. <code>int</code> means a whole number; <code>Project</code> means a Project object reference. A class defines one kind of type.</dd>
+<dt>Class</dt><dd>A definition of what something can hold and do. <code>Project</code> defines the information and actions for a project.</dd>
+<dt>Object</dt><dd>One actual instance made from a class. The Project object named <strong>Inventory System</strong> has its own manager and items.</dd>
+<dt>Variable</dt><dd>A named place to hold a value or a reference to an object. <code>inventory</code> refers to one Project object; <code>count</code> holds a number.</dd>
+<dt>Property</dt><dd>A named value belonging to an object. <code>inventory.Name</code> is “Inventory System.” It is data you read or set, rather than an action you call.</dd>
+<dt>Method</dt><dd>A named set of instructions that does a job. <code>CalculateHealth()</code> examines items and returns a result. Parentheses after its name call it.</dd>
+<dt>Enum</dt><dd>A type with named choices. <code>ItemType</code> is the enum; <code>ItemType.Risk</code> is one choice.</dd>
+</dl><p><strong>A .cs file is a C# source file.</strong> It can contain a class, several classes, enums, or other C# code. Here, StatusTypes.cs contains three enums.</p></article>
+<div class="two"><article class="card"><h3>The definition</h3><p><code>Project</code> says every project object has:</p><ul><li>Id: a number</li><li>Name and Manager: text</li><li>Items: a list of ProjectItem objects</li><li>Methods that count and calculate</li></ul><p><code>new Project(2, "Inventory System", "Taylor Smith")</code> creates one object using that definition.</p></article>
+<article class="card"><h3>One actual object</h3><div class="object"><strong>inventory → Project object</strong><div>Id = 2</div><div>Name = “Inventory System”</div><div>Manager = “Taylor Smith”</div><div>Items contains:</div><ul><li>201 · Create item classes · Task</li><li>202 · First working demo · Milestone</li><li>203 · Scanner hardware may arrive late · Risk</li></ul></div><p class="small">The arrow means “refers to.” A reference lets two methods work with the same object instead of copying it.</p></article></div>
+<article class="card"><h3>Read one line without guessing</h3><p>Click each part of this real line from Program.cs, line 16.</p><div class="tokens" id="tokens"></div><div id="token-meaning" class="notice" aria-live="polite"></div><p class="small">The previous MockProjectData class was removed. CreateSampleProjects is now a method inside Program. It supplies made-up classroom examples; “mock data” simply means example data here.</p></article>
+<h3>The two paths through this app</h3><div class="flow"><div><b>Normal status update</b><span>Menu → select an item → validate its new status → change the object → recalculate health</span></div><div><b>AI explanation</b><span>Menu → choose an open risk → build a prompt → local Bionic / Qwen → print advice in the console</span></div></div>
+<p>Only the first path changes item data. The AI path reads the selected information and returns words.</p>
+<div class="notice"><strong>Reading order:</strong> StatusTypes.cs → ProjectItem.cs → Project.cs → Program.cs.<br>We learn choices, then one item, then a project, then the coordinator. <strong>Execution still starts in Program.Main.</strong> Reading order is not execution order.</div>
+<button class="primary" data-go="code">Begin the file-by-file walkthrough →</button>
+<details class="card"><summary>Word & symbol lookup — use whenever you get stuck</summary><p><input id="term-search" type="search" placeholder="Find a word, e.g. return, null, HTTP" aria-label="Find a programming term"></p><dl class="vocab" id="glossary"></dl></details>
+</section>
+<section class="panel" id="code" role="tabpanel" aria-labelledby="tab-code" hidden>
+<div class="eyebrow">One file at a time · exact source</div><h2 id="lesson-title"></h2>
+<div id="filebar" class="filebar" aria-label="Choose code file"></div>
+<div class="lesson-controls"><label>Choose a section <select id="lesson-select"></select></label><div id="lesson-progress" class="small"></div></div><progress id="progress" max="29" value="1" aria-label="Current section"></progress>
+<div class="lesson-grid"><div class="source-pane"><div class="source-head"><div class="path" id="source-path"></div><div class="buttons space"><span id="source-range"></span><button id="whole-file" aria-pressed="false">Show whole file</button></div></div><div class="code-scroll" id="code-scroll"><code id="code-view"></code></div></div>
+<div class="lesson-explain" id="lesson-explain"></div></div>
+<div class="bottom-nav buttons space"><button id="prev-lesson">← Previous section</button><button id="next-lesson" class="primary">Next section →</button></div>
+<p class="small study-note">Study these 29 sections at your own pace. The nine-minute presentation groups them into a few ideas; you do not need to read every line aloud. The source snapshot is generated from the four application files. Tests and this teaching page are separate support material.</p>
+</section>
+<section class="panel" id="trace" role="tabpanel" aria-labelledby="tab-trace" hidden>
+<div class="eyebrow">See cause and effect</div><h2>Change one value. Watch the rules.</h2><p class="lead">This is an educational simulation in your browser. It does not edit your C# project or call AI.</p>
+<div class="two"><article class="card"><h3>1. Set the situation</h3><p>Imagine one project with a risk and a milestone.</p><label class="field">Risk status<select id="sim-status"><option>Open</option><option>Closed</option></select></label><label class="field">Likelihood rating: <output id="prob-label">4</output> / 5<input id="sim-prob" type="range" min="1" max="5" value="4"></label><label class="field">Impact rating: <output id="impact-label">5</output> / 5<input id="sim-impact" type="range" min="1" max="5" value="5"></label><label class="field">Milestone<select id="sim-milestone"><option value="future">Unfinished, due in 10 days</option><option value="late">Unfinished, 3 days overdue</option><option value="today">Unfinished, due today</option><option value="done">Completed, old due date</option><option value="none">Unfinished, no due date</option></select></label><button id="sim-reset">Reset to Inventory example</button></article>
+<article class="card"><h3>2. Read the result</h3><div class="two"><div><div class="label">Priority score</div><div class="metric" id="sim-score">20/25</div><p class="small">Likelihood × impact.<br>Not a percentage.</p></div><div><div class="label">Project health</div><div id="sim-health" class="badge bad">OffTrack</div><p class="small">Separate rules.<br>Not calculated by AI.</p></div></div><div id="sim-reason" class="notice" aria-live="polite"></div><div id="rule-high" class="rule-step">First: open risk with impact ≥ 4 → OffTrack.</div><div id="rule-medium" class="rule-step">Otherwise: any open risk or overdue unfinished milestone → AtRisk.</div><div id="rule-low" class="rule-step">Otherwise → OnTrack.</div><p class="small">Closing a risk does not erase its numeric ratings. It stops that risk from affecting health.</p></article></div>
+<div class="talk"><div class="label">Try this, then explain it</div><p>Set likelihood to 1 and impact to 4. The score is only 4/25, but health is still OffTrack because the open risk's impact is 4. Now close the risk. With no overdue unfinished milestone, health becomes OnTrack.</p></div>
+<h3>Where the real AI fits</h3><div class="flow"><div><b>1 · C# builds text</b><span>Project name + health + selected risk details</span></div><div><b>2 · Bionic receives it</b><span>Local API on this computer; Qwen must be loaded</span></div><div><b>3 · Qwen generates words</b><span>Risk, why it matters, and one action</span></div><div><b>4 · Console prints it</b><span>Project data stays unchanged</span></div></div>
+<article class="card"><h3>What comes back over the connection?</h3><p>HTTP is the set of rules used to send requests and responses. The response body uses JSON: structured text with named values and lists. This tiny example shows the format, <strong>not a recorded model answer</strong>:</p><div class="demo">{"output":[{"type":"message","content":"Example advice."}]}</div><p>The code reads the <code>output</code> list, finds an entry whose <code>type</code> is <code>message</code>, and extracts <code>content</code>. It returns “Example advice.” to ReviewRiskAsync, which prints the text. Square brackets hold a JSON list; braces hold an object with named values.</p></article>
+<article class="card"><div class="label">Recorded live test · October 5, 2026 · not a new AI call</div><h3>The actual Qwen reply from this computer</h3><div class="demo">Risk: Scanner hardware delay jeopardizes the scheduled demo and prevents necessary scanning tests.
+
+Why: The supplier missed the delivery date with no confirmed replacement timeline, creating a critical path blockage for the project.
+
+Next Action: Implement the current plan by using manual item numbers immediately to ensure the demo proceeds while continuing to monitor for scanner arrival.</div><p>The input scenario was fictional; the local model really generated this reply. “Critical path blockage” is the model's wording, not a calculated schedule dependency in our code. Future wording may differ and should be checked.</p></article>
+</section>
+<section class="panel" id="present" role="tabpanel" aria-labelledby="tab-present" hidden>
+<div class="eyebrow">A route you can rehearse</div><h2>Your nine-minute presentation</h2><p class="lead">Keep Visual Studio in this file order. Explain the purpose of each block; do not read punctuation aloud. Use the full walkthrough when preparing, and this script when rehearsing.</p>
+<div class="buttons"><button id="timer-start" class="primary">Start 9-minute rehearsal</button><button id="timer-reset">Reset timer</button><output id="timer" aria-label="Time remaining">9:00</output></div>
+<div class="notice">Before presenting: open ProjectHealthTracker.slnx in Visual Studio, load Qwen 3.5 9B in Bionic, and enable Bionic's Local Model API. Run with <strong>Ctrl+F5</strong>. Start a fresh app session so the statuses match this script. Keep Bionic's runtime running; the chat window need not be in front.</div>
+<div class="timeline">
+<article><div class="time">0:00–0:45 · Purpose and map</div><h3>Open with the problem</h3><p class="script-text">“This program tracks fictional project work. A task is a piece of work, a milestone is a checkpoint, and a risk is a possible problem. The program groups these under each project. I can update their status and see whether a project needs attention. I can also ask a local model for a short risk explanation. There are three application classes: Program coordinates the app, Project represents a whole project, and ProjectItem represents one task, milestone, or risk.”</p></article>
+<article><div class="time">0:45–1:15 · StatusTypes.cs · lines 5–27</div><h3>Show the available choices</h3><p class="script-text">“I’ll explain the definitions before the entry point. This file contains enums, which are types with named choices. ItemType says what the item is; ItemStatus says its state; HealthStatus is the project's calculated result. These names avoid inconsistent text. The status method still checks which choices are appropriate for a risk versus a task.”</p></article>
+<article><div class="time">1:15–2:45 · ProjectItem.cs · top to bottom</div><h3>Explain one item</h3><p class="script-text">“ProjectItem is a class: it defines what each item holds and can do. The scanner risk is one object made from this class. Its properties hold its own title, owner, type, status, and risk information. The constructor fills in starting values when new creates an object. Type stays fixed after construction. Status has a private setter, so outside code asks ChangeStatus to make a validated change.”</p><p class="script-text">“GetAllowedStatuses returns the valid choices. ChangeStatus checks that list before assigning Status. CalculateScore multiplies likelihood by impact. For the sample scanner risk, four times five gives twenty out of twenty-five. That is a priority score, not an eighty-percent chance. GetDetails returns a readable description. It does not print anything itself.”</p><p class="small"><strong>Why this design:</strong> one item class reduces files; the tradeoff is unused risk fields on tasks. This version has no custom inheritance hierarchy.</p></article>
+<article><div class="time">2:45–4:00 · Project.cs · top to bottom</div><h3>Explain the whole project</h3><p class="script-text">“Project holds a name, manager, and list of items. A project contains item objects; it is not their parent class. The constructor gives each new project its starting values. CountOpenRisks loops through Items and counts only entries that are both risks and open.”</p><p class="script-text">“CalculateHealth applies our classroom rules. An open risk with impact four or five immediately returns OffTrack. Otherwise any open risk or late unfinished milestone makes it AtRisk. Otherwise it returns OnTrack. A flag remembers a smaller problem while the loop continues looking for a high-impact risk. Health is recalculated from current item data, so closing a risk changes the next result. AI does not make this decision.”</p></article>
+<article><div class="time">4:00–6:30 · Program.cs · top to bottom</div><h3>Connect the pieces</h3><p class="script-text">“Program.Main is the entry point. CreateSampleProjects returns a list of Project objects. In List&lt;Project&gt; projects, the first part is the type and projects is a local variable referring to that list. Main also creates one HTTP client for local requests. Its loop prints the menu, and switch calls the method matching the typed option.”</p><p class="script-text">“ShowProjects prints current results. ReadProject and ReadItem translate typed IDs into existing objects. TryParse rejects non-numbers without crashing. UpdateStatus shows the selected item's allowed choices. It converts the user's one-based menu number to a zero-based list position, then calls ChangeStatus. The item in the project's list is the same object, so health can immediately be recalculated.”</p><p class="script-text">“For AI, ReviewRiskAsync selects an open risk, previews its information, and asks for confirmation. GetLoadedModelAsync checks that our exact Qwen model is loaded. ExplainRiskAsync builds text from the selected information and serializes a request to JSON, a structured text format. HttpClient sends it to Bionic on this computer. await lets the code wait for completion before continuing. We extract the returned message and print it in the console. Errors return readable messages; they are not fake AI answers.”</p><p class="script-text">“At the bottom, CreateSampleProjects calls our constructors and adds items to each project's list. It returns the three example projects. The data is in memory, so restarting resets it.”</p></article>
+<article><div class="time">6:30–8:15 · Console demonstration</div><h3>Show a real change and a real answer</h3><p>Enter each value on its own line, pressing Enter after it.</p><div class="table-scroll"><table><thead><tr><th>Type</th><th>What to show and say</th></tr></thead><tbody>
+<tr><td>1</td><td>“We start with one project in each health category.”</td></tr><tr><td>2 → 2</td><td>“Inventory's scanner risk is open. Its ratings are 4 and 5.”</td></tr><tr><td>3 → 2 → 203 → 2</td><td>“I choose Closed. Inventory becomes OnTrack because its other items do not trigger a health warning.”</td></tr><tr><td>3 → 3 → 302 → 3</td><td>“I complete the late milestone. Training also becomes OnTrack.”</td></tr><tr><td>1</td><td>“All three are now OnTrack.” The deterministic status demonstration is complete.</td></tr><tr><td>3 → 2 → 203 → 1</td><td>“I reopen the scanner risk for the AI example. Inventory returns to OffTrack.”</td></tr><tr><td>4 → 2 → 203 → y</td><td>“This sends the selected facts to local Qwen and displays its answer here.” Make this the final console action during the timed presentation.</td></tr>
+</tbody></table></div><p class="small">The console cannot accept another menu choice until the AI operation finishes. If it takes more than about 10 seconds, show the explicitly labelled recorded reply in “See it happen” and move to your closing explanation. Say that the live request is still pending; the recorded reply is not a new result. You have already demonstrated all status changes. The app allows up to two minutes, and you can enter 5 to exit after it returns. If it fails, describe the error honestly; the tracker demonstration is already complete.</p></article>
+<article><div class="time">8:15–9:00 · Tradeoffs and finish</div><h3>Show you understand the limits</h3><p class="script-text">“This is a small classroom demo, so I kept three application classes and used fixed sample objects. It does not save edits or measure real-world risk. The score and health are simple rules; the local model only explains the supplied situation. AI wording can be wrong, so the app never uses it to change project data. The networking block is the most advanced part. In a larger application, I would separate that code again and add persistent storage.”</p><p class="small">If asked about assistance, describe it honestly. Explaining and verifying the design is more useful than pretending to have written every line without help.</p></article>
+</div>
+<details class="card"><summary>Questions a coding audience may ask — with answers you can understand</summary><div id="audience-questions"></div></details>
+<details class="card"><summary>Every application method and constructor — a quick reference</summary><div class="table-scroll"><table><thead><tr><th>Class</th><th>Name</th><th>Inputs → result / effect</th></tr></thead><tbody id="method-map"></tbody></table></div><p class="small">These are authored application methods. C# library calls such as WriteLine, Add, and TryParse are provided by .NET. Test helpers are separate from the three application classes.</p></details>
+</section>
+<section class="panel" id="practice" role="tabpanel" aria-labelledby="tab-practice" hidden>
+<div class="eyebrow">Practice privately · no AI or upload</div><h2>Explain it without the script</h2><p class="lead">Ten multiple-choice questions and two written answers. Try first; then compare your explanation with the criteria.</p>
+<div class="notice"><strong>How scoring works:</strong> 10 automatically scored points + 2 written points that <em>you</em> score against disclosed criteria. Below 70% starts a repeat-practice cycle; it continues until you reach at least 90%. At 70–89%, another round is offered to reach the same target. You can return to the lessons anytime. A score is practice feedback, not proof that you can present.</div>
+<div id="quiz-status" class="small" aria-live="polite"></div><div id="quiz-root"></div>
+</section>
+<footer class="footer"><p>Offline learning guide for the simplified console version. No network requests, API keys, or model calls are made by this page. The app uses Bionic separately. Regenerate this source snapshot with presentation/build_guide.py after code edits and review the explanations for changed behavior.</p><details><summary>Source snapshot fingerprints</summary><div id="hashes"></div></details></footer>
+</main>
+<script id="guide-data" type="application/json">__GUIDE_DATA__</script>
+<script>
+const DATA=JSON.parse(document.getElementById("guide-data").textContent);
+const $=id=>document.getElementById(id);
+const esc=s=>String(s).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+let lessonIndex=0,wholeFile=false;
+const files=Object.keys(DATA.sources);
+function showTab(id){
+ document.querySelectorAll(".panel").forEach(p=>p.hidden=p.id!==id);
+ document.querySelectorAll("[data-tab]").forEach(b=>b.setAttribute("aria-selected",b.dataset.tab===id));
+ window.scrollTo({top:0,behavior:"instant"});
+}
+document.querySelectorAll("[data-tab]").forEach(b=>b.addEventListener("click",()=>showTab(b.dataset.tab)));
+document.querySelectorAll("[data-go]").forEach(b=>b.addEventListener("click",()=>showTab(b.dataset.go)));
+document.querySelector(".nav").addEventListener("keydown",e=>{
+ const bs=[...document.querySelectorAll("[data-tab]")],i=bs.indexOf(document.activeElement);
+ if(i<0)return;
+ let next;
+ if(e.key==="ArrowRight")next=(i+1)%bs.length;
+ if(e.key==="ArrowLeft")next=(i+bs.length-1)%bs.length;
+ if(e.key==="Home")next=0;
+ if(e.key==="End")next=bs.length-1;
+ if(next!==undefined){e.preventDefault();bs[next].focus();showTab(bs[next].dataset.tab);}
+});
+const parts=[
+ ["List<Project>","TYPE · List is a reusable class supplied by .NET. <Project> says this list contains Project objects. It is not a method call."],
+ ["projects","VARIABLE NAME · This local variable refers to the list returned by CreateSampleProjects. It is not the name of a new class."],
+ ["=","ASSIGNMENT · Store the value from the right in the variable on the left. A single = assigns; == compares."],
+ ["CreateSampleProjects()","METHOD CALL · Ask Program's CreateSampleProjects method to run. It creates three project objects, collects them in a list, and returns that list. () calls it with no inputs."],
+ [";","END OF STATEMENT · This marks the end of the instruction."]
+];
+$("tokens").innerHTML=parts.map((p,i)=>'<button data-token="'+i+'" aria-pressed="'+(i===0)+'">'+esc(p[0])+'</button>').join("");
+function token(i){$("token-meaning").textContent=parts[i][1];document.querySelectorAll("[data-token]").forEach(b=>b.setAttribute("aria-pressed",Number(b.dataset.token)===i));}
+document.querySelectorAll("[data-token]").forEach(b=>b.addEventListener("click",()=>token(Number(b.dataset.token))));token(0);
+const glossary=[
+ ["Type","A kind of value, such as int for a whole number, string for text, or Project for a Project object reference."],
+ ["Reference","A value that lets code reach an object. A local variable and a list entry can both refer to the same object; changing the object through one is visible through the other."],
+ ["Constructor / new","The constructor sets up a new object. new Project(...) creates an object and calls Project's constructor with the values in parentheses."],
+ ["Parameter / argument","A parameter is a named input in a definition, such as int id. An argument is the actual value supplied in a call, such as 2."],
+ ["Return / void","return sends a result back to the caller and ends the method. void means no result value is returned; return; can still exit early."],
+ ["Caller","The code that asks a method to run. Main is the caller when it runs ShowProjects(projects)."],
+ ["public / private","public allows other code to access a member. private limits access to the containing class."],
+ ["get / set","Read or assign a property. Status has private set, so outside code cannot assign it directly. Type has only get and is assigned during construction."],
+ ["static","Belongs to the class. Program's static methods can be called without creating a Program object. Project's instance methods use one particular project's data."],
+ ["const","A value fixed in the program code, like BionicUrl. Editing it requires rebuilding the program."],
+ ["null / ? / ?.","null means no value or object reference. Project? allows null. choice?.Trim() calls Trim only if choice is not null."],
+ ["List<T> / index","List is a .NET collection class; T is the kind of elements. Positions, called indexes, start at 0. The second element has index 1."],
+ ["= / == / !=","= assigns a value. == checks equality. != checks inequality."],
+ ["&& / || / !","&& means AND; || means OR; ! means NOT. && and || stop checking as soon as the result is decided (short-circuiting)."],
+ ["if / else","Choose instructions based on whether a condition is true or false."],
+ ["foreach / for","foreach visits each element of a collection. for repeats using an explicit start, condition, and update, such as an index counter."],
+ ["switch / case / break","switch chooses a case matching a value. break leaves the switch here; it does not exit Main."],
+ ["() / { } / ;","Parentheses hold inputs in method declarations/calls or group expressions. Braces group code or initializer values. Semicolons end statements."],
+ [". / $ / \\n","A dot selects a member, like project.Name. $ before text allows {values} inside it. \\n adds a line break."],
+ ["using / namespace","A namespace groups names. A using directive imports names. A using declaration inside a method instead releases a disposable resource when its scope ends."],
+ ["Inheritance","A class can use another class as its starting point. The starting class is the base/parent, and the new class is the derived/child. This app's domain classes use containment instead."],
+ ["Encapsulation","Keep data and related behavior together, while controlling access. Status's private setter plus ChangeStatus is an example: a method controls valid updates."],
+ ["Composition / containment","A Project has an Items list containing ProjectItem objects. It has items; it is not a kind of ProjectItem. This is a contains relationship."],
+ ["async / await / Task","Task represents work that can finish later. async permits await in a method. await gets the completed result before this method continues. The console menu waits for the AI operation; Task here is unrelated to ItemType.Task."],
+ ["API / server / HTTP","An API is an agreed way for programs to interact. The server receives requests. HTTP is the request/response communication protocol. Here both programs run on this computer."],
+ ["GET / POST","GET asks for information, such as loaded models. POST sends data for an operation, such as generating a chat reply."],
+ ["JSON / serialize / parse","JSON is structured text with named values and lists. Serialize converts C# values into that text; parse reads the text into a structure code can inspect."],
+ ["Exception / try / catch","An exception reports a failure. try wraps work that may fail. A matching catch handles the failure, here by returning a readable message."],
+ ["Cancellation token","A signal an operation can watch to stop. Here the model-list request gets a stop signal after five seconds."],
+ ["Output token","A piece of text produced by a language model. It is not necessarily one word, and is unrelated to a cancellation token."],
+ ["Model / loaded instance","Qwen is the trained language model. A loaded instance is a copy in memory ready for requests. Downloaded files alone are not a loaded model."],
+ ["Prompt / inference","A prompt is text sent to the model. Inference is the model using its learned patterns to generate an answer. This app does not train the model."]
+];
+function renderGlossary(){const q=$("term-search").value.toLowerCase();$("glossary").innerHTML=glossary.filter(g=>g.join(" ").toLowerCase().includes(q)).map(g=>"<dt>"+esc(g[0])+"</dt><dd>"+esc(g[1])+"</dd>").join("")||"<dt>No match</dt><dd>Try a shorter term.</dd>";}
+$("term-search").addEventListener("input",renderGlossary);renderGlossary();
+$("lesson-select").innerHTML=DATA.lessons.map((l,i)=>'<option value="'+i+'">'+(i+1)+'. '+esc(l.file.split("/").pop())+' · '+esc(l.title)+'</option>').join("");
+$("filebar").innerHTML=files.map((f,i)=>'<button data-file="'+i+'">'+(i+1)+'. '+esc(f.split("/").pop())+'</button>').join("");
+document.querySelectorAll("[data-file]").forEach(b=>b.addEventListener("click",()=>goLesson(DATA.lessons.findIndex(l=>l.file===files[Number(b.dataset.file)]))));
+function colorLine(line){
+ const re=/(\/\/.*|"(?:\\.|[^"\\])*"|\b(?:public|private|static|async|class|enum|namespace|using|const|new|return|if|else|foreach|for|in|while|switch|case|break|default|continue|try|catch|throw|await|int|string|bool|void|null|true|false|get|set|out)\b)/g;
+ let out="",last=0,m;
+ while((m=re.exec(line))){out+=esc(line.slice(last,m.index));const cls=m[0].startsWith("//")?"comment":m[0].startsWith('"')?"string":"keyword";out+='<span class="'+cls+'">'+esc(m[0])+"</span>";last=re.lastIndex;}
+ return out+esc(line.slice(last));
+}
+function renderSource(){
+ const l=DATA.lessons[lessonIndex],lines=DATA.sources[l.file].text.replace(/\n$/,"").split("\n");
+ $("source-path").textContent="ProjectHealthTracker / "+l.file;
+ $("source-range").textContent=wholeFile?"Whole file · current section highlighted":"Lines "+l.start+"–"+l.end+" · "+l.kind;
+ $("whole-file").textContent=wholeFile?"Show this section":"Show whole file";$("whole-file").setAttribute("aria-pressed",wholeFile);
+ const start=wholeFile?1:l.start,end=wholeFile?lines.length:l.end;
+ $("code-view").innerHTML=lines.slice(start-1,end).map((s,i)=>{const n=start+i;return '<span class="codeline '+(wholeFile&&n>=l.start&&n<=l.end?"hl":"")+'" id="line-'+n+'"><span class="ln" aria-hidden="true">'+n+'</span><span class="code-text">'+colorLine(s)+"</span></span>";}).join("");
+ $("code-scroll").scrollTop=0;$("code-scroll").scrollLeft=0;
+ if(wholeFile)requestAnimationFrame(()=>focusLine(l.start));
+}
+function focusLine(n){
+ const el=$("line-"+n);if(!el)return;
+ document.querySelectorAll(".codeline.flash").forEach(e=>e.classList.remove("flash"));el.classList.add("flash");
+ const box=$("code-scroll");box.scrollTop+=el.getBoundingClientRect().top-box.getBoundingClientRect().top-35;
+}
+function renderLesson(){
+ const l=DATA.lessons[lessonIndex];
+ $("lesson-title").textContent=l.title;$("lesson-select").value=lessonIndex;$("lesson-progress").textContent="Section "+(lessonIndex+1)+" of "+DATA.lessons.length;
+ $("progress").max=DATA.lessons.length;$("progress").value=lessonIndex+1;
+ document.querySelectorAll("[data-file]").forEach(b=>b.setAttribute("aria-current",files[Number(b.dataset.file)]===l.file));
+ $("lesson-explain").innerHTML='<article class="card"><div class="label">'+esc(l.kind)+'</div><h3>What this does</h3><p class="plain">'+esc(l.plain)+'</p><h3>Why write it this way?</h3><p>'+esc(l.why)+'</p></article><div class="talk"><div class="label">Say this to your audience</div><p>'+esc(l.say)+'</p></div><details open><summary>Follow the code, one step at a time</summary>'+l.notes.map(n=>'<div class="line-note"><button data-line="'+n.line+'" aria-label="Highlight line '+n.line+'">L'+n.line+'</button><p>'+esc(n.text)+'</p></div>').join("")+'</details><details open><summary>How it connects to the rest</summary><p>'+esc(l.connection)+'</p></details><details><summary>Check your understanding: '+esc(l.question)+'</summary><p>'+esc(l.answer)+'</p></details>';
+ document.querySelectorAll("[data-line]").forEach(b=>b.addEventListener("click",()=>focusLine(Number(b.dataset.line))));
+ $("prev-lesson").disabled=lessonIndex===0;
+ $("next-lesson").textContent=lessonIndex===DATA.lessons.length-1?"See the values change →":"Next: "+DATA.lessons[lessonIndex+1].title+" →";
+ renderSource();
+}
+function goLesson(i){lessonIndex=Math.max(0,Math.min(DATA.lessons.length-1,i));wholeFile=false;renderLesson();window.scrollTo({top:0,behavior:"instant"});}
+$("lesson-select").addEventListener("change",e=>goLesson(Number(e.target.value)));
+$("prev-lesson").addEventListener("click",()=>goLesson(lessonIndex-1));
+$("next-lesson").addEventListener("click",()=>lessonIndex===DATA.lessons.length-1?showTab("trace"):goLesson(lessonIndex+1));
+$("whole-file").addEventListener("click",()=>{wholeFile=!wholeFile;renderSource();});renderLesson();
+function simulation(){
+ const open=$("sim-status").value==="Open",p=Number($("sim-prob").value),impact=Number($("sim-impact").value),late=$("sim-milestone").value==="late";
+ const off=open&&impact>=4,at=!off&&(open||late),health=off?"OffTrack":at?"AtRisk":"OnTrack";
+ $("prob-label").textContent=p;$("impact-label").textContent=impact;$("sim-score").textContent=(p*impact)+"/25";
+ $("sim-health").textContent=health;$("sim-health").className="badge "+(off?"bad":at?"warn":"");
+ $("sim-reason").textContent=off?"The risk is open and impact is at least 4. CalculateHealth returns OffTrack immediately.":at?(open?"There is an open risk with impact below 4. The project needs attention.":"The risk is closed, but the milestone is overdue and unfinished. The project still needs attention."):"There is no open risk and no overdue unfinished milestone. CalculateHealth returns OnTrack.";
+ ["high","medium","low"].forEach((r,i)=>$("rule-"+r).classList.toggle("active",[off,at,!off&&!at][i]));
+}
+["sim-status","sim-prob","sim-impact","sim-milestone"].forEach(id=>$(id).addEventListener("input",simulation));
+$("sim-reset").addEventListener("click",()=>{$("sim-status").value="Open";$("sim-prob").value=4;$("sim-impact").value=5;$("sim-milestone").value="future";simulation();});simulation();
+const methods=[
+ ["ProjectItem","ProjectItem(...) — constructor","id, title, owner, type, starting status → initialize one valid item."],
+ ["ProjectItem","GetAllowedStatuses()","No inputs → List<ItemStatus> of valid choices for this item's type."],
+ ["ProjectItem","ChangeStatus(newStatus)","Requested status → bool success; changes Status only if valid."],
+ ["ProjectItem","CalculateScore()","No inputs → int likelihood × impact."],
+ ["ProjectItem","GetDetails()","No inputs → string describing this item."],
+ ["Project","Project(...) — constructor","id, name, manager → initialize one project."],
+ ["Project","CountOpenRisks()","No inputs → int count from this project's Items."],
+ ["Project","CalculateHealth()","No inputs → HealthStatus from this project's Items."],
+ ["Program","Main()","No inputs → Task; starts the program and runs the menu."],
+ ["Program","ShowProjects(projects)","Project list → void; prints each project and a summary."],
+ ["Program","ReadProject(projects)","Project list → selected Project or null."],
+ ["Program","ViewItems(projects)","Project list → void; selects a project and prints its items."],
+ ["Program","ReadItem(project, openRisksOnly)","Project and bool filter → selected ProjectItem or null."],
+ ["Program","UpdateStatus(projects)","Project list → void; selects an item and validates a status update."],
+ ["Program","ReviewRiskAsync(projects, client)","Project list and HTTP client → Task; selects/confirms, waits, and prints."],
+ ["Program","GetLoadedModelAsync(client)","HTTP client → Task<string?>; eventually returns loaded Qwen instance ID or null."],
+ ["Program","ExplainRiskAsync(client, project, risk)","HTTP client plus project and risk → Task<string>; eventually returns AI text or an error message."],
+ ["Program","CreateSampleProjects()","No inputs → List<Project> containing three new sample projects and nine items."]
+];
+$("method-map").innerHTML=methods.map(r=>"<tr>"+r.map(v=>"<td>"+esc(v)+"</td>").join("")+"</tr>").join("");
+const audience=[
+ ["Where does execution start?","Program.Main. The learning guide starts with definitions to make them easier to understand; the computer starts in Main and follows method calls."],
+ ["What is the difference between a class and an object?","Project is a class defining properties and methods. new Project(...) creates one object. inventory is a local variable referring to that object. Name is one of its properties."],
+ ["What objects are created?","The initial domain data has three Project objects and nine ProjectItem objects. The code also creates supporting library objects such as lists, HttpClient, JSON documents, and a temporary anonymous request object. Program itself is not instantiated."],
+ ["Is Project a parent class?","No. It contains ProjectItem objects in a list. This is containment. The revised application does not use custom domain inheritance; all classes still implicitly derive from .NET's object."],
+ ["Why use one item class rather than inheritance?","For a short teaching project, one class plus an enum reduces the number of definitions to learn. The tradeoff is unused fields and type checks. In a larger app, separate types could become worthwhile."],
+ ["Where is encapsulation used?","ProjectItem combines data and related methods. Status has a private setter, so normal external changes must go through ChangeStatus and its validation. Other public properties have less protection; this is not full validation of every field."],
+ ["Why a List instead of an array?","List provides a clear Add method for building the sample collection and a Count property for numbered choices. An array could also work for fixed sample data; List leaves simple room for adding items later."],
+ ["Are three classes really all the classes used?","Three named application classes are authored here. The program also uses .NET classes such as List and HttpClient, and C# creates an anonymous type for the request. Test code has helper classes."],
+ ["Does the model calculate the probability or health?","No. The sample ratings are written in CreateSampleProjects. C# multiplies the ratings and calculates health using its own rules. The model explains the selected fictional situation and suggests an action."],
+ ["Does 20/25 mean 80%?","No. It is a priority score from multiplying two ratings, not a probability estimate. Project health also does not use that score; it checks open risk impact and overdue milestones."],
+ ["How is the model connected?","HttpClient sends JSON to Bionic's local API. A GET checks for the loaded Qwen instance; a POST asks for an explanation. The returned message is extracted and printed in the same console."],
+ ["Why async/await?","HTTP calls finish later. await expresses 'continue after this result is ready' without manually managing threads. This console still waits for the AI review before showing the menu again."],
+ ["Do you train the model?","No. We use an already-trained local Qwen model for inference: generating an answer from a prompt. Our fictional project data is input, not model training."],
+ ["What if the model is unavailable or makes a mistake?","Expected failures become readable messages and the menu remains usable. AI text can be inaccurate. It never changes ratings, status, or health, so we can inspect the advice without applying it automatically."],
+ ["Why not make the networking block shorter?","Parsing only message text and handling failures take lines but keep the demo understandable when the server is unavailable. Removing those checks would make failure harder to explain."],
+ ["What would you improve with more time?","Save data between runs, validate all editable fields consistently, and separate the networking from the menu once the app grows. Those would add complexity beyond this small demo."],
+ ["How was it checked?","The check runner passed 83 assertions covering rules, menu input, and simulated HTTP behavior. A separate live Qwen request succeeded. Visual Studio built and launched the menu. These checks support the demo behavior; they do not prove every possible input or environment works."]
+];
+$("audience-questions").innerHTML=audience.map(a=>"<details class='card'><summary>"+esc(a[0])+"</summary><p>"+esc(a[1])+"</p></details>").join("");
+$("hashes").innerHTML=files.map(f=>"<p><strong>"+esc(f)+"</strong><br><code>"+DATA.sources[f].sha256+"</code></p>").join("");
+let timerEnd=0,timerHandle=null,timerRemaining=540;
+function showTime(){const seconds=timerEnd?Math.max(0,Math.ceil((timerEnd-Date.now())/1000)):timerRemaining;$("timer").textContent=Math.floor(seconds/60)+":"+String(seconds%60).padStart(2,"0");if(timerEnd&&seconds===0){clearInterval(timerHandle);timerHandle=null;timerEnd=0;timerRemaining=0;$("timer-start").textContent="Rehearsal finished";}}
+$("timer-start").addEventListener("click",()=>{if(timerHandle){timerRemaining=Math.max(0,Math.ceil((timerEnd-Date.now())/1000));clearInterval(timerHandle);timerHandle=null;timerEnd=0;$("timer-start").textContent="Resume rehearsal";}else{if(timerRemaining===0)timerRemaining=540;timerEnd=Date.now()+timerRemaining*1000;timerHandle=setInterval(showTime,250);$("timer-start").textContent="Pause timer";}showTime();});
+$("timer-reset").addEventListener("click",()=>{clearInterval(timerHandle);timerHandle=null;timerEnd=0;timerRemaining=540;$("timer-start").textContent="Start 9-minute rehearsal";showTime();});
+const bank=[
+ ["What does a .cs extension tell you?",["It is a C# source file","It must contain exactly one class","It is an object in memory"],0,"StatusTypes.cs contains three enums and no class.",0],
+ ["In List<Project> projects, what is List<Project>?",["A list type containing Project objects","The name of a method","One Project object"],0,"List is supplied by .NET; <Project> specifies the element type.",13],
+ ["Which expression creates a Project object?",['new Project(2, "Inventory System", "Taylor Smith")',"public class Project","project.Name"],0,"new invokes the constructor. A class definition and a property read do not create this object.",8],
+ ["What does private set on Status do?",["Restricts direct assignments to code inside ProjectItem","Makes the whole object invisible","Lets only the AI change the status"],0,"Outside code uses ChangeStatus, which checks the allowed choices.",1],
+ ["A risk is asked to become Completed. What happens?",["ChangeStatus returns false and leaves the old status","The risk becomes Completed","The project is deleted"],0,"A Risk only allows Open and Closed.",5],
+ ["An open risk has likelihood 1 and impact 4. What is the project's health?",["OffTrack","OnTrack because its score is low","AtRisk because every open risk is only AtRisk"],0,"An open impact >=4 risk makes its project OffTrack even with a low score.",11],
+ ["What does a score of 20/25 mean?",["A product of two ratings used as a priority score","An 80% chance the project will fail","The AI's measured confidence"],0,"It is not a calibrated probability or a health percentage.",6],
+ ["When does this app send a model-generation request?",["After selecting an open risk, confirming y, and finding loaded Qwen","Whenever the program starts","Whenever the user views project items"],0,"The preflight GET is a readiness check; POST requests generation.",20],
+ ["Why subtract 1 from a status menu number?",["The menu starts at 1; list indexes start at 0","All enum values must be negative","The first status is ignored"],0,"The range check happens before accessing choices[number - 1].",19],
+ ["What does return do in a method?",["Ends that method and can give a result to its caller","Always exits the whole application","Repeats the method"],0,"Returning from Main exits this app; returning from GetDetails only gives text to its caller.",7],
+ ["Does Project inherit from ProjectItem?",["No; Project contains an item list","Yes; a list always means inheritance","Yes; every .cs file is a parent class"],0,"Containing objects is different from using another class as a base.",8],
+ ["Where does execution begin?",["Program.Main","The first enum in StatusTypes.cs","Whichever file is first in Solution Explorer"],0,"Reading order is for the learner. Main is the actual entry point.",13],
+ ["What does CreateSampleProjects() do?",["Creates and returns the sample project list","Trains Qwen on the source code","Loads projects from a database"],0,"The data is hardcoded and recreated on each run.",26],
+ ["What changes when AI returns advice?",["The console gets text; the project data stays unchanged","The risk's impact is replaced automatically","The project's health becomes whatever Qwen says"],0,"The AI methods read the objects and return strings; they do not assign domain properties.",24],
+ ["What does TryParse do here?",["Checks if typed text can become an integer","Finds a loaded model","Saves changes to a file"],0,"It returns success/failure and puts the numeric result in an out variable.",16],
+ ["What does the list and local item variable point to after ReadItem?",["The same existing item object","Two disconnected copies of the item's data","A class definition instead of an object"],0,"Changing that object changes what the next health calculation reads.",19],
+ ["A task alone is overdue. No open risk or late unfinished milestone exists. What is health?",["OnTrack under this app's rules","Always OffTrack","Whatever AI chooses"],0,"Only open risks and overdue unfinished milestones trigger these health rules.",11],
+ ["An unfinished milestone is due today. No risks are open. What is health?",["OnTrack","AtRisk","OffTrack"],0,"The code checks earlier than today, not equal to today.",11],
+ ["What must be available for a real local answer?",["Bionic's local server/runtime and loaded Qwen","An OpenAI API key in the C# file","Bionic's chat page must have keyboard focus"],0,"The API connection does not automate a chat window.",21],
+ ["What is await doing in this console app?",["Waiting for the operation's result before continuing that method","Making the menu accept other choices during the AI call","Saving data permanently"],0,"Async is not a promise that this particular menu stays interactive while waiting.",14]
+].map((q,id)=>({id,q:q[0],options:q[1],answer:q[2],why:q[3],lesson:q[4]}));
+const writtenBank=[
+ {q:"In your own words, explain: List<Project> projects = CreateSampleProjects();",
+ model:"List<Project> is the type: a list containing Project objects. projects is a local variable. CreateSampleProjects() is a method call that creates and returns the sample list, which is assigned to projects.",
+ criteria:["I identified the type and the local variable separately.","I explained the method call, returned list, and assignment."],lesson:13},
+ {q:"You close scanner risk 203. Explain why Inventory's health changes, and whether AI changes anything.",
+ model:"ReadItem gives us the existing item object in Inventory's list. ChangeStatus validates Closed and assigns its Status. CalculateHealth reads that same updated object. With no other warning condition, Inventory becomes OnTrack. AI only returns explanatory text and does not change those values.",
+ criteria:["I linked the existing object, validated status change, and recalculated project health.","I stated that AI returns advice and does not change status, ratings, or health."],lesson:19},
+ {q:"Predict a new case: a project's first item is an unfinished milestone due yesterday. Its second item is an open risk with impact 4. What health is returned, and why must CalculateHealth keep looking after the first item?",
+ model:"The project is OffTrack. The overdue milestone first sets needsAttention to true, but the loop continues. It then finds an open impact-4 risk and returns OffTrack immediately. Returning AtRisk after the milestone would miss the more serious condition in the later item.",
+ criteria:["I predicted OffTrack and traced the milestone flag followed by the high-impact open risk.","I explained why an immediate AtRisk return at the first item would be incorrect."],lesson:11}
+];
+let written=[];
+let round=[],mcScore=0,quizReviewed=false;
+let practiceState={attempts:0,repeatRequired:false,last:null};
+try{const saved=JSON.parse(localStorage.getItem("trackerPracticeV1"));if(saved&&typeof saved.attempts==="number"&&typeof saved.repeatRequired==="boolean")practiceState=saved;}catch{}
+function shuffle(a){a=[...a];for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];}return a;}
+function status(){ $("quiz-status").textContent="Completed rounds: "+practiceState.attempts+(practiceState.last===null?"":" · Last combined score: "+practiceState.last+"%")+" · "+(practiceState.repeatRequired?"Repeat practice is active until at least 90%.":"Target: at least 90%, followed by an aloud rehearsal.");}
+function startQuiz(){
+ written=[writtenBank[0],writtenBank[1+practiceState.attempts%2]];
+ round=shuffle(bank).slice(0,10).map(q=>({...q,shown:shuffle(q.options.map((text,index)=>({text,index})))}));quizReviewed=false;mcScore=0;status();
+ $("quiz-root").innerHTML='<form id="quiz-form">'+round.map((q,i)=>'<fieldset class="question"><legend>'+(i+1)+'. '+esc(q.q)+'</legend>'+q.shown.map(o=>'<label class="option"><input required type="radio" name="q'+i+'" value="'+o.index+'">'+esc(o.text)+'</label>').join("")+'<div id="feedback-'+i+'"></div></fieldset>').join("")+written.map((w,i)=>'<article class="question"><label for="written-'+i+'"><strong>'+(11+i)+'. '+esc(w.q)+'</strong></label><p class="small">Use your own words. A short paragraph is enough.</p><textarea id="written-'+i+'" required minlength="20" aria-describedby="written-hint-'+i+'"></textarea><div id="written-hint-'+i+'" class="small">At least 20 characters so there is something to compare.</div><div id="rubric-'+i+'"></div></article>').join("")+'<button type="submit" class="primary" id="review-quiz">Check choices & reveal written criteria</button><p id="quiz-message" role="status"></p></form><div id="quiz-result" aria-live="polite"></div>';
+ $("quiz-form").addEventListener("submit",e=>{e.preventDefault();reviewQuiz();});
+}
+function reviewQuiz(){
+ if(quizReviewed)return;
+ if(written.some((_,i)=>$("written-"+i).value.trim().length<20)){$("quiz-message").textContent="Write at least 20 characters for each written answer before reviewing.";return;}
+ quizReviewed=true;
+ round.forEach((q,i)=>{
+ const selected=document.querySelector('input[name="q'+i+'"]:checked');
+ const correct=selected&&Number(selected.value)===q.answer;if(correct)mcScore++;
+ $("feedback-"+i).innerHTML='<div class="feedback '+(correct?"correct":"wrong")+'"><strong>'+(correct?"Correct.":"Review this.")+'</strong> '+esc(q.why)+(correct?"":" Correct answer: "+esc(q.options[q.answer]))+' <button type="button" data-review-lesson="'+q.lesson+'">Read this code section</button></div>';
+ });
+ document.querySelectorAll("#quiz-form input[type=radio]").forEach(e=>e.disabled=true);
+ written.forEach((w,i)=>{
+ $("written-"+i).readOnly=true;
+ $("rubric-"+i).innerHTML='<div class="feedback rubric"><strong>Self-check your existing answer; do not grade the model answer.</strong><p>'+esc(w.model)+'</p><p class="small">Each checked criterion is 0.5 points. Check it only if your own answer covered the idea.</p>'+w.criteria.map((c,j)=>'<label><input type="checkbox" class="written-point" id="criterion-'+i+'-'+j+'"> '+esc(c)+'</label>').join("")+'</div>';
+ });
+ $("review-quiz").hidden=true;
+ $("quiz-message").innerHTML='Multiple-choice score: <strong>'+mcScore+'/10</strong>. Read both written criteria above, mark what your answers covered, then finish. <p><button type="button" class="primary" id="finish-quiz">Finish this round</button></p>';
+ $("finish-quiz").addEventListener("click",finishQuiz);
+ document.querySelectorAll("[data-review-lesson]").forEach(b=>b.addEventListener("click",()=>{goLesson(Number(b.dataset.reviewLesson));showTab("code");}));
+}
+function finishQuiz(){
+ const selfPoints=document.querySelectorAll(".written-point:checked").length*.5;
+ const score=Math.round((mcScore+selfPoints)/12*100);
+ practiceState.attempts++;practiceState.last=score;
+ if(score<70)practiceState.repeatRequired=true;
+ if(score>=90)practiceState.repeatRequired=false;
+ try{localStorage.setItem("trackerPracticeV1",JSON.stringify(practiceState));}catch{}
+ document.querySelectorAll(".written-point").forEach(e=>e.disabled=true);$("finish-quiz").disabled=true;
+ const message=score>=90?"Practice target reached. Now rehearse the nine-minute script aloud without reading every sentence.":practiceState.repeatRequired?"Repeat practice is active. Review the missed concepts, then take another round. Continue until at least 90%.":"You are above 70%, but below the 90% target. Review the feedback and try another round.";
+ $("quiz-result").innerHTML='<div class="card"><div class="result">'+score+'% combined practice score</div><p>Automatic choices: '+mcScore+'/10. Your written self-check: '+selfPoints+'/2.</p><p>'+message+'</p><div class="buttons"><button id="retry-quiz" class="primary">'+(score>=90?"Practice another round":"Start next round →")+'</button><button id="quiz-study">Review the code</button></div><p class="small">A browser cannot tell whether your written explanation is correct. The written points are your own assessment. No answer text is sent or saved; only the round count, score, and repeat-practice flag are stored locally when the browser allows it.</p></div>';
+ $("retry-quiz").addEventListener("click",()=>{startQuiz();$("quiz-status").scrollIntoView({block:"start"});});
+ $("quiz-study").addEventListener("click",()=>showTab("code"));status();$("quiz-result").scrollIntoView({block:"start"});
+}
+startQuiz();
+</script>
+</body>
+</html>
