@@ -348,15 +348,10 @@ public class Program
         string review = service.BuildRiskReview(project, risk, evidence, affectedWork);
         Console.WriteLine("\nRisk review:\n" + review);
 
-        // Check Windows user settings too, so a newly saved key works without restarting Visual Studio.
-        string? apiKey = Environment.GetEnvironmentVariable("AI_API_KEY");
+        string? apiKey = ReadApiKey();
         if (string.IsNullOrWhiteSpace(apiKey))
         {
-            apiKey = Environment.GetEnvironmentVariable("AI_API_KEY", EnvironmentVariableTarget.User);
-        }
-        if (string.IsNullOrWhiteSpace(apiKey))
-        {
-            Console.WriteLine("OpenAI is not configured yet. Set AI_API_KEY in Windows user environment variables.");
+            Console.WriteLine("OpenAI is not configured yet. Save AI_API_KEY in the solution's .env.local file or Windows user environment variables.");
             Console.WriteLine("The risk metrics above work without an API key. See README.md for setup.");
             return;
         }
@@ -396,6 +391,56 @@ public class Program
         {
             Console.WriteLine("OpenAI returned an unexpected response format. No project data was changed.");
         }
+    }
+
+    private static string? ReadApiKey()
+    {
+        string? key = Environment.GetEnvironmentVariable("AI_API_KEY");
+        if (string.IsNullOrWhiteSpace(key))
+        {
+            key = Environment.GetEnvironmentVariable("AI_API_KEY", EnvironmentVariableTarget.User);
+        }
+        if (!string.IsNullOrWhiteSpace(key))
+        {
+            return key;
+        }
+
+        // Start at the running program and find this solution's folder.
+        // This works from Visual Studio or dotnet run, regardless of the current folder.
+        DirectoryInfo? folder = new DirectoryInfo(AppContext.BaseDirectory);
+        while (folder != null && !File.Exists(Path.Combine(folder.FullName, "ProjectHealthTracker.slnx")))
+        {
+            folder = folder.Parent;
+        }
+        if (folder == null)
+        {
+            return null;
+        }
+
+        string path = Path.Combine(folder.FullName, ".env.local");
+        try
+        {
+            if (File.Exists(path))
+            {
+                foreach (string line in File.ReadAllLines(path))
+                {
+                    const string prefix = "AI_API_KEY=";
+                    if (line.StartsWith(prefix, StringComparison.Ordinal))
+                    {
+                        return line.Substring(prefix.Length).Trim();
+                    }
+                }
+            }
+        }
+        catch (IOException)
+        {
+            Console.WriteLine("The local key file could not be read. Check .env.local and try again.");
+        }
+        catch (UnauthorizedAccessException)
+        {
+            Console.WriteLine("The local key file could not be read. Check its file permissions.");
+        }
+        return null;
     }
 
     private static Project? ReadProject(ProjectService service)
