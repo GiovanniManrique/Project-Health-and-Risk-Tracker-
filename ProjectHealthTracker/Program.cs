@@ -1,6 +1,6 @@
 // Purpose: Runs the console menu and handles input.
 // Data: Uses sample projects stored in a List<Project>.
-// Methods: Shows projects, items, risks, and health; updates item status.
+// Methods: Shows projects, items, risks, and health; updates status and asks local AI for advice.
 
 using ProjectHealthTracker.Data;
 using ProjectHealthTracker.Models;
@@ -20,7 +20,8 @@ public class Program
         while (applicationRunning)
         {
             Console.WriteLine("\n1. List projects\n2. View project details\n3. Update item status");
-            Console.WriteLine("4. Show project risks\n5. Show health summary\n6. Exit");
+            Console.WriteLine("4. Show project risks\n5. Show health summary\n6. Exit\n7. Explain a risk with local AI");
+            Console.WriteLine("8. Review a risk with OpenAI");
             Console.Write("Choose an option: ");
             string? choice = Console.ReadLine();
             if (choice == null)
@@ -49,8 +50,14 @@ public class Program
                     applicationRunning = false;
                     Console.WriteLine("Goodbye.");
                     break;
+                case "7":
+                    ExplainRiskWithAi(service);
+                    break;
+                case "8":
+                    ReviewRiskWithCloudAi(service);
+                    break;
                 default:
-                    Console.WriteLine("That is not a valid menu choice. Please enter 1 through 6.");
+                    Console.WriteLine("That is not a valid menu choice. Please enter 1 through 8.");
                     break;
             }
         }
@@ -204,6 +211,190 @@ public class Program
         else
         {
             Console.WriteLine("The status could not be updated.");
+        }
+    }
+
+    private static void ExplainRiskWithAi(ProjectService service)
+    {
+        Project? project = ReadProject(service);
+        if (project == null)
+        {
+            return;
+        }
+
+        List<Risk> risks = service.GetOpenRisks(project);
+        if (risks.Count == 0)
+        {
+            Console.WriteLine("There are no open risks to explain.");
+            return;
+        }
+        foreach (Risk openRisk in risks)
+        {
+            Console.WriteLine(openRisk.GetDetails());
+        }
+
+        Console.Write("Enter an open risk ID (0 to cancel): ");
+        if (!int.TryParse(Console.ReadLine(), out int riskId) || riskId == 0)
+        {
+            Console.WriteLine("AI explanation canceled. Enter a whole-number risk ID next time.");
+            return;
+        }
+        ProjectItem? item = service.GetItemById(project, riskId);
+        if (item is not Risk risk || risk.Status != ItemStatus.Open)
+        {
+            Console.WriteLine("That ID is not an open risk in this project.");
+            return;
+        }
+
+        int score = service.CalculateRiskScore(risk);
+        Console.WriteLine($"Priority score: {risk.Probability} x {risk.Impact} = {score}/25 (not a percentage).");
+        try
+        {
+            using HttpClient client = new HttpClient();
+            client.Timeout = TimeSpan.FromMinutes(2);
+            AiRiskService ai = new AiRiskService(client);
+            List<string> models = ai.GetModels();
+            if (models.Count == 0)
+            {
+                Console.WriteLine("Ollama returned no installed local models. Check your existing model with ollama list.");
+                return;
+            }
+            for (int i = 0; i < models.Count; i++)
+            {
+                Console.WriteLine($"{i + 1}. {models[i]}");
+            }
+            Console.Write("Choose a model number (0 to cancel): ");
+            if (!int.TryParse(Console.ReadLine(), out int choice) || choice < 1 || choice > models.Count)
+            {
+                Console.WriteLine("AI explanation canceled. Choose one of the listed model numbers.");
+                return;
+            }
+
+            Console.WriteLine("Asking your local model. This may take up to two minutes...");
+            string explanation = ai.ExplainRisk(risk, models[choice - 1], score);
+            Console.WriteLine("AI suggestion (review it; project data and health are unchanged):");
+            Console.WriteLine(explanation);
+        }
+        catch (HttpRequestException)
+        {
+            Console.WriteLine("Ollama could not complete the request. Check that it is running at localhost:11434 and the selected text model works in Ollama.");
+        }
+        catch (OperationCanceledException)
+        {
+            Console.WriteLine("The local model took too long. Try again or choose a smaller installed model.");
+        }
+        catch (System.Text.Json.JsonException)
+        {
+            Console.WriteLine("Ollama returned an unreadable response. No project data was changed.");
+        }
+        catch (KeyNotFoundException)
+        {
+            Console.WriteLine("Ollama's response was missing an expected field. No project data was changed.");
+        }
+        catch (InvalidOperationException)
+        {
+            Console.WriteLine("Ollama returned an unexpected response format. No project data was changed.");
+        }
+    }
+
+    private static void ReviewRiskWithCloudAi(ProjectService service)
+    {
+        Project? project = ReadProject(service);
+        if (project == null)
+        {
+            return;
+        }
+        Console.WriteLine(service.GetProjectMetrics(project));
+        List<Risk> risks = service.GetOpenRisks(project);
+        if (risks.Count == 0)
+        {
+            Console.WriteLine("There are no open risks to review.");
+            return;
+        }
+        foreach (Risk openRisk in risks)
+        {
+            Console.WriteLine(openRisk.GetDetails());
+        }
+        Console.Write("Enter an open risk ID (0 to cancel): ");
+        if (!int.TryParse(Console.ReadLine(), out int riskId) || riskId == 0)
+        {
+            Console.WriteLine("Risk review canceled. Enter a whole-number risk ID next time.");
+            return;
+        }
+        ProjectItem? item = service.GetItemById(project, riskId);
+        if (item is not Risk risk || risk.Status != ItemStatus.Open)
+        {
+            Console.WriteLine("That ID is not an open risk in this project.");
+            return;
+        }
+
+        Console.WriteLine($"Priority score: {risk.Probability} x {risk.Impact} = {service.CalculateRiskScore(risk)}/25 (not a percentage).");
+        Console.WriteLine("The current ratings are supplied by people/sample data, not estimated by AI.");
+        Console.WriteLine("Answer two optional questions. Press Enter for unknown; use up to 500 characters each.");
+        Console.Write("What evidence suggests this problem might happen? ");
+        string? evidence = Console.ReadLine();
+        Console.Write("What work would be affected if it happens? ");
+        string? affectedWork = Console.ReadLine();
+        if (evidence == null || affectedWork == null)
+        {
+            Console.WriteLine("Risk review canceled.");
+            return;
+        }
+        if (evidence.Length > 500 || affectedWork.Length > 500)
+        {
+            Console.WriteLine("Please keep each answer to 500 characters. No request was sent.");
+            return;
+        }
+        string review = service.BuildRiskReview(project, risk, evidence, affectedWork);
+        Console.WriteLine("\nRisk review:\n" + review);
+
+        // Check Windows user settings too, so a newly saved key works without restarting Visual Studio.
+        string? apiKey = Environment.GetEnvironmentVariable("AI_API_KEY");
+        if (string.IsNullOrWhiteSpace(apiKey))
+        {
+            apiKey = Environment.GetEnvironmentVariable("AI_API_KEY", EnvironmentVariableTarget.User);
+        }
+        if (string.IsNullOrWhiteSpace(apiKey))
+        {
+            Console.WriteLine("OpenAI is not configured yet. Set AI_API_KEY in Windows user environment variables.");
+            Console.WriteLine("The risk metrics above work without an API key. See README.md for setup.");
+            return;
+        }
+
+        Console.Write("Send the review above to OpenAI for advice? API usage may cost money. Enter y to send: ");
+        if (!string.Equals(Console.ReadLine()?.Trim(), "y", StringComparison.OrdinalIgnoreCase))
+        {
+            Console.WriteLine("No request was sent.");
+            return;
+        }
+        try
+        {
+            using HttpClient client = new HttpClient();
+            client.Timeout = TimeSpan.FromMinutes(1);
+            CloudAiService ai = new CloudAiService(client, apiKey);
+            Console.WriteLine("Asking OpenAI...");
+            Console.WriteLine(ai.ExplainRisk(review));
+            Console.WriteLine("AI advice does not change project data or the C# health rules.");
+        }
+        catch (HttpRequestException)
+        {
+            Console.WriteLine("OpenAI could not complete the request. Check your connection and try again later.");
+        }
+        catch (OperationCanceledException)
+        {
+            Console.WriteLine("OpenAI took too long to respond. Try again later.");
+        }
+        catch (System.Text.Json.JsonException)
+        {
+            Console.WriteLine("OpenAI returned an unreadable response. No project data was changed.");
+        }
+        catch (KeyNotFoundException)
+        {
+            Console.WriteLine("OpenAI's response was missing an expected field. No project data was changed.");
+        }
+        catch (InvalidOperationException)
+        {
+            Console.WriteLine("OpenAI returned an unexpected response format. No project data was changed.");
         }
     }
 

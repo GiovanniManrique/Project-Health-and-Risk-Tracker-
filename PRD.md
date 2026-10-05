@@ -42,6 +42,16 @@ Each code file will start with comments outlining its purpose, properties, and m
 
 No database, cloud service, or API is required. `MockProjectData.cs` will return a small `List<Project>`. A database can replace this source after it is covered in class without changing the remaining application.
 
+### Optional local AI extension
+
+Menu option 7 connects to an existing Ollama server at `localhost:11434`. The user selects an open risk and an installed local text model. C# calculates a priority score as Probability multiplied by Impact; the model explains the supplied risk information and suggests one action. This score is not a statistical probability. AI advice does not modify data or replace the health rules below. The core tracker remains usable when Ollama or a model is unavailable. No cloud API key, model download, database, or additional NuGet package is required by this extension.
+
+### Optional OpenAI risk review
+
+Menu option 8 uses a key stored in the Windows user environment variable `AI_API_KEY`. The user selects an open risk and can answer two short questions: what evidence suggests the problem may happen, and what work would be affected. Empty answers remain unknown. The review displays the stored likelihood and impact ratings, their product, risk owner and mitigation, open/high-impact risk counts, late milestones, completed tasks, days to the planned end date, and the existing calculated health. It previews the information and sends it only when the user chooses to request advice.
+
+`CloudAiService` sends one HTTPS request to OpenAI's Responses API using `gpt-4.1-mini` and returns text. The model explains what needs attention, the supporting evidence, and one action. It does not assign probabilities, invent facts, edit data, or replace the health rules. Credentials stay outside source control. API usage requires an appropriately configured account and may incur charges; error cases return to the menu. No additional packages, database, or AI framework are introduced.
+
 ## Planned Development Time
 
 **10 hours:** setup (1), models/inheritance (2), mock data (1), services (2), menu/validation (2), testing (1), and documentation (1).

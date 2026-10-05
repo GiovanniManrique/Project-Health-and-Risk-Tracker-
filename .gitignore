@@ -480,3 +480,9 @@ $RECYCLE.BIN/
 
 # Vim temporary swap files
 *.swp
+
+# Keep local AI credentials out of Git. Use Windows environment variables for the key.
+.env
+.env.*
+secrets.json
+appsettings.Local.json

@@ -19,6 +19,9 @@ public class Program
         CheckStatusUpdates();
         CheckMenu();
         CheckStatusMenuNumbers();
+        AiChecks.Run(Check);
+        CloudAiChecks.Run(Check);
+        CheckCloudMenu();
         Console.WriteLine($"Results: {passed} passed, {failed} failed.");
         return failed == 0 ? 0 : 1;
     }
@@ -141,6 +144,33 @@ public class Program
         }
     }
 
+    private static void CheckCloudMenu()
+    {
+        // A placeholder ensures these menu checks never need a real key or API request.
+        string? savedKey = Environment.GetEnvironmentVariable("AI_API_KEY");
+        Environment.SetEnvironmentVariable("AI_API_KEY", "test-placeholder");
+        try
+        {
+            Check(RunMenu("8\n1\n6\n").Contains("There are no open risks to review"), "Cloud menu handles a project with no open risks");
+            Check(RunMenu("8\n2\n201\n6\n").Contains("not an open risk"), "Cloud menu rejects tasks");
+            Check(RunMenu("8\n2\n103\n6\n").Contains("not an open risk"), "Cloud menu rejects a different project's risk");
+            Check(RunMenu("8\n2\n0\n6\n").Contains("Risk review canceled"), "Cloud menu permits cancellation");
+            Check(RunMenu("8\n2\n203\n").Contains("Risk review canceled"), "Cloud menu cancels at end of input");
+            string output = RunMenu("8\n2\n203\n\n\nn\n5\n6\n");
+            Check(output.Contains("20/25") && output.Contains("Unknown; no evidence supplied") && output.Contains("Tasks completed: 0 of 1"),
+                "Cloud menu shows score, questions, and computed metrics");
+            Check(output.Contains("No request was sent") && output.Contains("Totals - OnTrack: 1 | AtRisk: 1 | OffTrack: 1"),
+                "Declining cloud request preserves data and returns to menu");
+            string longAnswer = new string('a', 501);
+            Check(RunMenu($"8\n2\n203\n{longAnswer}\n\n6\n").Contains("keep each answer to 500 characters"),
+                "Cloud menu rejects excessively long answers before sending");
+        }
+        finally
+        {
+            Environment.SetEnvironmentVariable("AI_API_KEY", savedKey);
+        }
+    }
+
     private static void CheckMenu()
     {
         string output = RunMenu("1\n2\n2\n4\n2\n5\n6\n");
@@ -164,5 +194,9 @@ public class Program
         Check(RunMenu("").Contains("Project Health and Risk Tracker"), "End of input exits without an infinite loop");
         Check(RunMenu("3\n2\n203\n").Contains("Update canceled."), "End of input during status choice cancels the update");
         Check(RunMenu("5\n6\n").Contains("Totals - OnTrack: 1 | AtRisk: 1 | OffTrack: 1"), "Restart restores sample data");
+        Check(RunMenu("7\n1\n6\n").Contains("There are no open risks to explain"), "AI menu handles a project without open risks");
+        Check(RunMenu("7\n2\n201\n6\n").Contains("not an open risk"), "AI menu rejects tasks as risks");
+        Check(RunMenu("7\n2\n103\n6\n").Contains("not an open risk"), "AI menu rejects risks from a different project");
+        Check(RunMenu("7\n2\n0\n6\n").Contains("AI explanation canceled"), "AI menu allows cancel before contacting Ollama");
     }
 }
