@@ -1,51 +1,44 @@
-# Project Health and Risk Tracker — simplified console requirements
+# Project Health and Risk Tracker — two-class console requirements
 
-## Purpose and scope
+## Approved classroom scope
 
-A beginner-readable C# .NET 10 console application for a fictional classroom demonstration. It monitors tasks, milestones, risks and overall health, and can ask the user's local Qwen 3.5 9B model through Bionic to explain one risk.
+Keep the command-line app and local Bionic / Qwen integration. Use two authored application classes, `Program` and `Project`. Each Project holds exactly one task, one milestone, and one risk directly in its properties. Multiple items of each kind are deliberately outside this version's scope.
 
-## Revised design
+Remove ProjectItem, the item list, ItemType, item IDs and item selection. Keep project IDs, names, managers, task/milestone/risk titles and owners, optional task/milestone dates, validated statuses, likelihood/impact ratings, scenario, and mitigation plan. Keep ItemStatus and HealthStatus as enums. They are not classes. No custom inheritance, database, cloud credentials, extra NuGet package, or model training is needed.
 
-This revision intentionally replaces the original abstract `ProjectItem` and its three subclasses with one concrete `ProjectItem` and an `ItemType` enum. It removes `ProjectService`, the separate mock-data class, duplicate completion flags, and the Ollama/OpenAI/Codex provider implementations. No WinForms interface is included.
+## Structure and behavior
 
-Three application classes:
+- Program: entry point, console menu, input validation, sample data, readiness check, and local AI request/response.
+- Project: identity, direct fields as properties, constructor, allowed statuses, validated changes, risk score, health and details text.
+- Status setters are private. `ChangeStatus(section, newStatus)` rejects incompatible values or invalid sections before mutation. The update menu maps 1 to Task, 2 to Milestone, and 3 to Risk.
+- Task and milestone statuses: NotStarted, InProgress, Completed, Blocked. Risk statuses: Open, Closed. Initial defaults are NotStarted work and a Closed risk, changed explicitly for selected samples.
+- Other fields remain simple public properties. Ratings must be 1–5 before AI submission; this is not validation on every assignment.
+- Lists of Project objects remain. The app uses .NET classes and test helper classes in addition to its two authored application classes.
 
-- `Program`: menu, input validation, `CreateSampleProjects`, model preflight and AI request.
-- `Project`: ID, name, manager, `List<ProjectItem>`, open-risk counting and health calculation.
-- `ProjectItem`: ID, title, owner, immutable item type, validated status, optional due date, likelihood/impact ratings, fictional scenario and mitigation. Methods return details, allowed statuses and score, and validate status changes.
-
-Three enums: `ItemType` (Task, Milestone, Risk), `ItemStatus` (NotStarted, InProgress, Completed, Blocked, Open, Closed), `HealthStatus` (OnTrack, AtRisk, OffTrack). Enums are not application classes. `Status` is privately set; constructor and later changes reject incompatible statuses. Completion is represented solely by Status.
-
-## Menu and required behavior
-
-1. List projects with health, manager, open-risk count and overall summary.
-2. View the selected project's items and details, including risks.
-3. Update an item's status using choices valid for that type.
-4. Explain an open risk using local Qwen after showing the supplied data and obtaining `y` confirmation.
-5. Exit.
-
-Invalid menu choices, IDs, status numbers, cancellation and end-of-input must be handled without crashing or looping forever. Data is in memory; restarting recreates the three sample projects. No persistence, database, cloud credentials, model training or additional NuGet dependency is required.
+Menu: list projects/health, view details, update a status, explain a risk with local AI, exit. Invalid selections, cancellation and end-of-input must return safely or exit as appropriate. No changes persist after restart.
 
 ## Data and health
 
-Three projects, each containing one task, one milestone and one risk:
+Three fictional samples start in distinct states: Website OnTrack; Inventory OffTrack because its risk is Open with likelihood 4 and impact 5; Training AtRisk because its unfinished milestone is three days overdue while its risk is Closed. Dates are relative to today.
 
-- Website: OnTrack, no open risk or overdue unfinished milestone.
-- Inventory: OffTrack because risk 203 is open with likelihood 4 and impact 5.
-- Training: AtRisk because milestone 302 is overdue and unfinished, with no open risk.
+Health uses direct checks in priority order: Open risk with impact >=4 → OffTrack; otherwise Open risk → AtRisk; otherwise overdue unfinished milestone with a date → AtRisk; otherwise OnTrack. Due today is not overdue. A task alone cannot cause a health warning. No item loop or needsAttention flag remains. Open-risk counts are zero or one per project.
 
-Dates are relative to the day the data is created. An open impact >=4 risk takes precedence over all other conditions and yields OffTrack. Otherwise any open risk or overdue unfinished milestone yields AtRisk; otherwise OnTrack. Due today is not overdue. Tasks alone do not change health. Priority score is Probability x Impact, not a probability percentage.
+Priority score = likelihood × impact. It is a classroom ranking, not a probability or percentage. It does not directly determine health.
 
-## Bionic local AI
+## Bionic / Qwen
 
-The configured loopback server is `http://127.0.0.1:51500`; the exact installed model key is `qwen/qwen3.5-9b`. These are nonsecret constants in Program. Bionic's Local Model API uses the LM Studio runtime API. The application checks GET `/api/v1/models` and uses that model's loaded instance ID for POST `/api/v1/chat`. It issues no load/download commands and does not silently substitute another model or a stored answer.
+Use `http://127.0.0.1:51500` and model key `qwen/qwen3.5-9b` for this installation. Bionic's local API uses the LM Studio runtime. Use the loaded-instance ID from GET `/api/v1/models` for POST `/api/v1/chat` after the user selects an Open risk's project and confirms `y`. No separate item selection is needed.
 
-The request contains the selected fictional project name, calculated health and risk details, including ratings, score, owner, scenario and mitigation. It asks for Risk, Why, and Next action in fewer than 120 words. This is an instruction to the model, not a guarantee of factual accuracy or length. AI never changes stored data or replaces C# calculations. Reasoning is off, chat storage and streaming are off, and no integrations/tools are enabled. Only final message content is displayed in the console.
+Send the fictional project name, calculated health, and risk title/owner/status/ratings/score/scenario/plan. JSON includes instructions for a short Risk / Why / Next action answer, with reasoning off, stream false, store false and no integrations. Format/accuracy instructions are requests to the model, not guarantees.
 
-Preflight has a five-second timeout; the app's HTTP client has a 120-second request timeout. Missing models, network/HTTP failures, timeouts and malformed or empty replies return a helpful message and the menu. The core tracker works without Bionic. Live verification requires an actually loaded local model; automated checks use simulated HTTP responses.
+The app sends no model-load/download commands and does not silently choose another model. A runtime state change between preflight and chat can still cause a reload. GET timeout is five seconds; the HTTP client request timeout is 120 seconds. Expected network/HTTP/timeout/JSON-shape/empty-answer failures return friendly text and the menu. No stored fallback answer is presented as live AI. Only final message content is printed; the response never modifies project data. The console waits for the operation before accepting another menu choice.
 
-## Learning deliverable and completion
+## Teaching and completion
 
-Provide an offline browser guide with exact source, line references, elementary vocabulary, section-by-section explanations, a status/health simulator, fixed file-order presentation cues, and practice with disclosed grading limits. Independent review should check technical accuracy and whether unexplained vocabulary remains; it cannot certify the learner's understanding without their own practice.
+One offline visual aid must help a complete non-coder prepare in a suggested 20-minute route. Show one code block at a time, exact source/line numbers, example values, a plain explanation, words to say aloud, optional syntax depth, and explicit calls/returns. Begin with Main and trace a status update back to the menu and exit. Separate reference declarations from execution steps.
 
-Completion requires a successful build, behavior checks, a real local answer when authorized, opening/building/launching in Visual Studio, updated documentation and a reviewed teaching guide. Git publication must exclude private settings, credentials and generated build files.
+Give extra depth to the local AI integration: settings, .NET HttpClient, readiness GET, prompt, anonymous request properties, JSON serialization, StringContent, actual PostAsync call, await, response parsing, message extraction, return, WriteLine, and errors. Clearly distinguish a class, object, variable, property, method, enum, and API request.
+
+Include a short presentation script, a repeatable demo that runs AI last, and multiple-choice/written practice. Written scoring is disclosed self-assessment. Below 70% repeats until at least 90%, with no claim that a score or reviewer proves the learner's understanding. The page itself makes no model requests.
+
+Completion requires a successful build, focused behavior checks, a live local model test when available and authorized, independent code and teaching reviews with substantive findings addressed, source-aligned documentation/guide, and Git publication without private settings or generated build artifacts.

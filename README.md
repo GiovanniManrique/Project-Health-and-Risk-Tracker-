@@ -1,76 +1,88 @@
 # Project Health and Risk Tracker
 
-A small C# .NET 10 console application with **three application classes**: `Program`, `Project`, and `ProjectItem`. It tracks fictional tasks, milestones and risks, updates their status, and prints a real local Qwen explanation through **Bionic**.
+A small C# .NET 10 console app with **two authored application classes: `Program` and `Project`**. Each fictional project has exactly **one task, one milestone, and one risk**. There is no `ProjectItem` class, nested item list, item ID, or custom domain inheritance hierarchy.
 
-## Open and run in Visual Studio
+## Open and run
 
-1. Open `ProjectHealthTracker.slnx` in Visual Studio 2026 with .NET 10 installed.
-2. Press **Ctrl+F5** to run without debugging (or **F5** to debug).
-3. Enter a menu number and press Enter. Enter `0` at an ID/status prompt to cancel.
+Open `ProjectHealthTracker.slnx` in Visual Studio 2026 with .NET 10 installed. Press **Ctrl+F5**. Type a menu number and press Enter.
 
 ```text
 1. List projects and health
-2. View project items
-3. Update an item's status
+2. View project details
+3. Update a status
 4. Explain a risk with local AI
 5. Exit
 ```
 
-Changes live in memory and reset when the application restarts. No database or account is needed for the tracker.
+Changes are kept in memory and reset on restart. At a selection/status prompt, `0` cancels. Invalid choices and end-of-input are handled without a crash or an endless loop.
 
-## Bionic setup
+## Learn it in the order it runs
 
-Use the **local** `qwen/qwen3.5-9b` model in Bionic. Load it before the demo; a 4,096-token context is sufficient for this short example. Under **Settings > Local Model API**, enable the local API server and check its address. The two nonsecret constants at the top of `Program.cs` select the server (`http://127.0.0.1:51500` on this computer) and exact model. Change the address there if your Bionic server uses another port. Keep the runtime/server running while using AI.
+Open **[presentation/learn.html](presentation/learn.html)** in a browser. It is one offline visual aid with a suggested 20-minute practice route:
 
-Bionic uses LM Studio's local model runtime/API. The app calls that API directly; it does not automate Bionic's chat window or start a Bionic agent session. No OpenAI key, subscription, cloud fallback, or extra NuGet package is used. Other computers need their own Bionic runtime and downloaded model.
+- Start with the two classes and six basic programming words.
+- Follow a single run from Main, through calls and returns, to a status change and exit.
+- Follow the local AI integration, with exact source blocks and optional detailed syntax explanations. The POST step has buttons explaining each part of the actual request call.
+- Rehearse the short talk and demo sequence, then try four multiple-choice questions and one written answer. Written scoring is an explicit self-check. Below 70% starts repeat practice until at least 90%; this does not certify understanding.
 
-Option 4 checks `/api/v1/models` for a loaded instance of the exact Qwen model, then sends one `/api/v1/chat` request after you answer `y`. It never issues load/download commands. A preflight check cannot prevent the runtime from reloading a model if its state changes between the check and the request. The request disables tools, stored chat, streaming, and Qwen's configurable reasoning. The answer prints in the same console. Allow up to two minutes; the model-list check has a five-second timeout. Missing models and unsuccessful/empty responses return a message and the menu. There is no canned-answer fallback.
+The page does not call AI or edit the app. All source shown is embedded from the three application files. Regenerate it using `python presentation/build_guide.py` after code edits and manually review explanations and line ranges for changed meaning.
 
-References: [Bionic local models](https://lmstudio.ai/docs/bionic/models), [Local Model API setup](https://github.com/meta-models/meta-oss-cookbook/blob/main/inference-server/lm-studio.md#serve), [native chat API](https://lmstudio.ai/docs/developer/rest/chat).
+## Two classes, three C# files
 
-## Repeatable demonstration
-
-Start a fresh session for these steps:
-
-1. Choose `1`: see one OnTrack, one AtRisk, one OffTrack project.
-2. Choose `2`, then project `2`: inspect Inventory System and risk `203` (score 20/25).
-3. Choose `3`, project `2`, item `203`, status choice `2` (Closed). Inventory becomes OnTrack.
-4. Choose `3`, project `3`, item `302`, status choice `3` (Completed). Training becomes OnTrack.
-5. Choose `1`: all three projects now show OnTrack.
-6. Choose `3`, project `2`, item `203`, status choice `1` (Open). Inventory returns to OffTrack, and its risk is eligible for AI again.
-7. With Qwen loaded, choose `4`, project `2`, item `203`, then `y`. Read the real local answer. Wording can vary; the model is asked to stay consistent with fictional facts but that is not guaranteed. Choose `5` to exit after the request finishes.
-
-Only open risks are eligible. Put AI last in a timed presentation because the console waits for the request to finish before accepting more menu choices. If it takes more than about ten seconds, use the guide's labelled recorded reply and finish speaking without waiting for another console action. Say the live request is still pending. If Bionic is unavailable, the status demonstration still works; do not claim an error or saved example is live AI.
-
-## Learn and present the code
-
-Open **[presentation/learn.html](presentation/learn.html)** in a browser. Start with the short overview, then follow the four code files in order. It contains the exact code with line numbers, explanations beside each section, a local simulation of status changes, a nine-minute presentation script, and multiple-choice plus written practice. The simulator and quiz do not run an AI model. Written responses use disclosed self-check criteria, not an AI grader.
-
-The application has four authored C# files:
-
-| File | Purpose |
+| File | Responsibility |
 |---|---|
-| `Models/StatusTypes.cs` | Three enums: fixed choices for item type, item status, and project health. |
-| `Models/ProjectItem.cs` | One item, allowed status changes, risk score, and details text. |
-| `Models/Project.cs` | One project, its item list, open-risk count, and health rules. |
-| `Program.cs` | Entry point, menu/input, sample objects, and local AI request/response. |
+| `Program.cs` | Main, menu, project selection, status input, sample data, and the Bionic request/response. |
+| `Models/Project.cs` | Project identity; direct task/milestone/risk properties; validated status changes; score, health, and details. |
+| `Models/StatusTypes.cs` | Two enums, `ItemStatus` and `HealthStatus`. Enums are named choices, not authored classes. |
 
-There is **no custom domain inheritance hierarchy** in this simplified version. Task, milestone and risk are enum choices within the same item class. A project *contains* items; it is not their parent class. `Status` has a private setter, so normal status changes go through validation. Some fields are relevant only to certain item types. Program has several responsibilities to keep this small classroom app to three classes; a larger application would separate networking again. The HTTP/JSON/async portion is the most advanced part.
+A new Project defaults to NotStarted task/milestone statuses and a Closed risk. The sample-data method changes selected defaults through `ChangeStatus`. Only Project can directly assign its status properties; public rating properties are checked for the 1–5 range before AI submission, not on every assignment. A larger project with multiple tasks or risks would need a broader data design. Test helpers and .NET library classes are separate from the two authored application classes.
 
-## Rules and limits
+## Local AI setup and connection
 
-- Open risk with impact 4 or 5: **OffTrack**.
-- Otherwise, any open risk or overdue unfinished milestone: **AtRisk**.
-- Otherwise: **OnTrack**.
-- Due today is not overdue. An overdue task alone does not change health under these rules.
-- Score = likelihood rating x impact rating (each 1-5). **20/25 is not an 80% probability.** Health uses impact and status, so a low score can still accompany OffTrack.
-- AI supplies advice only. It does not edit ratings, status or health; the sample stories are fictional.
+Use the installed `qwen/qwen3.5-9b` model in **Bionic**, loaded into memory before the demonstration. In Bionic's **Settings > Local Model API**, enable the local server. On this computer its address is `http://127.0.0.1:51500`; the nonsecret `BionicUrl` and `ModelKey` constants in Program select the address and exact model. Change them and rebuild if your setup differs. A 4,096-token context was used in the live test.
 
-## Build and checks
+Bionic uses the LM Studio local runtime API underneath. This application calls that local API directly, not the Bionic chat UI or an agent session. No OpenAI key, subscription, cloud fallback, or extra NuGet package is used. Keep the runtime/server running with Qwen loaded; its chat window need not be in front.
+
+The request path is:
+
+1. `ReviewRiskAsync` selects a Project with an Open risk, previews the supplied facts, and asks for `y`.
+2. `GetLoadedModelAsync` uses GET `/api/v1/models` to find a loaded instance of the exact Qwen model. A downloaded file alone is insufficient.
+3. `ExplainRiskAsync` builds the prompt from project name, C# health, and risk details. `JsonSerializer.Serialize` creates JSON; `StringContent` wraps the request body.
+4. `await client.PostAsync(BionicUrl + "/api/v1/chat", body)` sends the actual generation request.
+5. The code parses the JSON reply, collects only `message` content, and returns a string. `Console.WriteLine(answer)` prints it in the same console.
+
+The app sends no model-download/load command. A state change between preflight and chat can still cause the runtime to reload a model. The request disables reasoning mode, streaming, stored chat through the API, and integrations/tools. The five-second readiness check and 120-second chat-request timeout prevent indefinite HTTP waits. Expected HTTP/network, timeout, malformed, and empty responses produce a readable message. There is no canned-answer fallback. The console waits for the AI operation before accepting another menu choice.
+
+AI explains fictional facts; it does not calculate or change the ratings, status, score, or health. The prompt asks for a short Risk / Why / Next action response, but does not guarantee factual accuracy, length, or format.
+
+References: [Bionic local models](https://lmstudio.ai/docs/bionic/models), [native chat API](https://lmstudio.ai/docs/developer/rest/chat).
+
+## Repeatable demo
+
+Start a fresh session. Each arrow below means press Enter after typing the preceding value.
+
+| Input | Result |
+|---|---|
+| `1` | Website OnTrack, Inventory OffTrack, Training AtRisk. |
+| `3 → 2 → 3 → 2` | Update Inventory's risk to Closed; Inventory becomes OnTrack. |
+| `3 → 3 → 2 → 3` | Update Training's milestone to Completed; Training becomes OnTrack. |
+| `1` | All three are OnTrack. |
+| `3 → 2 → 3 → 1` | Reopen Inventory's risk; Inventory returns to OffTrack. |
+| `4 → 2 → y` | Ask local Qwen to explain Inventory's risk. |
+| `5`, after the request finishes | Exit. |
+
+The update menu uses section **1 Task, 2 Milestone, 3 Risk**. There are no item IDs such as 203. Put AI last in a timed presentation. If it takes more than ten seconds, show the guide's labelled recorded reply and finish speaking while the live request remains pending; do not present that recorded answer as the current live response.
+
+## Rules and verification
+
+- An Open risk with impact 4 or 5 gives OffTrack.
+- Otherwise any Open risk or overdue unfinished milestone gives AtRisk.
+- Otherwise health is OnTrack. Due today is not overdue; an overdue task alone does not affect health.
+- Priority score is likelihood × impact. **20/25 is not an 80% chance of failure.** Health uses separate direct checks and no longer loops through items.
 
 ```powershell
-dotnet build ProjectHealthTracker.slnx
-dotnet run --project Tests/TrackerChecks.csproj
+dotnet build ProjectHealthTracker.slnx -c Release
+dotnet run --project Tests/TrackerChecks.csproj -c Release
 ```
 
-The small check runner verifies rules, input handling, request construction and simulated response failures without contacting a model. Its helper `FakeBionic` is test code, not a fourth application class. The assertion count is reported on each run. The teaching guide embeds a source snapshot; regenerate it with `python presentation/build_guide.py` after editing C# files, then review the explanations for semantic changes.
+The updated runner passed 101 assertions using simulated HTTP responses without model inference. A separate live console run completed the demo status changes and received a real Qwen answer. See [presentation/REVIEW.md](presentation/REVIEW.md) for the independent code/teaching review and verification record.

@@ -2,13 +2,6 @@
 
 namespace ProjectHealthTracker.Models;
 
-public enum ItemType
-{
-    Task,
-    Milestone,
-    Risk
-}
-
 public enum ItemStatus
 {
     NotStarted,

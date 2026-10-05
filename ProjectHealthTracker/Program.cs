@@ -1,4 +1,3 @@
-// Starts the console menu, creates fictional projects, and asks Bionic for advice.
 using System.Text;
 using System.Text.Json;
 using ProjectHealthTracker.Models;
@@ -7,7 +6,6 @@ namespace ProjectHealthTracker;
 
 public class Program
 {
-    // These are local settings, not passwords. Change the address if Bionic uses another port.
     public const string BionicUrl = "http://127.0.0.1:51500";
     public const string ModelKey = "qwen/qwen3.5-9b";
 
@@ -17,18 +15,18 @@ public class Program
         using HttpClient client = new HttpClient();
         client.Timeout = TimeSpan.FromSeconds(120);
         Console.WriteLine("PROJECT HEALTH AND RISK TRACKER");
-        Console.WriteLine("Fictional classroom data. Changes reset when you restart.\n");
+        Console.WriteLine("Fictional data: one task, one milestone, and one risk per project. Changes reset on restart.\n");
 
         while (true)
         {
-            Console.WriteLine("1. List projects and health\n2. View project items");
-            Console.WriteLine("3. Update an item's status\n4. Explain a risk with local AI\n5. Exit");
+            Console.WriteLine("1. List projects and health\n2. View project details");
+            Console.WriteLine("3. Update a status\n4. Explain a risk with local AI\n5. Exit");
             Console.Write("Choose an option: ");
             string? choice = Console.ReadLine();
             switch (choice?.Trim())
             {
                 case "1": ShowProjects(projects); break;
-                case "2": ViewItems(projects); break;
+                case "2": ViewProject(projects); break;
                 case "3": UpdateStatus(projects); break;
                 case "4": await ReviewRiskAsync(projects, client); break;
                 case "5":
@@ -45,7 +43,9 @@ public class Program
         foreach (Project project in projects)
         {
             HealthStatus health = project.CalculateHealth();
-            Console.WriteLine($"{project.Id}. {project.Name} | Manager: {project.Manager} | {health} | Open risks: {project.CountOpenRisks()}");
+            int openRisks = 0;
+            if (project.RiskStatus == ItemStatus.Open) openRisks = 1;
+            Console.WriteLine($"{project.Id}. {project.Name} | Manager: {project.Manager} | {health} | Open risks: {openRisks}");
             if (health == HealthStatus.OnTrack) onTrack++;
             else if (health == HealthStatus.AtRisk) atRisk++;
             else offTrack++;
@@ -53,7 +53,7 @@ public class Program
         Console.WriteLine($"Summary: {onTrack} OnTrack, {atRisk} AtRisk, {offTrack} OffTrack");
     }
 
-    private static Project? ReadProject(List<Project> projects)
+    private static Project? SelectProject(List<Project> projects)
     {
         ShowProjects(projects);
         Console.Write("Project ID (0 to cancel): ");
@@ -70,85 +70,73 @@ public class Program
         return null;
     }
 
-    private static void ViewItems(List<Project> projects)
+    private static void ViewProject(List<Project> projects)
     {
-        Project? project = ReadProject(projects);
-        if (project == null) return;
-        Console.WriteLine($"\n{project.Name} - {project.CalculateHealth()}");
-        foreach (ProjectItem item in project.Items)
-        {
-            Console.WriteLine(item.GetDetails() + "\n");
-        }
-    }
-
-    private static ProjectItem? ReadItem(Project project, bool openRisksOnly)
-    {
-        foreach (ProjectItem item in project.Items)
-        {
-            if (!openRisksOnly || (item.Type == ItemType.Risk && item.Status == ItemStatus.Open))
-                Console.WriteLine($"{item.Id}. {item.Title} ({item.Type}, {item.Status})");
-        }
-        Console.Write("Item ID (0 to cancel): ");
-        string? input = Console.ReadLine();
-        if (input == null || input.Trim() == "0") return null;
-        if (int.TryParse(input, out int id))
-        {
-            foreach (ProjectItem item in project.Items)
-            {
-                if (item.Id == id && (!openRisksOnly || (item.Type == ItemType.Risk && item.Status == ItemStatus.Open)))
-                    return item;
-            }
-        }
-        Console.WriteLine("That item is not an available choice in this project.");
-        return null;
+        Project? selectedProject = SelectProject(projects);
+        if (selectedProject == null) return;
+        Console.WriteLine(selectedProject.GetDetails());
     }
 
     private static void UpdateStatus(List<Project> projects)
     {
-        Project? project = ReadProject(projects);
-        if (project == null) return;
-        ProjectItem? item = ReadItem(project, false);
-        if (item == null) return;
-        List<ItemStatus> choices = item.GetAllowedStatuses();
-        for (int i = 0; i < choices.Count; i++)
-            Console.WriteLine($"{i + 1}. {choices[i]}");
-        Console.Write("New status number (0 to cancel): ");
+        // 1. Select the project and which part to change.
+        Project? selectedProject = SelectProject(projects);
+        if (selectedProject == null) return;
+        Console.WriteLine("1. Task\n2. Milestone\n3. Risk");
+        Console.Write("Section number (0 to cancel): ");
         string? input = Console.ReadLine();
         if (input == null || input.Trim() == "0") return;
-        if (!int.TryParse(input, out int number) || number < 1 || number > choices.Count)
+        if (!int.TryParse(input, out int section) || section < 1 || section > 3)
+        {
+            Console.WriteLine("Choose section 1, 2, or 3.");
+            return;
+        }
+
+        // 2. Show valid statuses and check the typed number.
+        List<ItemStatus> allowedStatuses = selectedProject.GetAllowedStatuses(section);
+        for (int i = 0; i < allowedStatuses.Count; i++)
+            Console.WriteLine($"{i + 1}. {allowedStatuses[i]}");
+        Console.Write("New status number (0 to cancel): ");
+        input = Console.ReadLine();
+        if (input == null || input.Trim() == "0") return;
+        if (!int.TryParse(input, out int statusNumber) || statusNumber < 1 || statusNumber > allowedStatuses.Count)
         {
             Console.WriteLine("That is not a valid status choice.");
             return;
         }
-        if (item.ChangeStatus(choices[number - 1]))
-            Console.WriteLine($"Updated: {item.Title} -> {item.Status}. Project health: {project.CalculateHealth()}");
+
+        // 3. Apply the change and show the recalculated health.
+        ItemStatus selectedStatus = allowedStatuses[statusNumber - 1];
+        if (selectedProject.ChangeStatus(section, selectedStatus))
+        {
+            HealthStatus health = selectedProject.CalculateHealth();
+            Console.WriteLine($"Updated to {selectedStatus}. Project health: {health}");
+        }
     }
 
     private static async Task ReviewRiskAsync(List<Project> projects, HttpClient client)
     {
-        Project? project = ReadProject(projects);
-        if (project == null) return;
-        if (project.CountOpenRisks() == 0)
+        Project? selectedProject = SelectProject(projects);
+        if (selectedProject == null) return;
+        if (selectedProject.RiskStatus != ItemStatus.Open)
         {
-            Console.WriteLine("This project has no open risks to explain.");
+            Console.WriteLine("This project's risk is closed. Reopen it before requesting AI.");
             return;
         }
-        ProjectItem? risk = ReadItem(project, true);
-        if (risk == null) return;
-        Console.WriteLine($"\nFictional project: {project.Name} | C# health: {project.CalculateHealth()}");
-        Console.WriteLine(risk.GetDetails());
-        Console.Write($"Send this information to local {ModelKey} through Bionic? (y/n): ");
+        Console.WriteLine($"\nFictional project: {selectedProject.Name} | C# health: {selectedProject.CalculateHealth()}");
+        Console.WriteLine(selectedProject.GetRiskDetails());
+        Console.Write("Send these facts to local Qwen through Bionic? (y/n): ");
         if (!string.Equals(Console.ReadLine()?.Trim(), "y", StringComparison.OrdinalIgnoreCase))
         {
             Console.WriteLine("Cancelled. No AI request was sent.");
             return;
         }
-        Console.WriteLine("\nGenerating local AI explanation... (up to two minutes)");
-        string answer = await ExplainRiskAsync(client, project, risk);
+        Console.WriteLine("Generating local AI explanation... (up to two minutes)");
+        string answer = await ExplainRiskAsync(client, selectedProject);
         Console.WriteLine(answer);
     }
 
-    // A downloaded model is not necessarily loaded. This GET does not request an answer.
+    // GET checks readiness. It does not ask Qwen to generate an answer.
     public static async Task<string?> GetLoadedModelAsync(HttpClient client)
     {
         using CancellationTokenSource timeout = new CancellationTokenSource(TimeSpan.FromSeconds(5));
@@ -166,19 +154,19 @@ public class Program
         return null;
     }
 
-    // One local request returns plain advice. It never changes project data.
-    public static async Task<string> ExplainRiskAsync(HttpClient client, Project project, ProjectItem risk)
+    public static async Task<string> ExplainRiskAsync(HttpClient client, Project project)
     {
-        if (!project.Items.Contains(risk) || risk.Type != ItemType.Risk || risk.Status != ItemStatus.Open)
-            return "Choose an open risk that belongs to this project.";
-        if (risk.Probability < 1 || risk.Probability > 5 || risk.Impact < 1 || risk.Impact > 5)
+        if (project.RiskStatus != ItemStatus.Open) return "Choose a project with an open risk.";
+        if (project.RiskLikelihood < 1 || project.RiskLikelihood > 5 || project.RiskImpact < 1 || project.RiskImpact > 5)
             return "Likelihood and impact ratings must be between 1 and 5.";
         try
         {
             string? model = await GetLoadedModelAsync(client);
             if (model == null)
                 return "Qwen 3.5 9B is not loaded. Load it in Bionic and enable its Local Model API, then try again.";
-            string prompt = $"Fictional project: {project.Name}\nC# project health: {project.CalculateHealth()}\n" + risk.GetDetails();
+
+            // Build the message and package it as JSON text.
+            string prompt = $"Fictional project: {project.Name}\nC# project health: {project.CalculateHealth()}\n" + project.GetRiskDetails();
             string json = JsonSerializer.Serialize(new
             {
                 model,
@@ -191,9 +179,13 @@ public class Program
                 reasoning = "off", stream = false, store = false,
                 max_output_tokens = 500, integrations = Array.Empty<string>()
             });
+
+            // POST is the actual request to generate an explanation.
             using StringContent body = new StringContent(json, Encoding.UTF8, "application/json");
             using HttpResponseMessage response = await client.PostAsync(BionicUrl + "/api/v1/chat", body);
             response.EnsureSuccessStatusCode();
+
+            // Read only the final message text and return it to the console method.
             using JsonDocument data = JsonDocument.Parse(await response.Content.ReadAsStringAsync());
             StringBuilder answer = new StringBuilder();
             foreach (JsonElement output in data.RootElement.GetProperty("output").EnumerateArray())
@@ -227,36 +219,40 @@ public class Program
         }
     }
 
-    // These examples are created in memory every time the program starts.
     public static List<Project> CreateSampleProjects()
     {
-        Project website = new Project(1, "Company Website Update", "Jordan Lee");
-        website.Items.Add(new ProjectItem(101, "Create page layout", "Sam", ItemType.Task, ItemStatus.Completed)
-            { DueDate = DateTime.Today.AddDays(-5) });
-        website.Items.Add(new ProjectItem(102, "Design approved", "Jordan", ItemType.Milestone, ItemStatus.Completed)
-            { DueDate = DateTime.Today.AddDays(-2) });
-        website.Items.Add(new ProjectItem(103, "Old images may be low quality", "Mia", ItemType.Risk, ItemStatus.Closed)
-            { Probability = 2, Impact = 2, Scenario = "The team replaced the blurry images and approved the new ones.",
-              MitigationPlan = "Use the approved image collection." });
+        Project website = new Project(1, "Company Website Update", "Jordan Lee")
+        {
+            TaskTitle = "Create page layout", TaskOwner = "Sam", TaskDueDate = DateTime.Today.AddDays(-5),
+            MilestoneTitle = "Design approved", MilestoneOwner = "Jordan", MilestoneDueDate = DateTime.Today.AddDays(-2),
+            RiskTitle = "Old images may be low quality", RiskOwner = "Mia", RiskLikelihood = 2, RiskImpact = 2,
+            RiskScenario = "The team replaced the blurry images and approved the new ones.",
+            RiskPlan = "Use the approved image collection."
+        };
+        website.ChangeStatus(1, ItemStatus.Completed);
+        website.ChangeStatus(2, ItemStatus.Completed);
 
-        Project inventory = new Project(2, "Inventory System", "Taylor Smith");
-        inventory.Items.Add(new ProjectItem(201, "Create item classes", "Alex", ItemType.Task, ItemStatus.InProgress)
-            { DueDate = DateTime.Today.AddDays(7) });
-        inventory.Items.Add(new ProjectItem(202, "First working demo", "Taylor", ItemType.Milestone, ItemStatus.NotStarted)
-            { DueDate = DateTime.Today.AddDays(10) });
-        inventory.Items.Add(new ProjectItem(203, "Scanner hardware may arrive late", "Chris", ItemType.Risk, ItemStatus.Open)
-            { Probability = 4, Impact = 5,
-              Scenario = "The supplier missed the delivery date and has not confirmed a replacement date. The demo is in ten days, and scanning still needs testing.",
-              MitigationPlan = "Use manual item numbers until the scanners arrive." });
+        Project inventory = new Project(2, "Inventory System", "Taylor Smith")
+        {
+            TaskTitle = "Create item classes", TaskOwner = "Alex", TaskDueDate = DateTime.Today.AddDays(7),
+            MilestoneTitle = "First working demo", MilestoneOwner = "Taylor", MilestoneDueDate = DateTime.Today.AddDays(10),
+            RiskTitle = "Scanner hardware may arrive late", RiskOwner = "Chris", RiskLikelihood = 4, RiskImpact = 5,
+            RiskScenario = "The supplier missed the delivery date and has not confirmed a replacement date. The demo is in ten days, and scanning still needs testing.",
+            RiskPlan = "Use manual item numbers until the scanners arrive."
+        };
+        inventory.ChangeStatus(1, ItemStatus.InProgress);
+        inventory.ChangeStatus(3, ItemStatus.Open);
 
-        Project training = new Project(3, "Employee Training Plan", "Morgan Davis");
-        training.Items.Add(new ProjectItem(301, "Write training guide", "Riley", ItemType.Task, ItemStatus.InProgress)
-            { DueDate = DateTime.Today.AddDays(4) });
-        training.Items.Add(new ProjectItem(302, "Manager review", "Morgan", ItemType.Milestone, ItemStatus.InProgress)
-            { DueDate = DateTime.Today.AddDays(-3) });
-        training.Items.Add(new ProjectItem(303, "Not enough training computers", "Riley", ItemType.Risk, ItemStatus.Closed)
-            { Probability = 2, Impact = 3, Scenario = "The shared computer lab has been reserved for every training session.",
-              MitigationPlan = "Use the reserved computer lab." });
+        Project training = new Project(3, "Employee Training Plan", "Morgan Davis")
+        {
+            TaskTitle = "Write training guide", TaskOwner = "Riley", TaskDueDate = DateTime.Today.AddDays(4),
+            MilestoneTitle = "Manager review", MilestoneOwner = "Morgan", MilestoneDueDate = DateTime.Today.AddDays(-3),
+            RiskTitle = "Not enough training computers", RiskOwner = "Riley", RiskLikelihood = 2, RiskImpact = 3,
+            RiskScenario = "The shared computer lab has been reserved for every training session.",
+            RiskPlan = "Use the reserved computer lab."
+        };
+        training.ChangeStatus(1, ItemStatus.InProgress);
+        training.ChangeStatus(2, ItemStatus.InProgress);
         return new List<Project> { website, inventory, training };
     }
 }
