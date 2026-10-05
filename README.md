@@ -18,14 +18,24 @@ Changes are kept in memory and reset on restart. At a selection/status prompt, `
 
 ## Learn it in the order it runs
 
-Open **[presentation/learn.html](presentation/learn.html)** in a browser. It is one offline visual aid with a suggested 20-minute practice route:
+From PowerShell in this repository, start the local guide:
 
-- Start with the two classes and six basic programming words.
-- Follow a single run from Main, through calls and returns, to a status change and exit.
-- Follow the local AI integration, with exact source blocks and optional detailed syntax explanations. The POST step has buttons explaining each part of the actual request call.
-- Rehearse the short talk and demo sequence, then try four multiple-choice questions and one written answer. Written scoring is an explicit self-check. Below 70% starts repeat practice until at least 90%; this does not certify understanding.
+```powershell
+& .\presentation\Start-Guide.ps1
+```
 
-The page does not call AI or edit the app. All source shown is embedded from the three application files. Regenerate it using `python presentation/build_guide.py` after code edits and manually review explanations and line ranges for changed meaning.
+Open **[the learning page on localhost](http://127.0.0.1:8765/)**. The launcher uses the bundled Python runtime on this computer, or Python on PATH elsewhere. It reuses an existing guide server. Run it again after restarting the computer. The server listens only on this computer and serves the guide, not the repository. You can also open [presentation/learn.html](presentation/learn.html) directly without a server.
+
+The six study sections provide a suggested 20-minute first rehearsal and deeper reference material:
+
+- **Big picture:** what C#, .NET, Visual Studio and Bionic do; the two classes; and the exact meaning of `List<Project> projects = CreateSampleProjects();`.
+- **Follow the code:** a chronological run from Main through calls and returns, including the concrete change from typed text `"2"` to Closed status and OnTrack health.
+- **Understand the AI:** ten chapters covering the actual connection. Each block has plain-English and technical explanations, reasons for the choice, example input/output values, and clickable syntax. A separate seven-stage display shows the full prompt, JSON request, illustrative reply and printed result.
+- **Questions & commands:** 28 audience questions with answers, technical follow-ups and links to the relevant code; nine examples distinguish Visual Studio shortcuts, console input, C# calls, HTTP operations and PowerShell commands.
+- **Rehearse:** an eight-minute talk and repeatable demo, with a timer.
+- **Practice quiz:** four multiple-choice questions and one written answer per round. Written scoring is an explicit self-check. Below 70% starts repeat practice until at least 90%; this does not certify understanding.
+
+The guide server on port **8765** and Bionic's model API on port **51500** are separate. The page does not call AI or edit the app. All source shown is embedded from the three application files. Regenerate it using `python presentation/build_guide.py` after code edits and manually review explanations and line ranges for changed meaning. The complete request/reply examples are labelled teaching examples; the earlier real test reply is separately labelled as recorded.
 
 ## Two classes, three C# files
 
