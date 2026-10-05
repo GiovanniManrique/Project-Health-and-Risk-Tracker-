@@ -36,6 +36,12 @@ def build():
     assert len([lesson for lesson in lessons if lesson["route"] == "ai"]) == 10
     for ref in guide['references']:
         assert 1 <= ref['start'] <= ref['end'] <= len(sources[ref['file']]['text'].splitlines())
+    for step in guide['study']:
+        for block in step['blocks']:
+            assert 1 <= block['start'] <= block['end'] <= len(sources[block['file']]['text'].splitlines())
+    assert sum(step['minutes'] for step in guide['study']) == guide['studyMinutes']
+    assert 10 <= guide['studyMinutes'] <= 15
+    assert set(item['name'] for item in guide['coverage']) == set(name for step in guide['study'] for name in step['methods'])
     # Build a readable request example from the current source's sample literals.
     # The model instance ID and response below are labelled instructional examples.
     program = sources['Program.cs']['text']
@@ -57,8 +63,9 @@ def build():
               f'Risk: {facts["RiskTitle"]} | Owner: {facts["RiskOwner"]} | Status: Open\n'
               f'Likelihood: {likelihood}/5 | Impact: {impact}/5 | Priority score: {likelihood*impact}/25 (not a percentage)\n'
               f'Scenario: {facts["RiskScenario"]}\nCurrent plan: {facts["RiskPlan"]}')
-    system_segment = program.split('system_prompt =', 1)[1].split('reasoning =', 1)[0]
+    system_segment = re.search(r'string instructions\s*=\s*(.*?);\s*\n', program, re.S)[1]
     instruction = ''.join(json.loads(s) for s in re.findall(r'"(?:\\.|[^"\\])*"', system_segment))
+    assert instruction.endswith('Return only the short explanation.')
     model_key = literal('ModelKey', program)
     url = literal('BionicUrl', program)
     request = dict(model='qwen-example-instance', input=prompt, system_prompt=instruction,

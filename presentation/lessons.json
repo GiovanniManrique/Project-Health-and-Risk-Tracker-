@@ -1,5 +1,5 @@
 {
-  "version": 3,
+  "version": 4,
   "lessons": [
     {
       "route": "run",
@@ -7,10 +7,10 @@
       "blocks": [
         {
           "file": "Program.cs",
-          "start": 12,
-          "end": 14,
+          "start": 13,
+          "end": 16,
           "label": "The starting point",
-          "simple": "The program begins inside Main. The first job is to create the sample projects. At line 14, C# runs the instructions on the right of the equals sign first. CreateSampleProjects must finish before projects can receive its result.",
+          "simple": "The program begins inside Main. The first job is to create the sample projects. At line 16, C# runs the instructions on the right of the equals sign first. CreateSampleProjects must finish before projects can receive its result.",
           "technical": "Main is the entry point. It is static, so the runtime can call it without creating a Program object. CreateSampleProjects is another static method in Program; the class name is omitted because we are already inside that class. Its return type is List<Project>. The local variable projects receives a reference to that list, whose elements refer to Project objects.",
           "why": "Keeping sample construction in a named method makes Main read as a sequence of jobs. We could put every sample value directly in Main, but that would bury the menu underneath setup data. A List is convenient for looping and selection; an array of three Projects would also work for this fixed demo.",
           "before": "Main has started. The local projects variable has not yet received a value.",
@@ -18,19 +18,19 @@
           "say": "Execution starts in Main. I call CreateSampleProjects to build the sample data, then store the returned list in projects. List<Project> is a type, projects is a variable, and CreateSampleProjects() is a method call.",
           "rows": [
             [
-              12,
+              13,
               "public static async Task Main()",
               "This declares the starting method; it is not creating a project task.",
               "public controls access; static removes the need for a Program instance; async allows await inside the method; Task represents completion without a result value. Main takes no arguments here."
             ],
             [
-              14,
+              16,
               "List<Project>",
               "A list whose entries point to Project objects.",
               "List<T> is a generic .NET class. Substituting Project for T restricts its elements to Project references; this is not a method call."
             ],
             [
-              14,
+              16,
               "projects = CreateSampleProjects();",
               "Ask the sample-data method for a list, then name that list reference projects.",
               "The call expression on the right is evaluated before assignment. Parentheses invoke the method; the empty argument list supplies no inputs; the semicolon terminates the statement."
@@ -39,7 +39,7 @@
         }
       ],
       "next": "Follow the call to CreateSampleProjects.",
-      "goal": "The program begins inside Main. The first job is to create the sample projects. At line 14, C# runs the instructions on the right of the equals sign first. CreateSampleProjects must finish before projects can receive its result."
+      "goal": "The program begins inside Main. The first job is to create the sample projects. At line 16, C# runs the instructions on the right of the equals sign first. CreateSampleProjects must finish before projects can receive its result."
     },
     {
       "route": "run",
@@ -47,18 +47,18 @@
       "blocks": [
         {
           "file": "Program.cs",
-          "start": 235,
-          "end": 235,
+          "start": 332,
+          "end": 332,
           "label": "Call the Project constructor",
           "simple": "Website already exists. At this line, new Project starts creating the Inventory object by calling its constructor with three identity values. Follow the next block into that constructor before reading the initializer below this line.",
           "technical": "new Project(2, \"Inventory System\", \"Taylor Smith\") invokes Project(int id, string name, string manager). This is an instance-creation expression. The constructor’s parameters receive these argument values. Its object initializer and the later status-change calls have not executed yet.",
           "why": "One Project object keeps one project’s facts together. Using separate unrelated variables for every project would make it harder to pass the right facts to methods. The deliberate fixed one-task/one-milestone/one-risk design avoids a second collection of item objects, at the cost of not supporting multiple risks.",
           "before": "The constructor arguments are 2, Inventory System, and Taylor Smith. Inventory has not been fully initialized.",
-          "after": "Control enters Project’s constructor. The caller is waiting at Program.cs line 235; the remaining properties will be assigned afterward.",
+          "after": "Control enters Project’s constructor. The caller is waiting at Program.cs line 332; the remaining properties will be assigned afterward.",
           "say": "This new expression starts one Project object. I pass ID, name and manager into the constructor, which runs before the initializer and status changes.",
           "rows": [
             [
-              235,
+              332,
               "Project inventory = new Project(...)",
               "Make one Project object and keep a way to reach it in inventory.",
               "The left Project is the variable’s type. new invokes a constructor. The string arguments are literals. Passing these values does not change the class definition; it initializes one instance."
@@ -67,8 +67,8 @@
         },
         {
           "file": "Models/Project.cs",
-          "start": 28,
-          "end": 33,
+          "start": 33,
+          "end": 39,
           "label": "The constructor called by new Project(...)",
           "simple": "A constructor is the setup code that runs when new Project(...) creates an object. The values from the call arrive in the lowercase input names id, name, and manager. The assignments copy them into this object’s uppercase properties.",
           "technical": "Project(int id, string name, string manager) is a constructor: it has the class name and no return type. Parameters belong to this invocation; Id, Name, and Manager are instance properties that remain on the object after the constructor finishes. C# is case-sensitive, so Id and id are distinct identifiers. Id = id is equivalent here to this.Id = id.",
@@ -78,25 +78,25 @@
           "say": "The constructor gives every new Project its starting identity. Lowercase names are the values coming in, and uppercase names are the properties on the object that keep those values.",
           "rows": [
             [
-              28,
+              33,
               "public Project(int id, string name, string manager)",
               "Three named inputs are required when creating a Project.",
               "The constructor is public so Program can call it. A parameter is the input name in this definition; an argument is the concrete value supplied at the call site."
             ],
             [
-              30,
+              36,
               "Id = id;",
               "Save the incoming number on this object.",
               "Assignment reads the right-hand parameter and invokes the property setter on the current instance. It is not an equality comparison."
             ],
             [
-              31,
+              37,
               "Name = name;",
               "Save this project’s own name.",
               "The Name property retains the string value after the local constructor parameter goes out of scope. Another Project instance can hold a different Name."
             ],
             [
-              32,
+              38,
               "Manager = manager;",
               "Save this project’s manager, then finish setup.",
               "Reaching the constructor’s closing brace returns control to object creation; a constructor does not declare a separate return value."
@@ -105,8 +105,8 @@
         },
         {
           "file": "Program.cs",
-          "start": 236,
-          "end": 244,
+          "start": 333,
+          "end": 348,
           "label": "Resume in Program: assign properties, then set statuses",
           "simple": "The constructor has finished. The object initializer now fills Inventory’s task, milestone and risk properties. Then ChangeStatus sets the task to InProgress and opens the risk. Each assignment affects this one object.",
           "technical": "The initializer runs after the Project constructor returns. Each property name on the left targets the newly created instance. After the initializer completes, inventory receives its reference, and the following instance-method calls apply validated status changes. Those calls are not part of the constructor.",
@@ -116,25 +116,25 @@
           "say": "new Project creates one object from the Project class. The constructor sets its ID, name and manager; the initializer fills the remaining properties. The task and risk are properties on this object, not separate custom objects.",
           "rows": [
             [
-              237,
-              "TaskTitle / TaskOwner / TaskDueDate",
+              334,
+              "TaskTitle / TaskOwner / TaskDueDate (separate assignments)",
               "These are three different facts about this project’s one task.",
               "They are properties assigned by the object initializer after construction. AddDays(7) returns a new DateTime seven days after today; it does not change DateTime.Today."
             ],
             [
-              239,
-              "RiskLikelihood = 4, RiskImpact = 5",
+              342,
+              "RiskLikelihood and RiskImpact initializers",
               "The classroom example supplies two ratings in advance.",
               "These are ordinary integer assignments, not predictions from Qwen. Their product is 20. These public setters do not validate every assignment."
             ],
             [
-              243,
+              347,
               "inventory.ChangeStatus(1, ItemStatus.InProgress)",
               "Set Inventory’s task status using the project’s validation method.",
               "inventory is the receiver object. 1 and ItemStatus.InProgress are arguments. The method’s bool result is unused during this known-valid sample setup."
             ],
             [
-              244,
+              348,
               "inventory.ChangeStatus(3, ItemStatus.Open)",
               "Open the one risk on Inventory.",
               "Section 3 selects RiskStatus. Every new Project starts with a Closed risk, so this explicit call makes this sample Open."
@@ -151,8 +151,8 @@
       "blocks": [
         {
           "file": "Program.cs",
-          "start": 256,
-          "end": 257,
+          "start": 367,
+          "end": 368,
           "label": "Give the result back",
           "simple": "After making all three projects, this line creates one list with three entries and gives the list back to Main. It does not print the list. It also does not create three more Project objects.",
           "technical": "new List<Project> { website, inventory, training } uses a collection initializer. It adds the existing object references in that order. The method returns the list reference to its caller; the Project objects remain reachable through that list after the local sample-variable names leave scope.",
@@ -162,51 +162,51 @@
           "say": "This returns one list containing the three existing Project references. Main receives the list; it does not receive three separate return values.",
           "rows": [
             [
-              256,
+              367,
               "new List<Project> { website, inventory, training }",
               "Put the existing projects together in order.",
               "The new object here is the List, not another Project. The elements are reference values; indexes begin at zero."
             ],
             [
-              256,
+              367,
               "return",
               "Give this result to the method that called us.",
-              "return terminates CreateSampleProjects. Execution resumes at the suspended call expression in Main, line 14. Returning from this helper does not exit the application."
+              "return terminates CreateSampleProjects. Execution resumes at the suspended call expression in Main, line 16. Returning from this helper does not exit the application."
             ]
           ]
         },
         {
           "file": "Program.cs",
-          "start": 14,
-          "end": 18,
+          "start": 16,
+          "end": 21,
           "label": "Main resumes after the call",
           "simple": "We are back in Main after the sample-data method returned. The list now has a name, projects. The next line makes a different kind of object: HttpClient, the reusable sender for later local AI requests. No AI request has been sent yet.",
           "technical": "This is a resume point, not a second call to CreateSampleProjects. The HttpClient reference is stored in client. A using declaration disposes this client when Main’s scope ends. Timeout is a TimeSpan property configured to 120 seconds per request. WriteLine then prints ordinary fixed text.",
           "why": "Creating one HttpClient for the application avoids making a fresh sender for every AI menu choice. Setting a finite timeout provides a bounded wait. The same client is passed as an argument to later methods; it is not a model or an API credential.",
-          "before": "CreateSampleProjects has just returned to line 14.",
+          "before": "CreateSampleProjects has just returned to line 16.",
           "after": "projects refers to the list, client refers to an HttpClient, and the application title has been printed.",
           "say": "Main now has the project list. It creates one HttpClient for the later AI connection, sets its timeout, and prints the heading. Constructing HttpClient alone does not contact Bionic.",
           "rows": [
             [
-              14,
+              16,
               "List<Project> projects = ...",
               "The returned list is assigned here.",
-              "The right-hand call has completed. The local variable now contains its reference; the program continues at line 15."
+              "The right-hand call has completed. The local variable now contains its reference; the program continues at line 18."
             ],
             [
-              15,
+              18,
               "using HttpClient client = new HttpClient();",
               "Create one request-sending object and arrange to clean it up at the end.",
               "This using is resource lifetime management. It is different from using System.Text.Json at the top of the file, which imports type names."
             ],
             [
-              16,
+              19,
               "client.Timeout = TimeSpan.FromSeconds(120);",
               "Limit how long an HTTP request can wait.",
               "The dot selects the Timeout property on this particular client. The static FromSeconds method constructs a duration value; it does not sleep for 120 seconds."
             ],
             [
-              17,
+              20,
               "Console.WriteLine(...)",
               "Put a line of text in the console window.",
               "WriteLine is a static .NET method. It displays data but returns no result value. The following \\n in a string inserts a line break."
@@ -223,51 +223,51 @@
       "blocks": [
         {
           "file": "Program.cs",
-          "start": 20,
-          "end": 34,
+          "start": 23,
+          "end": 51,
           "label": "Read the menu choice and call its method",
           "simple": "The menu keeps coming back because it is inside while (true). When you type 3 and press Enter, ReadLine gives the text \"3\" to choice. switch finds case \"3\" and calls UpdateStatus. That method runs before the menu can repeat.",
-          "technical": "ReadLine returns string? because input can end and produce null. The null-conditional choice?.Trim() removes surrounding spaces only when choice is non-null. switch compares string values, not integers. break exits the switch after a menu method returns; it does not exit the outer while loop. return at case \"5\" or case null ends Main.",
+          "technical": "ReadLine returns string? because input can end and produce null. The explicit null check protects Trim. switch compares the cleaned string with menu literals. A method call runs the selected action; break leaves switch and the while loop repeats. return in case five or null ends Main.",
           "why": "A switch is easy to inspect for five fixed menu commands. A dictionary of delegates would add another concept without helping this small app. Trimming accepts inputs like \" 3 \". Handling null avoids repeatedly prompting after redirected input ends.",
           "before": "The title has printed. No menu choice has been read yet.",
           "after": "For input \"3\": UpdateStatus receives the existing list. Main is waiting for that call to finish.",
           "say": "The loop repeats the menu. ReadLine reads text, and switch picks a method based on that text. Choosing three calls UpdateStatus; choosing five returns from Main and exits.",
           "rows": [
             [
-              20,
+              23,
               "while (true)",
               "Keep repeating this menu until a return ends Main.",
               "true never becomes false here. Exiting relies on the explicit return branches rather than a changing loop condition."
             ],
             [
-              25,
+              28,
               "string? choice = Console.ReadLine();",
               "Wait for the user’s typed line; it might be absent.",
               "? is a nullable-reference annotation. An empty line is \"\", while null means the input stream ended; they are different values."
             ],
             [
-              26,
-              "switch (choice?.Trim())",
-              "Choose an action from cleaned-up text.",
-              "?. skips Trim for null and produces null instead. Each case matches a string or the null value."
-            ],
-            [
-              30,
-              "case \"3\": UpdateStatus(projects); break;",
-              "Run the update method, then leave the switch.",
-              "The argument is the list reference. This ordinary method call runs synchronously before break executes."
-            ],
-            [
               31,
-              "case \"4\": await ReviewRiskAsync(projects, client); break;",
-              "The AI menu option waits for its entire operation to finish.",
-              "await awaits the returned Task. The menu is not reading another choice meanwhile, even though the network work is asynchronous."
+              "switch (choice)",
+              "Choose the case matching the typed text.",
+              "Trim is performed on the previous line only if choice is not null. The switch then compares the resulting string with menu literals."
             ],
             [
-              33,
-              "case null: ... return;",
-              "Stop cleanly if input ends, just as option five exits.",
-              "The preceding case \"5\" shares this body. return exits Main, whereas break would only leave switch."
+              40,
+              "UpdateStatus(projects); then break;",
+              "Run the status-update method and then leave the switch.",
+              "The menu case and its method call and break are on separate lines. break leaves switch; the while loop continues."
+            ],
+            [
+              43,
+              "await ReviewRiskAsync(projects, client);",
+              "Wait for the AI menu action to finish.",
+              "Main awaits the returned Task before reaching break and the next menu round."
+            ],
+            [
+              46,
+              "case \"5\" or case null → return;",
+              "Exit for menu five or end-of-input.",
+              "return ends Main. This differs from break, which only leaves switch."
             ]
           ]
         }
@@ -281,8 +281,8 @@
       "blocks": [
         {
           "file": "Program.cs",
-          "start": 80,
-          "end": 84,
+          "start": 109,
+          "end": 113,
           "label": "UpdateStatus pauses while SelectProject works",
           "simple": "UpdateStatus needs to know which Project you mean. It calls SelectProject and temporarily waits. If that selection returns a project, selectedProject refers to it. If selection was cancelled or invalid, the returned value is null and this update stops immediately.",
           "technical": "This is a private static void method. It is callable within Program without a Program instance and has no result value. The parameter projects receives the list reference by value. SelectProject returns Project?, so an explicit null guard establishes that later member access is safe. A void method can still change an object reached through a reference.",
@@ -292,19 +292,19 @@
           "say": "This method takes the project list, asks which project to update, and stops if no project was selected. It does not return a value, but it can change the selected object.",
           "rows": [
             [
-              80,
+              109,
               "private static void UpdateStatus(List<Project> projects)",
               "A named action that receives our list.",
               "private limits direct access to Program; static means no Program object is required; void means there is no returned result. projects is a parameter, not a fresh collection."
             ],
             [
-              83,
+              112,
               "Project? selectedProject = SelectProject(projects);",
               "Get the chosen project or no selection.",
               "SelectProject’s return type permits null. Copying a reference into selectedProject does not clone the object."
             ],
             [
-              84,
+              113,
               "if (selectedProject == null) return;",
               "If selection failed or was cancelled, leave this method.",
               "== compares with null. return here returns to Main; it does not itself terminate the application."
@@ -313,51 +313,57 @@
         },
         {
           "file": "Program.cs",
-          "start": 56,
-          "end": 67,
+          "start": 76,
+          "end": 95,
           "label": "Find and return the chosen project",
           "simple": "SelectProject prints the projects, reads the ID you type, and looks for a project whose Id matches it. Typing 2 means \"find ID 2\", not \"take list position 2\". The search reaches Inventory and returns a way to reach that existing object.",
           "technical": "ShowProjects is called first and returns after printing. TryParse turns input text into an int without throwing on normal bad input. foreach visits each Project reference. The first equality match returns immediately. If parsing or the search fails, a message is printed and null is returned. Null and \"0\" are cancellation/end-of-input paths.",
           "why": "A foreach search is explicit and easy to follow for three projects. Indexing with the typed ID would be wrong because list indexes start at zero and IDs need not match positions. A LINQ lookup could be shorter but introduces syntax this demonstration does not need.",
           "before": "input is \"2\". The three stored Project IDs are 1, 2, 3.",
-          "after": "TryParse produces id = 2. ID 1 does not match; ID 2 does. Inventory’s reference is returned to UpdateStatus line 83.",
+          "after": "TryParse produces id = 2. ID 1 does not match; ID 2 does. Inventory’s reference is returned to UpdateStatus line 112.",
           "say": "TryParse converts the typed ID safely. The loop compares it with each project’s Id, and returns the matching object. This is why changing selectedProject changes the project the menu later displays.",
           "rows": [
             [
-              56,
-              "private static Project? SelectProject(...)",
-              "The result can be one Project or no project.",
-              "Project? describes the return value. It is not the type of projects, which is the list parameter."
+              76,
+              "Project? SelectProject(List<Project> projects)",
+              "Find one project; return nothing if selection fails.",
+              "Project? is the nullable return type. projects is the list parameter; the returned reference points to an existing object."
             ],
             [
-              58,
+              78,
               "ShowProjects(projects);",
-              "Display the choices before asking for an ID.",
-              "This nested call prints health for each project and returns here. The separate list/details reference section shows that helper."
+              "Display the available IDs before asking.",
+              "This call returns void and calculates the listing from current object values."
             ],
             [
-              61,
-              "input == null || input.Trim() == \"0\"",
-              "Cancel if input ended or the user entered zero.",
-              "|| means OR and short-circuits: if input is null, Trim is not evaluated. This prevents accessing a member on null."
+              82,
+              "null check, then zero check",
+              "Stop safely for end-of-input or cancellation.",
+              "Only call Trim after the null guard. return null signals no selection to the caller."
             ],
             [
-              62,
-              "int.TryParse(input, out int id)",
-              "Try to turn \"2\" into the number 2.",
-              "TryParse returns bool. out declares a variable that receives the parsed number; the if body runs only on true. \"hello\" therefore fails without a FormatException."
+              86,
+              "bool isNumber = int.TryParse(input, out id);",
+              "Try converting typed text; remember whether it worked.",
+              "TryParse returns bool and assigns the out parameter id. Conversion failure does not throw."
             ],
             [
-              64,
+              87,
+              "if (isNumber == false)",
+              "Reject input such as abc before searching.",
+              "This branch returns null after a readable error; successful conversion proceeds to foreach."
+            ],
+            [
+              93,
               "foreach (Project project in projects)",
-              "Check the projects one at a time.",
-              "project is a local loop variable holding each existing reference. It does not instantiate a new Project on every iteration."
+              "Examine each existing project.",
+              "The local variable receives each reference in turn."
             ],
             [
-              66,
+              95,
               "if (project.Id == id) return project;",
-              "Give back the matching project immediately.",
-              "Both Id and id are ints. return stops the loop and method; it returns the reference, not the project ID."
+              "Return the matching object.",
+              "This returns the same reference; it does not call new or clone the object."
             ]
           ]
         }
@@ -371,45 +377,51 @@
       "blocks": [
         {
           "file": "Program.cs",
-          "start": 85,
-          "end": 93,
+          "start": 114,
+          "end": 133,
           "label": "Block 1: choose and validate the section",
-          "simple": "You already chose Inventory. Now choose which part of Inventory to change. Type 3 for its risk. The code checks that you entered a number from 1 to 3 before trying to use it.",
-          "technical": "This block declares UpdateStatus’s own input variable and stores the newly typed text in it. The status-choice block later reuses this variable. The guard rejects null or \"0\" first. The next if uses !TryParse OR section < 1 OR section > 3. A true result means invalid input, so the body prints an error and returns. On success, out int section supplies the numeric value used by later methods.",
-          "why": "Numbered sections work because each Project has exactly one task, one milestone and one risk. A separate item-ID lookup was unnecessary for this fixed model. Bounds checks prevent a value like 9 from being mistaken for a supported section.",
+          "simple": "Read the section as text, check for cancellation, try converting it to a number, then check that the number is 1, 2 or 3. Each decision has its own visible step. For Inventory’s risk, section becomes integer 3.",
+          "technical": "TryParse assigns section through an out parameter and returns a bool into isSectionNumber. An early return stops UpdateStatus for invalid input; Main then resumes its loop. The later range check only runs after successful conversion.",
+          "why": "Separate conversion and range checks are easier to explain than one combined expression. TryParse safely handles letters and numbers too large for int; the range check handles numbers such as 9.",
           "before": "selectedProject refers to Inventory. You type the string \"3\".",
           "after": "section is the integer 3. No status has changed yet.",
           "say": "Project selection and section selection are different. ID two chooses Inventory; section three chooses its risk. I validate the number before requesting that section’s allowed statuses.",
           "rows": [
             [
-              85,
-              "1. Task / 2. Milestone / 3. Risk",
-              "These numbers select a part of the already selected project.",
-              "They are menu conventions passed as int values. They are not Project IDs, source line numbers or enum numeric values."
+              114,
+              "Task = 1, Milestone = 2, Risk = 3",
+              "Ask which part of this project to change.",
+              "Section number and project ID are separate inputs."
             ],
             [
-              87,
+              116,
               "string? input = Console.ReadLine();",
-              "Read a fresh piece of user input.",
-              "This local belongs to UpdateStatus and is separate from SelectProject’s own input variable. Same variable spelling in different methods does not mean shared storage."
+              "Read the section choice as text.",
+              "ReadLine can return null; the next guard handles that before Trim."
             ],
             [
-              89,
-              "!int.TryParse(...) || section < 1 || section > 3",
-              "Reject anything that is not 1, 2 or 3.",
-              "! reverses a boolean. || short-circuits after the first true condition. On the successful path, section has been assigned by TryParse."
+              121,
+              "bool isSectionNumber = int.TryParse(input, out section);",
+              "Try converting the text into a section number.",
+              "section receives an int; isSectionNumber receives true or false."
             ],
             [
-              92,
-              "return;",
-              "Stop this attempt and go back to the menu.",
-              "This early return exits UpdateStatus, leaving all status properties unchanged. It does not ask the question repeatedly inside this method."
+              122,
+              "if (isSectionNumber == false)",
+              "Stop if conversion failed.",
+              "A conversion check is separate from checking the permitted range."
+            ],
+            [
+              127,
+              "if (section < 1 || section > 3)",
+              "Stop if the number is outside 1 through 3.",
+              "The || operator means either condition is enough to reject the value."
             ]
           ]
         }
       ],
       "next": "Get the valid statuses for the risk.",
-      "goal": "You already chose Inventory. Now choose which part of Inventory to change. Type 3 for its risk. The code checks that you entered a number from 1 to 3 before trying to use it."
+      "goal": "Read the section as text, check for cancellation, try converting it to a number, then check that the number is 1, 2 or 3. Each decision has its own visible step. For Inventory’s risk, section becomes integer 3."
     },
     {
       "route": "run",
@@ -417,8 +429,8 @@
       "blocks": [
         {
           "file": "Program.cs",
-          "start": 95,
-          "end": 96,
+          "start": 133,
+          "end": 134,
           "label": "1 · Call GetAllowedStatuses",
           "simple": "We know the project and section, but still need the legal status choices. This line asks the selected Project for those choices. Because section is 3, the answer will be a two-entry list: Open and Closed.",
           "technical": "GetAllowedStatuses is an instance method declared in Project. selectedProject is the receiver object; section is the argument. The return type List<ItemStatus> means a list of enum values. allowedStatuses is a local variable receiving the returned list reference. The status itself has not been assigned yet.",
@@ -428,13 +440,13 @@
           "say": "I call GetAllowedStatuses on the chosen Project. The method returns the allowed enum values, and I store that list in allowedStatuses for the numbered menu.",
           "rows": [
             [
-              96,
+              134,
               "List<ItemStatus> allowedStatuses",
               "A list of status choices, not a list of projects.",
               "List<T> is reused with a different element type. ItemStatus is an enum; the list is a .NET object."
             ],
             [
-              96,
+              134,
               "selectedProject.GetAllowedStatuses(section)",
               "Ask this project which statuses belong to section three.",
               "The dot selects an instance member. Parentheses supply its argument. The method returns a value, so the assignment can capture it."
@@ -443,8 +455,8 @@
         },
         {
           "file": "Models/Project.cs",
-          "start": 36,
-          "end": 43,
+          "start": 42,
+          "end": 49,
           "label": "2 · Return the allowed statuses",
           "simple": "This method answers the question \"which statuses are allowed?\" It does not change a status. Section 3 gets Open and Closed. Sections 1 and 2 get the four work statuses. An unsupported section gets an empty list.",
           "technical": "The method takes int section and returns List<ItemStatus>. Each return creates and returns a new list of enum values, then ends this invocation. The first matching branch wins. The final empty list ensures invalid section numbers do not accidentally permit a value.",
@@ -454,31 +466,31 @@
           "say": "GetAllowedStatuses returns choices, not success or failure. For a risk it returns Open and Closed, and returning immediately prevents the work-status branch from running.",
           "rows": [
             [
-              36,
+              42,
               "public List<ItemStatus> GetAllowedStatuses(int section)",
               "An accessible method that takes a section number and gives back a list.",
               "public allows Program to call it. No static keyword means it is invoked on a Project instance, although this particular rule depends only on the section argument."
             ],
             [
-              38,
+              44,
               "if (section == 3)",
               "Check whether we are working with the risk.",
               "== compares values. It does not assign 3 to section."
             ],
             [
-              39,
+              45,
               "return new List<ItemStatus> { Open, Closed }",
               "Return exactly the two risk choices in menu order.",
               "The source uses fully qualified ItemStatus values. Their positions in this list, not their underlying enum numbers, determine the menu’s 1 and 2."
             ],
             [
-              40,
+              46,
               "section == 1 || section == 2",
               "Task or milestone gets the same work choices.",
               "|| combines two boolean comparisons. Each side must state its comparison explicitly."
             ],
             [
-              42,
+              48,
               "return new List<ItemStatus>();",
               "Return no allowed choices for an invalid section.",
               "An empty list is an existing collection with Count zero; it is not null. Contains will be false for any requested value."
@@ -487,39 +499,51 @@
         },
         {
           "file": "Program.cs",
-          "start": 97,
-          "end": 106,
+          "start": 135,
+          "end": 159,
           "label": "3 · Resume printing and reading",
           "simple": "The loop prints the returned choices as 1. Open and 2. Closed. You type 2. The code checks that this is a valid displayed number. The stored list still uses positions 0 and 1; converting the menu number to a list position happens in the next block.",
-          "technical": "for initializes i to zero, tests i < Count before each iteration, and increments i afterward. allowedStatuses[i] reads the current enum value. The second TryParse and range guard only allows 1..Count, so subtracting one afterward will yield an in-bounds index. Null or zero cancels before conversion.",
-          "why": "People typically choose menu option 1 for the first entry; C# collections index the first entry at 0. Separating the displayed number from the index avoids an off-by-one error. TryParse is used instead of int.Parse so ordinary typing mistakes do not become exceptions.",
+          "technical": "The loop separates the zero-based position i, the displayed menuNumber and the enum value status. Later TryParse separately reports conversion success. The range check uses Count before any selected index is read.",
+          "why": "The named values make the difference between a menu number, index and enum visible. Safe conversion plus range checking prevents letters or a number outside the list from causing an exception.",
           "before": "allowedStatuses = [Open, Closed]. Count = 2. RiskStatus is still Open.",
           "after": "The menu printed 1 and 2; statusNumber contains integer 2. The object has not changed yet.",
           "say": "The for loop numbers the choices for a person. It adds one only for display. After checking the typed number, the next block subtracts one to read the correct list entry.",
           "rows": [
             [
-              97,
+              135,
               "for (int i = 0; i < allowedStatuses.Count; i++)",
-              "Print each entry once.",
-              "i takes values 0 and 1 when Count is 2. The condition is checked before the body; i++ adds one after it."
+              "Visit each allowed status in order.",
+              "i starts at zero, the test stops before Count, and i++ advances one position."
             ],
             [
-              98,
-              "$\"{i + 1}. {allowedStatuses[i]}\"",
-              "Turn index zero into displayed option one.",
-              "$ enables string interpolation. Braces evaluate expressions. Square brackets retrieve an element by zero-based index; they do not call a method."
+              137,
+              "int menuNumber = i + 1;",
+              "Display positions as 1 and 2 for the person.",
+              "menuNumber is a display value; i remains the zero-based list index."
             ],
             [
-              101,
-              "input == null || input.Trim() == \"0\"",
-              "Allow cancellation before changing anything.",
-              "The short-circuit OR avoids Trim on null. The early return leaves the Project untouched."
+              138,
+              "ItemStatus status = allowedStatuses[i];",
+              "Read the status at this position.",
+              "The indexer returns an ItemStatus enum value."
             ],
             [
-              102,
+              147,
+              "bool isStatusNumber = int.TryParse(input, out statusNumber);",
+              "Convert the new input to an integer.",
+              "The bool reports conversion success. statusNumber is the separate integer result."
+            ],
+            [
+              148,
+              "if (isStatusNumber == false)",
+              "Reject nonnumeric text.",
+              "Returning here prevents any list access or status change."
+            ],
+            [
+              153,
               "statusNumber < 1 || statusNumber > allowedStatuses.Count",
-              "Reject options outside the visible menu.",
-              "Together with TryParse, this establishes a valid index range of 0..Count-1 after subtracting one. A risk choice of 3 is rejected."
+              "Accept only the displayed menu range.",
+              "This check must happen before indexing the list."
             ]
           ]
         },
@@ -566,72 +590,96 @@
       "blocks": [
         {
           "file": "Program.cs",
-          "start": 108,
-          "end": 110,
+          "start": 159,
+          "end": 164,
           "label": "Block 3: choose the value and call the change",
           "simple": "The user entered menu number 2. Subtracting one gives index 1, so the code reads Closed from the list. It then asks the selected Project to apply that value to section 3. The following if runs its body only when the method reports success.",
-          "technical": "selectedStatus is an ItemStatus local, not a Project. ChangeStatus(section, selectedStatus) is a method call returning bool. An if condition can be a method call because the returned true or false decides the branch. The Project object can be mutated even though UpdateStatus itself returns void.",
-          "why": "The menu resolves user-facing numbers into a domain value before calling Project. This avoids treating a menu index as if it were the enum’s underlying number. Delegating the assignment to ChangeStatus keeps validation next to the protected properties.",
+          "technical": "Three separate variables carry three different meanings: statusIndex is an int position; selectedStatus is an ItemStatus value; statusChanged is the bool returned by the instance method. section and selectedStatus are passed as arguments.",
+          "why": "Named intermediate values expose the conversion and the method result. This avoids a method call hidden inside an if condition.",
           "before": "statusNumber = 2; allowedStatuses[1] = Closed; section = 3; Inventory.RiskStatus = Open.",
           "after": "selectedStatus = Closed. Control enters ChangeStatus and will return true if the assignment is valid.",
           "say": "Two minus one selects the second list entry, Closed. I pass that status and section three into ChangeStatus. The if checks its returned success flag before displaying the new health.",
           "rows": [
             [
-              109,
-              "ItemStatus selectedStatus = allowedStatuses[statusNumber - 1];",
-              "Convert the person’s option number into the actual status value.",
-              "The guard in the previous block guarantees a valid index. Do not cast statusNumber to ItemStatus: that would use enum numbers rather than this list’s order."
+              161,
+              "int statusIndex = statusNumber - 1;",
+              "Turn menu choice 2 into list position 1.",
+              "The list is zero-based. This subtraction does not convert the number into an enum."
             ],
             [
-              110,
-              "if (selectedProject.ChangeStatus(section, selectedStatus))",
-              "Apply the change, then check whether it succeeded.",
-              "The method call must finish before if can use its bool result. section and selectedStatus are arguments copied into ChangeStatus’s parameters."
+              162,
+              "ItemStatus selectedStatus = allowedStatuses[statusIndex];",
+              "Read Closed from position 1.",
+              "The list provides the enum value. Closed’s underlying numeric value is unrelated to menu choice 2."
+            ],
+            [
+              163,
+              "bool statusChanged = selectedProject.ChangeStatus(section, selectedStatus);",
+              "Ask the Project to validate and apply the change.",
+              "The method acts on the selected instance and returns a bool, which is stored separately from the enum."
+            ],
+            [
+              164,
+              "if (statusChanged)",
+              "Print the new health only after success.",
+              "An if accepts a Boolean expression. The named bool makes the meaning of the condition explicit."
             ]
           ]
         },
         {
           "file": "Models/Project.cs",
-          "start": 45,
-          "end": 52,
+          "start": 51,
+          "end": 63,
           "label": "Validate, assign, and return success",
           "simple": "This is where the status really changes. First it asks for allowed choices again and checks whether Closed is in them. It is, so the failure return is skipped. Section 3 selects the risk property; that property is assigned Closed, and the method returns true.",
-          "technical": "Contains returns a bool. For GetAllowedStatuses(3).Contains(ItemStatus.Closed), the result is true; ! makes it false, so return false does not run. The three section comparisons select at most one property because section is one integer. The private setter is accessible inside Project. Returning true is a result separate from the side effect of assigning RiskStatus.",
-          "why": "Rechecking here protects the class if another caller bypasses the menu. The UI’s bounds check only validates a number, while this method validates the actual status/section pair. Direct assignment from Program would bypass that rule, so status setters are private.",
+          "technical": "GetAllowedStatuses produces the allowed list. Contains produces the Boolean isAllowed. The guard runs before assignment. Exactly one valid section matches; the method returns true after assigning that section’s property.",
+          "why": "Project enforces its own status rules even when a caller bypasses the menu. Separating the list lookup and membership check exposes each step without adding another method.",
           "before": "section = 3, newStatus = Closed, RiskStatus = Open.",
           "after": "RiskStatus is now Closed on Inventory’s existing object. The method returns true; the caller continues inside its if body.",
           "say": "ChangeStatus validates the status even if the caller already checked input. Then it updates the correct property and returns true. The changed object remains in the original list because we are using the same reference.",
           "rows": [
             [
-              45,
-              "bool ChangeStatus(int section, ItemStatus newStatus)",
-              "Take the part to change and the requested value; report success or failure.",
-              "The return type bool is independent of the ItemStatus parameter type. No new Project is constructed by this method."
-            ],
-            [
-              47,
-              "!GetAllowedStatuses(section).Contains(newStatus)",
-              "Reject a status that is not in the allowed list.",
-              "The inner method returns a list, Contains checks membership, and ! negates that result. For invalid section 9 the list is empty, so the method returns false before any setter runs."
-            ],
-            [
-              50,
-              "if (section == 3) RiskStatus = newStatus;",
-              "This assignment actually changes the risk status.",
-              "RiskStatus is the current instance’s property. It is equivalent to this.RiskStatus. The earlier if branches do not assign anything for section 3."
-            ],
-            [
               51,
+              "bool ChangeStatus(int section, ItemStatus newStatus)",
+              "Define a method that changes a valid status and reports success.",
+              "It is an instance method on one Project, with two parameters and a bool result."
+            ],
+            [
+              54,
+              "List<ItemStatus> allowedStatuses = GetAllowedStatuses(section);",
+              "Get the choices allowed for this section.",
+              "The returned list is a local variable in this method, separate from the console method’s list."
+            ],
+            [
+              55,
+              "bool isAllowed = allowedStatuses.Contains(newStatus);",
+              "Check whether the requested status is in that list.",
+              "Contains returns a bool and does not modify the list."
+            ],
+            [
+              56,
+              "if (isAllowed == false) return false;",
+              "Reject an incompatible status without changing anything.",
+              "An invalid section has an empty allowed list, so this guard also rejects invalid sections."
+            ],
+            [
+              61,
+              "if (section == 3) RiskStatus = newStatus;",
+              "For the risk section, assign the risk status.",
+              "Assignment changes this Project object’s private-set property; other objects are unaffected."
+            ],
+            [
+              62,
               "return true;",
-              "Tell the caller the update succeeded.",
-              "The caller uses this boolean to decide whether to recalculate and print health. true itself does not contain the updated Project."
+              "Tell the caller the change succeeded.",
+              "This Boolean result is not the new status itself."
             ]
           ]
         },
         {
           "file": "Models/Project.cs",
-          "start": 22,
-          "end": 22,
+          "start": 27,
+          "end": 27,
           "label": "Reference declaration · the protected status property",
           "reference": true,
           "simple": "This property holds the risk status for each individual Project. Other code can read it, but only code inside Project can assign it directly. Closed is its starting value when a new Project is initialized.",
@@ -642,7 +690,7 @@
           "say": "RiskStatus is a property. Its getter is public but its setter is private, so changes go through the validation method. Every project has its own stored status.",
           "rows": [
             [
-              22,
+              27,
               "public ItemStatus RiskStatus { get; private set; } = ItemStatus.Closed;",
               "One status value with controlled write access.",
               "get reads; set assigns. The trailing initializer is a default during object initialization. This is encapsulation, not inheritance."
@@ -659,8 +707,8 @@
       "blocks": [
         {
           "file": "Program.cs",
-          "start": 112,
-          "end": 112,
+          "start": 166,
+          "end": 166,
           "label": "1 · Call CalculateHealth",
           "simple": "ChangeStatus returned true, so this line asks the same Project for its current health. It calculates a fresh result using the newly changed status. Nothing is sent to AI.",
           "technical": "CalculateHealth is an instance method returning a HealthStatus enum value. The empty argument list is possible because the method reads properties on its receiver, selectedProject. The local health variable captures the returned value for printing.",
@@ -670,7 +718,7 @@
           "say": "I recalculate health after changing the status. The method needs no arguments because the chosen Project object already holds the facts it uses.",
           "rows": [
             [
-              112,
+              166,
               "HealthStatus health = selectedProject.CalculateHealth();",
               "Ask this project for a fresh health result.",
               "HealthStatus is the result’s type, health is a local variable, selectedProject is the receiver, and CalculateHealth() is the method call. No status property is assigned by this line."
@@ -679,52 +727,64 @@
         },
         {
           "file": "Models/Project.cs",
-          "start": 59,
-          "end": 69,
+          "start": 71,
+          "end": 90,
           "label": "2 · Apply the health rules and return",
           "simple": "The health rules run in order. An open risk with impact at least four is OffTrack. Otherwise an open risk is AtRisk. With a closed risk, an unfinished overdue milestone can still make the project AtRisk. If none of those warnings applies, the answer is OnTrack.",
-          "technical": "Each return ends the method, giving higher-priority rules precedence. && requires all operands to be true and short-circuits left-to-right. HasValue protects the nullable DateTime before Value is read. .Date and DateTime.Today compare calendar dates; a milestone due today is not overdue. RiskLikelihood and the multiplied priority score are not used by these health rules.",
-          "why": "Ordered if/return statements make the rules directly visible. A score threshold would be a different policy: likelihood 1 × impact 5 has score 5, yet this implementation is OffTrack while the risk is Open. The current rules preserve the agreed classroom behavior.",
-          "before": "In our update example: RiskStatus = Closed; milestone due ten days from today.",
-          "after": "The risk conditions fail; the overdue condition fails; return OnTrack runs. With Training’s overdue unfinished milestone, a Closed risk would still produce AtRisk.",
+          "technical": "The method checks open risk first: impact at least four returns OffTrack, otherwise AtRisk. With a closed risk, it safely computes two named Boolean facts about the milestone. Late and unfinished returns AtRisk; otherwise OnTrack. Only local variables change.",
+          "why": "Named Boolean values expose the business rules. HasValue protects access to an optional date. Early returns preserve priority without needing a health accumulator or loop.",
+          "before": "Inventory’s risk is Closed after the update. Its milestone date is in the future.",
+          "after": "riskIsOpen=false; milestoneIsLate=false. The method returns HealthStatus.OnTrack without changing the project.",
           "say": "Health is deterministic C# logic. The first matching rule returns its enum result. The date guard prevents reading a missing date, and AI is not involved in this calculation.",
           "rows": [
             [
-              61,
-              "RiskStatus == Open && RiskImpact >= 4",
-              "Both an open risk and high impact are required.",
-              "&& means AND. The early OffTrack return takes priority over other possible warnings, including an overdue milestone."
+              74,
+              "bool riskIsOpen = RiskStatus == ItemStatus.Open;",
+              "Remember whether this risk is open.",
+              "The == comparison returns bool; = stores that result in a local variable."
             ],
             [
-              63,
-              "if (RiskStatus == ItemStatus.Open)",
-              "A remaining open risk still needs attention.",
-              "A high-impact open risk already returned above. This branch handles open risks that did not meet that first condition."
+              77,
+              "if (RiskImpact >= 4) return HealthStatus.OffTrack;",
+              "An open high-impact risk gives OffTrack.",
+              "This line runs only inside the riskIsOpen branch; return prevents later rules overriding the result."
             ],
             [
-              65,
-              "MilestoneStatus != Completed && MilestoneDueDate.HasValue",
-              "Only unfinished milestones with a date can be overdue.",
-              "!= means not equal. HasValue tests the nullable value type; short-circuiting prevents evaluating .Value when no date exists."
+              82,
+              "bool milestoneIsLate = false;",
+              "Begin with no evidence that the milestone is late.",
+              "A missing date will leave this Boolean false."
             ],
             [
-              66,
-              "MilestoneDueDate.Value.Date < DateTime.Today",
-              "Check whether that due date is earlier than today.",
-              "< is strict, so due today does not count. The task’s due date is not checked by this method."
+              83,
+              "if (MilestoneDueDate.HasValue)",
+              "Only inspect a date when it exists.",
+              "DateTime? can be null. Accessing Value must stay behind this guard."
             ],
             [
-              68,
-              "return HealthStatus.OnTrack;",
-              "No warning applied, so give back OnTrack.",
-              "This returns an enum value to Program. It does not print it or store it on the Project."
+              85,
+              "milestoneIsLate = MilestoneDueDate.Value.Date < DateTime.Today;",
+              "Compare the existing due date with today.",
+              "Earlier dates are late; a due date equal to today is not late."
+            ],
+            [
+              87,
+              "bool milestoneIsFinished = MilestoneStatus == ItemStatus.Completed;",
+              "Remember whether the milestone is complete.",
+              "The next test requires lateness and unfinished work together."
+            ],
+            [
+              88,
+              "if (milestoneIsLate && milestoneIsFinished == false)",
+              "Flag a late, unfinished milestone.",
+              "&& means both conditions must be true. Otherwise the final return is OnTrack."
             ]
           ]
         },
         {
           "file": "Program.cs",
-          "start": 113,
-          "end": 115,
+          "start": 167,
+          "end": 169,
           "label": "3 · Resume printing the result",
           "simple": "We have returned from CalculateHealth. This line displays the selected status and calculated health together. When UpdateStatus reaches its closing brace, control goes back to Main’s menu case.",
           "technical": "The interpolated string evaluates selectedStatus and health and formats their enum names. WriteLine sends that text to the console. UpdateStatus returns no value because it is void; its meaningful effects are the earlier property assignment and this displayed message.",
@@ -734,13 +794,13 @@
           "say": "The calculation returned OnTrack, and Program prints it with the new status. The Project method calculates; the Program method decides how to show the result.",
           "rows": [
             [
-              113,
+              167,
               "Console.WriteLine($\"Updated to {selectedStatus}. Project health: {health}\");",
               "Insert the values into one sentence and display it.",
               "String interpolation formats the existing values. Printing does not save them to disk or send them to the model."
             ],
             [
-              115,
+              169,
               "Closing brace of UpdateStatus",
               "This update is finished.",
               "Reaching the end of a void method returns to the caller without a value. Main then executes break for case \"3\" and proceeds around the while loop."
@@ -757,8 +817,8 @@
       "blocks": [
         {
           "file": "Program.cs",
-          "start": 28,
-          "end": 38,
+          "start": 33,
+          "end": 55,
           "label": "Back in Main: repeat or exit",
           "simple": "After the update method finishes, break leaves the switch and the loop prints the menu again. The same project list still exists, so Inventory remains Closed in this run. When you next choose 5, return ends Main and the application finishes.",
           "technical": "The loop reuses the local projects reference; it does not call CreateSampleProjects again on each iteration. case \"5\" and case null share the exit body. Main’s scope ends on return, so its using-declared HttpClient is disposed. Restarting launches a new execution and builds fresh sample objects.",
@@ -768,19 +828,19 @@
           "say": "break exits the switch, so the menu repeats using the same objects. return from Main exits the app. A restart creates the fictional samples again, so the changes are not permanent.",
           "rows": [
             [
-              30,
-              "UpdateStatus(projects); break;",
+              40,
+              "UpdateStatus(projects); then break;",
               "The menu continues only after the update returns.",
               "break exits this switch, not the surrounding while. The next visible instruction in Main is the blank WriteLine, followed by the next iteration."
             ],
             [
-              33,
-              "Console.WriteLine(\"Goodbye.\"); return;",
+              47,
+              "Console.WriteLine(\"Goodbye.\"); then return;",
               "Option five or end-of-input ends the program.",
               "return from the entry point completes the app. The same keyword inside a helper only ends that helper."
             ],
             [
-              36,
+              53,
               "Console.WriteLine();",
               "Print a blank line between menu rounds.",
               "The parameterless overload returns void. After the loop’s closing brace, execution goes back to the while condition."
@@ -797,8 +857,8 @@
       "blocks": [
         {
           "file": "Program.cs",
-          "start": 9,
-          "end": 10,
+          "start": 10,
+          "end": 11,
           "label": "Connection settings — setup reference",
           "simple": "These are addresses and names, not AI code being executed. The tracker needs to know where a separate local program accepts requests and which model it should use. BionicUrl supplies the address; ModelKey supplies the model identity. Qwen is not stored inside this .cs file.",
           "technical": "Both members are const string values. The address uses HTTP, loopback host 127.0.0.1, and port 51500. An endpoint is an address for a particular API operation; later code appends /api/v1/models or /api/v1/chat. ModelKey is matched against the model-list response, after which the loaded-instance ID is used in the chat body.",
@@ -808,13 +868,13 @@
           "say": "I did not put a model inside the C# program. I configured the local server address and model name, then used HTTP to communicate with the runtime that already runs Qwen.",
           "rows": [
             [
-              9,
+              10,
               "public const string BionicUrl = \"http://127.0.0.1:51500\";",
               "The base address of Bionic’s local API on this computer.",
               "http is the protocol, 127.0.0.1 is this host, and 51500 identifies a listening port. The learning website has a different port and does not proxy model requests."
             ],
             [
-              10,
+              11,
               "public const string ModelKey = \"qwen/qwen3.5-9b\";",
               "The model identity to find in the server’s list.",
               "The literal is configuration, not authentication. The slash is part of the model key, not a filesystem path that C# opens."
@@ -831,8 +891,8 @@
       "blocks": [
         {
           "file": "Program.cs",
-          "start": 15,
-          "end": 16,
+          "start": 18,
+          "end": 19,
           "label": "One client for this program run",
           "simple": "HttpClient is a ready-made .NET class for talking to HTTP services. new HttpClient() creates our sender object and client holds its reference. The app creates it once, then passes the same sender into the AI methods. This step alone does not ask a model anything.",
           "technical": "HttpClient implements IDisposable. The using declaration schedules disposal at Main’s scope exit, including normal return. Timeout is an instance property set to a TimeSpan duration. The GET readiness operation later supplies its own five-second cancellation token, while chat uses the client’s 120-second timeout.",
@@ -842,19 +902,19 @@
           "say": "I used .NET’s HttpClient to send HTTP requests. I created one instance, set a timeout, and passed that object to my AI methods. HttpClient is the messenger, not the model.",
           "rows": [
             [
-              15,
+              18,
               "HttpClient client",
               "HttpClient is the type; client is the variable name.",
               "This is a .NET library class. It does not add another authored application class to Program and Project."
             ],
             [
-              15,
+              18,
               "using ... = new HttpClient()",
               "Create it now and release its resources when Main ends.",
               "A using declaration calls Dispose at scope exit. It does not mean \"use AI\" and is not the same construct as a using namespace directive."
             ],
             [
-              16,
+              19,
               "TimeSpan.FromSeconds(120)",
               "Make a duration value representing two minutes.",
               "This static factory method does not delay execution. Assigning its result changes future HTTP timeout behavior. A client timeout does not prove the separate server stopped computing."
@@ -868,7 +928,7 @@
           "label": "Imports used by the request code — not an execution step",
           "reference": true,
           "simple": "These lines let the file use shorter type names from named groups of .NET code. They do not start a service, send a request or download a library. The third line lets Program use our Project and enum types by their short names.",
-          "technical": "using directives perform compile-time namespace name lookup. System.Text supplies StringBuilder and Encoding; System.Text.Json supplies JsonSerializer and JsonDocument. HttpClient’s namespace, System.Net.Http, is included through this project’s enabled implicit usings. A namespace is a naming group, not a running object.",
+          "technical": "using directives let C# resolve library and project type names. System.Text provides Encoding, System.Text.Json provides JsonSerializer and JsonDocument, and the project namespace provides Project and the enums. HttpClient is available through enabled implicit usings. These directives do not create objects or send requests.",
           "why": "We could write System.Text.Json.JsonSerializer each time, but an import avoids repetition. No additional NuGet package is required because these libraries are available in the targeted .NET runtime.",
           "before": "Reference declaration, not a place execution jumps to while making a request.",
           "after": "The compiler can resolve the short names used later in this source file.",
@@ -878,7 +938,7 @@
               1,
               "using System.Text;",
               "Make text helper names available.",
-              "This directive lets StringBuilder and Encoding be written without their full namespace."
+              "This directive lets Encoding be written without the full name System.Text.Encoding."
             ],
             [
               2,
@@ -904,8 +964,8 @@
       "blocks": [
         {
           "file": "Program.cs",
-          "start": 117,
-          "end": 128,
+          "start": 171,
+          "end": 185,
           "label": "Select an open risk and preview its facts",
           "simple": "Menu option four starts here. The method asks which project you mean. A closed risk is rejected before any request. For an open risk, the app prints the exact facts it is about to use and asks whether you want to send them.",
           "technical": "ReviewRiskAsync is an async method returning Task with no result value. Its parameters receive the existing list and HttpClient references. SelectProject returns the existing Project. GetRiskDetails and CalculateHealth are ordinary C# calls that finish before the prompt for confirmation. Neither of those methods invokes a model.",
@@ -915,31 +975,31 @@
           "say": "ReviewRiskAsync is the console part of the integration. It selects an open risk, previews its facts, and asks for confirmation before it calls the networking method.",
           "rows": [
             [
-              117,
+              171,
               "async Task ReviewRiskAsync(List<Project> projects, HttpClient client)",
               "Receive the projects and the sender; represent an operation Main can wait for.",
               "Task here has no generic result type. It communicates completion to Main. Task<string> in ExplainRiskAsync instead represents completion with a string result."
             ],
             [
-              121,
+              175,
               "selectedProject.RiskStatus != ItemStatus.Open",
               "Reject a risk that is not open.",
               "This guard returns before any HTTP method. The same domain rule is also checked by ExplainRiskAsync for callers that bypass this console method."
             ],
             [
-              126,
-              "selectedProject.CalculateHealth()",
-              "Calculate the health locally for the preview.",
-              "The method returns an enum which is formatted into the string. This is C# policy, not AI inference."
+              181,
+              "HealthStatus health = selectedProject.CalculateHealth();",
+              "Calculate the health that will be shown.",
+              "This returns an enum from C# rules, before the model is contacted."
             ],
             [
-              127,
-              "Console.WriteLine(selectedProject.GetRiskDetails());",
-              "Get a formatted string and display it.",
-              "The inner method executes first, returning text; WriteLine consumes that text. Calling a formatting method is not an HTTP operation."
+              182,
+              "string riskDetails = selectedProject.GetRiskDetails();",
+              "Build the risk text for the preview.",
+              "The next WriteLine prints the returned string; formatting and printing are separate steps."
             ],
             [
-              128,
+              185,
               "Console.Write(... \"(y/n): \")",
               "Ask permission for this particular request.",
               "Write prints without adding a final line break so the typed answer appears on the same line."
@@ -948,39 +1008,45 @@
         },
         {
           "file": "Program.cs",
-          "start": 129,
-          "end": 136,
+          "start": 186,
+          "end": 199,
           "label": "Confirm, wait for a result, then print",
           "simple": "Only a response equal to y, ignoring spaces at the ends and letter case, continues. On yes, the app announces that it is waiting, calls ExplainRiskAsync, waits for the returned text, and prints it. On anything else, it returns to the menu without sending HTTP.",
-          "technical": "Console.ReadLine()?.Trim() can yield null. The static string.Equals overload compares it safely to \"y\" using OrdinalIgnoreCase. The ! negates that result to enter the cancel branch. ExplainRiskAsync returns Task<string>; await extracts the eventual string into the local answer variable. WriteLine is not reached until that work completes.",
-          "why": "The console wrapper asks and prints; the helper returns text. Keeping those responsibilities separate means the HTTP helper can be checked with controlled responses. async/await expresses sequential dependencies around an operation that completes later, but this menu deliberately awaits the whole operation.",
+          "technical": "A null check protects normalization. Trim removes surrounding whitespace and ToLowerInvariant normalizes case. A value other than y returns early. On confirmation, await produces the string from ExplainRiskAsync, then WriteLine displays it.",
+          "why": "Naming the confirmation text and separating normalization makes accepted input clear. Printing stays in the console method; the networking method returns text.",
           "before": "The facts have been shown. Input \" Y \" becomes \"Y\", which matches y ignoring case.",
-          "after": "On yes, execution enters ExplainRiskAsync. ReviewRiskAsync is waiting at line 135 for a string; Main is also waiting at line 31 for this operation.",
+          "after": "On yes, ReviewRiskAsync waits for ExplainRiskAsync to return a string. Main is also awaiting the whole menu action.",
           "say": "After confirmation, I await ExplainRiskAsync. It eventually gives back a string, and WriteLine displays that string in the same console. The menu resumes only after this method finishes.",
           "rows": [
             [
-              129,
-              "!string.Equals(Console.ReadLine()?.Trim(), \"y\", StringComparison.OrdinalIgnoreCase)",
-              "Treat y or Y as yes; treat other input as cancellation.",
-              "The null-safe comparison handles EOF without calling a string member on null. ! changes \"is yes\" into the cancellation condition \"is not yes\"."
+              186,
+              "string? confirmation = Console.ReadLine();",
+              "Read the yes/no reply.",
+              "ReadLine returns a string or null; this variable is not the AI answer."
             ],
             [
-              132,
-              "return;",
-              "Return to Main without entering the networking helper.",
-              "No request has been sent on this branch. return completes this Task-returning method without a result value."
+              189,
+              "Trim, then ToLowerInvariant",
+              "Remove outside spaces and normalize Y to y.",
+              "These calls run only after the null check. Each returns a string assigned back to the same local variable."
             ],
             [
-              135,
+              192,
+              "if (confirmation != \"y\")",
+              "Cancel unless the normalized reply is y.",
+              "null, n and other text all cancel; the branch returns before the AI helper is called."
+            ],
+            [
+              198,
               "string answer = await ExplainRiskAsync(client, selectedProject);",
-              "Pass the sender and chosen object to the helper, then receive its final text.",
-              "The call returns Task<string>. await produces string when that task completes. The argument order is client first, selectedProject second; these map to the helper’s parameters."
+              "Wait for the helper’s text result.",
+              "The helper returns Task<string>; await supplies its eventual string."
             ],
             [
-              136,
+              199,
               "Console.WriteLine(answer);",
-              "Show the returned result, including a readable error if that is what the helper returned.",
-              "answer is a string here. It is distinct from the StringBuilder named answer inside another method’s local scope."
+              "Print the returned answer or error text.",
+              "WriteLine displays text; it makes no HTTP request."
             ]
           ]
         }
@@ -994,50 +1060,50 @@
       "blocks": [
         {
           "file": "Program.cs",
-          "start": 157,
-          "end": 166,
+          "start": 225,
+          "end": 238,
           "label": "Method definition, guards, and readiness call",
           "simple": "This helper is given two things: an HTTP sender and one Project object. It first rejects a closed risk or ratings outside 1–5. It then checks whether the exact local model is loaded. If it cannot find a loaded instance, it returns an explanation of what to fix instead of submitting chat.",
-          "technical": "The signature returns Task<string>, so successful awaited completion supplies text. client and project are parameters receiving existing references. The guards precede try because they need no HTTP. GetLoadedModelAsync returns Task<string?>; awaiting it produces a string ID or null, and the local model variable holds that result.",
+          "technical": "This static asynchronous method receives an HttpClient reference and a Project reference and eventually returns a string. An open-risk guard and two named rating checks precede all HTTP work. Inside try, the awaited readiness helper returns an instance ID or null.",
           "why": "The helper validates its own inputs so it remains safe to call outside the console menu. Passing an already-created client avoids a hidden dependency on a globally constructed sender. A missing model is handled explicitly instead of silently switching to another installed model.",
           "before": "client is the sender from Main; project is Inventory; risk is Open; likelihood 4; impact 5.",
-          "after": "The guards pass. At line 164 the method waits for a loaded-instance ID. Null returns an error message; an ID permits building the prompt.",
+          "after": "The guards pass. loadedModelId receives the readiness result. A null result returns a setup message; a usable ID allows the request to be built.",
           "say": "ExplainRiskAsync takes the HTTP client and the selected project. It validates the risk, awaits a loaded model ID, and returns a string result. It does not load or train the model itself.",
           "rows": [
             [
-              157,
+              225,
               "public static async Task<string> ExplainRiskAsync(HttpClient client, Project project)",
               "A method that will eventually give back text.",
               "Task<string> is the asynchronous return type. string is the eventual result type, not the type of project or client. static means callers need no Program object."
             ],
             [
-              159,
+              228,
               "if (project.RiskStatus != ItemStatus.Open) return ...",
               "A closed risk is rejected even if this helper is called directly.",
               "A return containing a string completes the async method with that result; the caller sees it after awaiting the Task."
             ],
             [
-              160,
-              "RiskLikelihood < 1 || ... RiskImpact > 5",
-              "Reject any rating outside the classroom scale.",
-              "These public properties are not validated on every assignment, so this is boundary validation before AI submission. This does not make the supplied ratings scientifically measured."
+              229,
+              "validLikelihood / validImpact",
+              "Check each rating’s range separately.",
+              "Each named bool is true only for a rating from one through five. The following guard rejects either false result."
             ],
             [
-              164,
-              "string? model = await GetLoadedModelAsync(client);",
-              "Obtain the ready model’s instance ID, or no ID.",
-              "string? permits null. Task<string?> belongs to the called method; await unwraps the eventual nullable string."
+              236,
+              "string? loadedModelId = await GetLoadedModelAsync(client);",
+              "Receive the ID of a loaded instance.",
+              "The nullable string contains an identifier for the server, not a model object or credential."
             ],
             [
-              165,
-              "if (model == null)",
-              "Stop before POST when no loaded match exists.",
-              "return sends a user-facing message back through line 135 to WriteLine. It is not a canned AI explanation."
+              237,
+              "if (loadedModelId == null)",
+              "Stop when there is no loaded matching model.",
+              "No POST request occurs on this return path."
             ]
           ]
         }
       ],
-      "next": "The call at line 164 pauses while GetLoadedModelAsync performs the readiness check.",
+      "next": "The readiness call waits for GetLoadedModelAsync to finish.",
       "goal": "This helper is given two things: an HTTP sender and one Project object. It first rejects a closed risk or ratings outside 1–5. It then checks whether the exact local model is loaded. If it cannot find a loaded instance, it returns an explanation of what to fix instead of submitting chat."
     },
     {
@@ -1046,68 +1112,74 @@
       "blocks": [
         {
           "file": "Program.cs",
-          "start": 140,
-          "end": 154,
+          "start": 203,
+          "end": 223,
           "label": "Read the model list and find a loaded instance",
           "simple": "GET asks the local server for information about available models. The response is structured text. The code reads its models list, skips entries whose key is not Qwen’s key, and looks for a loaded instance ID. It returns the first nonempty matching ID. It does not ask Qwen to generate any words.",
           "technical": "GetStringAsync performs HTTP GET and its awaited result is the body string. JsonDocument.Parse reads that string into a JSON document. RootElement, GetProperty, EnumerateArray, and GetString walk the model-list schema. JsonElement is a .NET value type representing a node. The inner return exits both loops and the method. If neither loop finds a loaded ID, the final return null completes the task with no selection.",
           "why": "A model may be downloaded without being resident in memory. Looking inside loaded_instances distinguishes those states. Matching ModelKey prevents accidentally using another loaded model. A five-second cancellation token keeps the readiness request short; it does not start or kill the runtime.",
           "before": "Example response: a models array contains key qwen/qwen3.5-9b and loaded_instances with id qwen-example-instance. This ID is illustrative.",
-          "after": "The helper returns qwen-example-instance to ExplainRiskAsync line 164. With loaded_instances = [], it returns null and chat is not attempted.",
+          "after": "The helper returns qwen-example-instance into loadedModelId in ExplainRiskAsync. An empty loaded_instances array produces null, so chat is not attempted.",
           "say": "I check readiness with GET /api/v1/models. I parse the JSON, match the model key, and return the loaded instance ID for the chat request. Downloaded and loaded are different states.",
           "rows": [
             [
-              140,
+              203,
               "Task<string?> GetLoadedModelAsync(HttpClient client)",
-              "Eventually give back an ID string or null.",
-              "Task represents future completion; string? describes the possible result. It is not a task in the fictional project’s work plan."
+              "Find a loaded model ID, or return null.",
+              "Task<string?> describes the eventual nullable string result."
             ],
             [
-              142,
-              "new CancellationTokenSource(TimeSpan.FromSeconds(5))",
-              "Arrange a stop signal for this request after five seconds.",
-              "timeout.Token is passed to GetStringAsync. Disposing the token source releases its resources; it does not shut down Bionic."
+              205,
+              "CancellationTokenSource timeout",
+              "Allow five seconds for the readiness request.",
+              "timeout.Token is passed into the GET call; client timeout is a separate upper bound."
             ],
             [
-              143,
-              "await client.GetStringAsync(BionicUrl + \"/api/v1/models\", timeout.Token)",
-              "Send GET to the models endpoint and obtain its response text.",
-              "The + concatenates the address and path. The returned string is JSON text, not a model object or generated explanation."
+              206,
+              "await client.GetStringAsync(..., timeout.Token)",
+              "Ask the API for model information.",
+              "GET /api/v1/models retrieves readiness data; it does not ask for generated risk advice."
             ],
             [
-              145,
-              "data.RootElement.GetProperty(\"models\").EnumerateArray()",
-              "Find the models list and visit its entries.",
-              "GetProperty selects a named JSON member; EnumerateArray exposes entries for foreach. Missing properties or wrong kinds cause handled errors up in ExplainRiskAsync."
+              208,
+              "JsonElement models = data.RootElement.GetProperty(\"models\");",
+              "Locate the models array in the parsed reply.",
+              "This names the JSON node before the foreach loop enumerates it."
             ],
             [
-              147,
-              "if (model.GetProperty(\"key\").GetString() != ModelKey) continue;",
-              "Skip models whose identity does not match.",
-              "continue advances the outer loop. This local model is a JsonElement and is distinct from the string variable named model in ExplainRiskAsync."
+              211,
+              "string? key = model.GetProperty(\"key\").GetString();",
+              "Read the model key from this entry.",
+              "GetProperty finds a JSON member and GetString reads its string value."
             ],
             [
-              148,
-              "model.GetProperty(\"loaded_instances\").EnumerateArray()",
-              "Look for copies of the matched model that are loaded.",
-              "An empty array runs the inner loop zero times. The code then eventually reaches return null if no loaded match is found."
+              212,
+              "if (key != ModelKey) continue;",
+              "Skip other models.",
+              "continue advances the outer loop without looking for their loaded instances."
             ],
             [
-              151,
-              "if (!string.IsNullOrWhiteSpace(id)) return id;",
-              "Return the first usable loaded ID.",
-              "This exits the helper immediately. The ID may happen to equal the model key, but the code deliberately reads the instance ID instead of assuming equality."
+              214,
+              "JsonElement instances = model.GetProperty(\"loaded_instances\");",
+              "Locate loaded instances for the matching model.",
+              "An empty array means no usable instance was found in this snapshot."
             ],
             [
-              154,
+              218,
+              "bool missingId = string.IsNullOrWhiteSpace(id);",
+              "Check that the instance ID contains useful text.",
+              "If missingId is false, return id. No model-load command is sent."
+            ],
+            [
+              222,
               "return null;",
-              "Tell the caller that no loaded match was found.",
-              "This is a normal absence result. HTTP errors instead throw into the caller’s try/catch. A state change after this check is still possible."
+              "Report no usable matching instance.",
+              "The caller checks null and returns a setup message before POST."
             ]
           ]
         }
       ],
-      "next": "Return to ExplainRiskAsync at line 164; if an ID was found, prepare the prompt.",
+      "next": "Return to ExplainRiskAsync; if an ID was found, prepare the prompt.",
       "goal": "GET asks the local server for information about available models. The response is structured text. The code reads its models list, skips entries whose key is not Qwen’s key, and looks for a loaded instance ID. It returns the first nonempty matching ID. It does not ask Qwen to generate any words."
     },
     {
@@ -1116,62 +1188,74 @@
       "blocks": [
         {
           "file": "Program.cs",
-          "start": 169,
-          "end": 169,
+          "start": 240,
+          "end": 244,
           "label": "Build the prompt string",
           "simple": "This is the actual message text being assembled for Qwen. C# inserts the project’s name and calculated health, then appends the string returned by GetRiskDetails. For Inventory it contains the scanner delay, owner Chris, ratings 4 and 5, priority score 20, the scenario, and the current plan.",
-          "technical": "String interpolation evaluates project.Name and project.CalculateHealth() before producing text. + concatenates the first string with the GetRiskDetails return value. The resulting local prompt variable is a string; it is not a method or HTTP request. The later request property input will receive this value.",
-          "why": "Supplying concrete facts gives the model something specific to explain. Sending only \"estimate risk\" would omit the information needed to connect its advice to this example. Reusing GetRiskDetails keeps the console preview and AI context based on the same formatting method.",
+          "technical": "The code first calls the two Project methods and stores their return values. String interpolation then creates the header, and += appends the risk description. prompt is a local C# string, not a terminal command or a Project object.",
+          "why": "Storing health and riskDetails separately exposes the values that become the prompt. GetRiskDetails keeps the preview and AI facts consistent without duplicating the formatting rules.",
           "before": "Inventory has Open risk, likelihood 4, impact 5, and C# health OffTrack.",
           "after": "prompt contains a complete multiline message. The wire-example panel shows every character as readable lines; no request has been sent yet.",
           "say": "I built the prompt from the Project object. C# calculates health and score first, then I include those values along with the risk’s scenario and plan. Qwen receives these supplied facts as text.",
           "rows": [
             [
-              169,
-              "string prompt = $\"Fictional project: {project.Name}...\" + project.GetRiskDetails();",
-              "Turn this project’s values into one message.",
-              "string is the type; prompt is the local variable. The right-hand interpolation and method calls are evaluated before assignment. The model does not directly inspect our C# objects."
+              241,
+              "HealthStatus health = project.CalculateHealth();",
+              "Get the current C# health result.",
+              "The model receives this supplied result; it does not calculate the authoritative health."
             ],
             [
-              169,
-              "\\n / {project.CalculateHealth()} / +",
-              "Use new lines, insert the calculated health, and join the risk details.",
-              "\\n is a newline escape inside the C# string literal. JSON serialization later escapes those newlines for transport; that is a separate transformation."
+              242,
+              "string riskDetails = project.GetRiskDetails();",
+              "Get formatted risk facts.",
+              "This string includes title, owner, status, ratings, priority score, scenario and plan."
+            ],
+            [
+              243,
+              "string prompt = $\"Fictional project: {project.Name}...\";",
+              "Start the text to send to Qwen.",
+              "Interpolation inserts the property and enum values; \\n inserts line breaks."
+            ],
+            [
+              244,
+              "prompt += riskDetails;",
+              "Add the risk text to the end of the prompt.",
+              "For strings, += joins text and assigns the resulting string back to prompt."
             ]
           ]
         },
         {
           "file": "Models/Project.cs",
-          "start": 71,
-          "end": 76,
+          "start": 92,
+          "end": 99,
           "label": "GetRiskDetails returns reusable text",
           "simple": "This method builds a readable description of the risk using this Project’s properties. It calls CalculateRiskScore to insert the product of the two ratings. It returns text; the caller decides whether to print that text or put it inside the AI prompt.",
           "technical": "The method’s return type is string. The three interpolated strings are concatenated with +. Calls and property reads inside the interpolation are evaluated while building the value. The risk details include title, owner, status, both ratings, score, scenario, and plan; they exclude unrelated task details.",
           "why": "One formatter serves both the preview and the AI request. If each caller assembled its own risk summary, it could accidentally omit or disagree about a field. The explicit \"not a percentage\" wording prevents presenting an ordinal ranking as measured failure probability.",
           "before": "Title = Scanner hardware may arrive late; Owner = Chris; Status = Open; Likelihood = 4; Impact = 5.",
-          "after": "A four-line risk description returns to the concatenation on Program line 169. The score portion is 20/25 (not a percentage).",
+          "after": "The four-line risk description is stored in riskDetails. prompt += riskDetails joins it to the header. The score portion is 20/25 (not a percentage).",
           "say": "GetRiskDetails returns a string describing the selected risk. It does not contact AI. The same returned text is used in the preview and in the outgoing prompt.",
           "rows": [
             [
-              71,
+              92,
               "public string GetRiskDetails()",
               "A method that returns risk information as text.",
               "No parameters are required because it reads the current instance’s properties. It is an instance method, not a static utility."
             ],
             [
-              73,
+              96,
               "{RiskTitle} / {RiskOwner} / {RiskStatus}",
               "Insert the values stored on this Project.",
               "The receiver is implicit inside the class: RiskTitle means this.RiskTitle. The enum is formatted to its name."
             ],
             [
-              74,
-              "{CalculateRiskScore()}/25 (not a percentage)",
-              "Insert the locally calculated score with its scale.",
-              "The call executes before string construction completes. It does not use any model response."
+              95,
+              "int score = CalculateRiskScore();",
+              "Calculate the priority score before formatting it.",
+              "The next string interpolates score, a local int. The score is not a percentage."
             ],
             [
-              75,
+              98,
               "Scenario / Current plan",
               "Include the fictional situation and existing mitigation.",
               "These string properties are supplied sample data. Prompt instructions ask the model to treat them as data, but this is not a security guarantee or a validation engine."
@@ -1180,8 +1264,8 @@
         },
         {
           "file": "Models/Project.cs",
-          "start": 54,
-          "end": 57,
+          "start": 65,
+          "end": 69,
           "label": "The score is ordinary multiplication",
           "simple": "Multiply the likelihood rating by the impact rating. Inventory’s numbers are 4 and 5, so the method returns 20. It does not return \"20/25\" as text; another method adds that label when displaying the integer.",
           "technical": "The return type is int. Both properties are integers, and * computes their product. There is no argument because the receiver Project already holds the ratings. These ratings are small classroom ordinal values. The score calculation is distinct from CalculateHealth’s policy conditions.",
@@ -1191,13 +1275,13 @@
           "say": "The risk score is ordinary C# multiplication. It ranks our supplied ratings; it is not AI-generated and it is not an estimated percentage chance of failure.",
           "rows": [
             [
-              54,
+              65,
               "public int CalculateRiskScore()",
               "Return a whole-number score for this object.",
               "The method is public and returns int. The empty parentheses show that the caller supplies no arguments."
             ],
             [
-              56,
+              68,
               "return RiskLikelihood * RiskImpact;",
               "Compute four times five and give back twenty.",
               "return both supplies the value and ends this invocation. No property is assigned and no HTTP request occurs."
@@ -1214,57 +1298,63 @@
       "blocks": [
         {
           "file": "Program.cs",
-          "start": 170,
-          "end": 181,
+          "start": 245,
+          "end": 262,
           "label": "Build and serialize the request",
-          "simple": "Bionic expects named fields, not just a bare sentence. new { ... } makes a temporary C# object containing a model ID, our prompt, instructions, and settings. Serialize converts that object into JSON text so the separate program can read it. It handles quotes and line breaks for us.",
-          "technical": "This new expression is an anonymous object: its type is generated by the compiler, not a third class authored in a .cs file. The shorthand model creates a property named model from the local variable; input = prompt names a property input and assigns its value. JsonSerializer.Serialize returns string. The result is stored in json, ready to become HTTP content.",
-          "why": "Serialization is safer and clearer than manually joining JSON punctuation and escaping quotes. A named request class would provide reusable structure, but this one small request uses an anonymous object to avoid extra application classes. Our request must use the property names and value types expected by Bionic’s API.",
-          "before": "model holds a loaded instance ID; prompt holds the complete Inventory message.",
+          "simple": "instructions holds what we want the model to do. prompt holds the facts. The temporary request object labels both strings and adds model/settings fields. Serialize turns that object into JSON text for the API.",
+          "technical": "Left-hand names inside the object initializer become API fields. Right-hand values come from local variables or literals. The explicit model = loadedModelId preserves the API field name. JsonSerializer handles escaping; hand-built JSON is unnecessary.",
+          "why": "Keep the English instructions separate from the request structure so you can explain each independently. A temporary anonymous object avoids another custom request class for this single endpoint.",
+          "before": "loadedModelId holds a loaded instance ID; prompt holds the complete Inventory message.",
           "after": "json holds JSON text with string, boolean, numeric, and array values. It is still inside the tracker; Serialize itself sends nothing.",
           "say": "I created a temporary request object, then serialized it to JSON. input receives my prompt string; system_prompt contains instructions; the other fields configure the generation request. This is packaging, not the AI call itself.",
           "rows": [
             [
-              170,
+              245,
+              "string instructions = ...",
+              "Describe the requested answer format and limits.",
+              "This is ordinary text stored in a string. Instructions are requests to the model, not guaranteed output validation."
+            ],
+            [
+              252,
               "JsonSerializer.Serialize(new { ... })",
-              "Convert our C# request object into JSON text.",
-              "Serialize is a static library method. The compiler-generated anonymous type has properties inferred from the initializer. Its output here is a string, not an HTTP response."
+              "Convert a temporary request object into JSON text.",
+              "Serialize converts the anonymous object’s properties into JSON. Their names and types must match the API schema; the serializer does not validate Bionic’s schema. No extra authored class is added."
             ],
             [
-              172,
-              "model,",
-              "Put the loaded ID in a JSON property named model.",
-              "This is shorthand for model = model inside the anonymous object initializer: property name on the left, local value on the right."
+              254,
+              "model = loadedModelId,",
+              "Put the loaded instance ID into the request’s model field.",
+              "Left model is the JSON property name; right loadedModelId is the local variable returned by readiness."
             ],
             [
-              173,
+              255,
               "input = prompt,",
-              "Send the already-built prompt as the request’s input value.",
-              "input is a request property name. It is not a Console.ReadLine call and is not the earlier local input variable in a different method."
+              "Put the fact string in input.",
+              "input is an API property name, not another keyboard read."
             ],
             [
-              174,
-              "system_prompt = ...",
-              "Tell the model the requested format and boundaries.",
-              "This is a string of natural-language instructions. It asks for Risk/Why/Next action under 120 words; it cannot enforce factual accuracy or parseable output."
+              256,
+              "system_prompt = instructions,",
+              "Put the instruction string in system_prompt.",
+              "The variable instructions and request property system_prompt have different roles."
             ],
             [
-              179,
-              "reasoning = \"off\", stream = false, store = false",
-              "Request a short final reply, delivered as one response, without API chat storage.",
-              "\"off\" is a string while false is a Boolean. These are request settings, not C# keywords that perform networking. store=false is not a claim that no runtime logs can exist."
+              257,
+              "reasoning / stream / store",
+              "Request no reasoning output, no streaming, and no stored chat through this API.",
+              "Each setting is a separate request property; false is a bool and off is a string."
             ],
             [
-              180,
-              "max_output_tokens = 500, integrations = Array.Empty<string>()",
-              "Limit output tokens and supply no integrations.",
-              "500 is an integer, not a word limit. Array.Empty<string>() produces an empty string array, serialized as []. No tools are enabled by this request."
+              260,
+              "max_output_tokens / integrations",
+              "Limit output length and provide no integrations.",
+              "500 is a token budget, not 500 words. Array.Empty<string>() returns an empty string array."
             ]
           ]
         }
       ],
       "next": "Wrap the JSON as an HTTP body, then send it.",
-      "goal": "Bionic expects named fields, not just a bare sentence. new { ... } makes a temporary C# object containing a model ID, our prompt, instructions, and settings. Serialize converts that object into JSON text so the separate program can read it. It handles quotes and line breaks for us."
+      "goal": "instructions holds what we want the model to do. prompt holds the facts. The temporary request object labels both strings and adds model/settings fields. Serialize turns that object into JSON text for the API."
     },
     {
       "route": "ai",
@@ -1272,8 +1362,8 @@
       "blocks": [
         {
           "file": "Program.cs",
-          "start": 183,
-          "end": 186,
+          "start": 264,
+          "end": 267,
           "label": "The actual generation request",
           "simple": "Here is the actual AI request. First StringContent packages our JSON as HTTP content. Next PostAsync sends that content to the local chat address. await waits for the HTTP operation’s result. The result is a response object with status information and content—not yet the plain answer string.",
           "technical": "Evaluation proceeds from the right: client.PostAsync(url, body) returns Task<HttpResponseMessage>; await produces the completed HttpResponseMessage assigned to response. This overload normally buffers response content before completing. EnsureSuccessStatusCode throws for an unsuccessful HTTP status, allowing the catch block to return a message. Both using-declared objects are disposed at the end of the try scope.",
@@ -1283,25 +1373,25 @@
           "say": "The real integration line is await client.PostAsync. I pass the local chat URL and JSON body. PostAsync starts the HTTP request, await gives me the completed response object, and I check its status before reading the answer.",
           "rows": [
             [
-              184,
+              265,
               "using StringContent body = new StringContent(json, Encoding.UTF8, \"application/json\");",
               "Wrap the JSON string as the body that HTTP can send.",
               "StringContent is a .NET HttpContent implementation. UTF8 encodes text as bytes; application/json identifies its media type. The variable body holds an object, not a raw string."
             ],
             [
-              185,
+              266,
               "client.PostAsync(BionicUrl + \"/api/v1/chat\", body)",
               "Send a POST request to the chat endpoint with this body.",
               "client is the receiver; PostAsync is its method; the first argument is a URL string and the second is HttpContent. The plus joins two strings. This call crosses the process boundary to Bionic’s local API."
             ],
             [
-              185,
+              266,
               "await ... → HttpResponseMessage response",
               "Receive the HTTP result when the operation finishes.",
               "The method call returns Task<HttpResponseMessage>. await unwraps the eventual result; it does not turn the model into a C# object. Main still awaits the whole menu operation."
             ],
             [
-              186,
+              267,
               "response.EnsureSuccessStatusCode();",
               "Stop normal processing if the server reported an unsuccessful status.",
               "An unsuccessful HTTP response causes HttpRequestException. A 2xx success only means the HTTP operation succeeded; it does not prove the generated advice is correct."
@@ -1318,86 +1408,98 @@
       "blocks": [
         {
           "file": "Program.cs",
-          "start": 189,
-          "end": 198,
+          "start": 269,
+          "end": 286,
           "label": "Extract final text and return it",
-          "simple": "The response contains structured JSON, so printing the whole thing would show wrappers and metadata. The code reads that JSON, visits each entry under output, and takes content only when type equals message. It gathers those words, adds the LOCAL AI ANSWER label, and returns the finished string.",
-          "technical": "ReadAsStringAsync obtains response-body text; JsonDocument.Parse creates a readable JSON document. foreach iterates JsonElement values under output. GetProperty(\"type\").GetString() selects the discriminator; only \"message\" entries contribute their content to StringBuilder. ToString produces a string; Trim removes outside whitespace. Other well-formed output types are ignored. Missing or wrong-shaped JSON is handled by catch branches.",
-          "why": "The native API can wrap multiple kinds of output. Selecting message content avoids printing JSON metadata or a reasoning entry as the final response. StringBuilder conveniently gathers multiple messages. We could join a list of strings, but that would add a collection for the same small job.",
+          "simple": "Read the reply as text, parse that text as JSON, and find the output entries. For each entry, check its type. Keep message words and skip other types. Join the words into one string, check it is not empty, and return it with a label.",
+          "technical": "ReadAsStringAsync returns body text into replyText. Parse creates a document; outputs names the output array. The loop reads type first and content only for message entries. += appends each message and a newline to a regular string. Trim removes outside whitespace before returning.",
+          "why": "Named intermediate results make reading, parsing and extraction separate steps. A regular string is sufficient for this short reply and removes StringBuilder as an extra concept. Repeated concatenation can copy text, so a large volume of output would justify a different approach.",
           "before": "Illustrative response: output contains a reasoning entry and a message entry with \"Risk: Scanner delay. Next action: Use manual numbers.\"",
           "after": "Only the message text is kept. The returned string begins LOCAL AI ANSWER - qwen/qwen3.5-9b. No assignment writes it to RiskStatus, RiskImpact, or other project properties.",
           "say": "I parse the JSON response, keep only message content, and return a display string. The model cannot change health through this code path because its output is only collected and printed; no property assignment applies it to the project.",
           "rows": [
             [
-              189,
-              "JsonDocument.Parse(await response.Content.ReadAsStringAsync())",
-              "Read the response body as text, then interpret that text as JSON.",
-              "The awaited string is evaluated before Parse runs. JsonDocument is a disposable class; JsonElement is a value type for individual JSON nodes."
+              270,
+              "string replyText = await response.Content.ReadAsStringAsync();",
+              "Read the response body into a string.",
+              "The awaited result is text. HTTP success has already been checked; text is not yet a parsed document."
             ],
             [
-              190,
-              "StringBuilder answer = new StringBuilder();",
-              "Create a container for gathering reply text.",
-              "StringBuilder is the class; answer is a local variable referring to its object. It is separate from the string named answer in ReviewRiskAsync."
+              271,
+              "using JsonDocument data = JsonDocument.Parse(replyText);",
+              "Read the structure of that JSON text.",
+              "Parse creates a JsonDocument; the using declaration disposes it at the end of the try scope."
             ],
             [
-              191,
-              "data.RootElement.GetProperty(\"output\").EnumerateArray()",
-              "Find the output list and look at every entry.",
-              "This is JSON traversal, not a search through our Project list. The loop variable output is a JsonElement."
+              272,
+              "JsonElement outputs = data.RootElement.GetProperty(\"output\");",
+              "Locate the output array.",
+              "The next loop enumerates JSON entries, not Project objects."
             ],
             [
-              193,
-              "output.GetProperty(\"type\").GetString() == \"message\"",
-              "Choose final message entries.",
-              "== compares the extracted string with the literal. An entry with type \"reasoning\" does not enter the next statement."
+              273,
+              "string answer = \"\";",
+              "Start with empty answer text.",
+              "answer is a local string variable, separate from the caller’s variable of the same name."
             ],
             [
-              194,
-              "answer.AppendLine(output.GetProperty(\"content\").GetString());",
-              "Add that entry’s content and a line break.",
-              "AppendLine mutates the StringBuilder, not the Project. GetString extracts the JSON string value; it does not contact the model again."
+              276,
+              "string? type = output.GetProperty(\"type\").GetString();",
+              "Read what kind of entry this is.",
+              "Only an entry whose type equals message enters the content-reading branch."
             ],
             [
-              196,
-              "string.IsNullOrWhiteSpace(answer.ToString())",
-              "Handle a response with no usable message.",
-              "A successful HTTP status can still have empty output. This check produces a readable failure message instead of a blank result."
+              279,
+              "string? message = output.GetProperty(\"content\").GetString();",
+              "Read this message’s words.",
+              "The access stays inside the message branch; non-message entries need no content field."
             ],
             [
-              198,
-              "return $\"LOCAL AI ANSWER - {ModelKey}\\n\" + answer.ToString().Trim();",
-              "Give the caller the final labelled text.",
-              "Returning completes ExplainRiskAsync with a string result. The waiting await at line 135 receives it; this line itself does not display anything."
+              280,
+              "answer += message + Environment.NewLine;",
+              "Join this message to the answer and add a line break.",
+              "String concatenation assigns a new string to answer. It never modifies the Project. Environment.NewLine is the platform’s newline sequence."
+            ],
+            [
+              283,
+              "string.IsNullOrWhiteSpace(answer)",
+              "Check whether useful answer text was collected.",
+              "An HTTP success with no message content still needs a readable failure result."
+            ],
+            [
+              286,
+              "return ... + answer.Trim();",
+              "Return the labelled answer to the caller.",
+              "Trim removes outside whitespace. Returning completes the Task<string>; Console.WriteLine in the caller displays it."
             ]
           ]
         },
         {
           "file": "Program.cs",
-          "start": 135,
-          "end": 137,
+          "start": 198,
+          "end": 200,
           "label": "The waiting caller resumes and prints it",
           "simple": "The networking helper has finished and we return to the place that was waiting. The returned string is assigned to answer, then WriteLine puts it on screen. This is the final connection between the AI response and the console the audience sees.",
           "technical": "await on Task<string> evaluates to its string result. That result may be a model answer or a friendly error string from a handled failure. After printing, ReviewRiskAsync completes its Task; Main resumes after awaiting it, executes break, and loops to the menu.",
           "why": "Returning text instead of printing deep inside the HTTP code keeps response construction separate from presentation. It also makes failures use the same display path. The app has no separate chat window or live streaming interface.",
           "before": "ExplainRiskAsync is finishing with a labelled answer string.",
-          "after": "answer is a string in ReviewRiskAsync. WriteLine displays it. Control returns to Main line 31, then to the next menu round.",
+          "after": "answer is a string local to ReviewRiskAsync. WriteLine displays it, that method completes, and Main resumes its menu loop.",
           "say": "The response follows a return path: ExplainRiskAsync returns text, ReviewRiskAsync receives and prints it, and Main resumes the menu. This is why the local AI feels like part of the console app.",
           "rows": [
             [
-              135,
+              198,
               "string answer = await ExplainRiskAsync(client, selectedProject);",
               "This paused statement now receives the completed result.",
               "It does not launch a second request when execution resumes; it completes the original awaited call expression."
             ],
             [
-              136,
+              199,
               "Console.WriteLine(answer);",
               "Display exactly the result produced by the helper.",
               "Printing is a console side effect, not a database save or domain update. A later CalculateHealth call still uses the existing Project values."
             ],
             [
-              137,
+              200,
               "End of ReviewRiskAsync",
               "Return control to the waiting menu.",
               "The method’s Task completes without a result value. Its caller, Main, can continue after await."
@@ -1406,7 +1508,7 @@
         }
       ],
       "next": "Review the error path, then rehearse the explanation.",
-      "goal": "The response contains structured JSON, so printing the whole thing would show wrappers and metadata. The code reads that JSON, visits each entry under output, and takes content only when type equals message. It gathers those words, adds the LOCAL AI ANSWER label, and returns the finished string."
+      "goal": "Read the reply as text, parse that text as JSON, and find the output entries. For each entry, check its type. Keep message words and skip other types. Join the words into one string, check it is not empty, and return it with a label."
     },
     {
       "route": "ai",
@@ -1414,8 +1516,8 @@
       "blocks": [
         {
           "file": "Program.cs",
-          "start": 200,
-          "end": 219,
+          "start": 289,
+          "end": 308,
           "label": "Expected failure cases",
           "simple": "These are alternative failure paths, not steps that run after every successful reply. If the HTTP or JSON work throws one of these exceptions, the matching catch returns readable text. That text follows the same return-and-print path as a normal result, so the user can continue using the tracker.",
           "technical": "HttpRequestException covers network/request failures and EnsureSuccessStatusCode failures. OperationCanceledException covers the configured timeouts. JsonException handles malformed JSON; KeyNotFoundException and InvalidOperationException cover expected schema access failures. The original exception details are intentionally not exposed in these console messages. Unrelated programming errors are not caught by a blanket catch.",
@@ -1425,31 +1527,31 @@
           "say": "I handle network, timeout and response-format failures at the API boundary. The app reports the problem instead of pretending it received an AI explanation. These catches preserve the console flow, not the correctness of arbitrary generated advice.",
           "rows": [
             [
-              200,
+              289,
               "catch (HttpRequestException)",
               "Handle a failed HTTP exchange.",
-              "A non-success status checked at line 186 follows this path. The message does not distinguish every status or connection cause."
+              "A non-success status checked at line 267 follows this path. The message does not distinguish every status or connection cause."
             ],
             [
-              204,
+              293,
               "catch (OperationCanceledException)",
               "Handle a request whose wait was cancelled or timed out.",
               "It covers the five-second GET cancellation and the client timeout. It does not establish the execution state of the model in another process."
             ],
             [
-              208,
+              297,
               "catch (JsonException)",
               "The body could not be parsed as JSON.",
               "HTTP success and valid JSON are separate checks. A server may return something that is not the expected structured text."
             ],
             [
-              212,
+              301,
               "catch (KeyNotFoundException)",
               "The expected JSON field was missing.",
               "For example, GetProperty(\"output\") fails if the response has no output member."
             ],
             [
-              216,
+              305,
               "catch (InvalidOperationException)",
               "A JSON value had a kind the code could not use.",
               "For example, calling EnumerateArray on a non-array or GetString on a number follows an unexpected-format path. The exact scope is narrower than catching every Exception."
@@ -1466,7 +1568,7 @@
       "title": "Project: the properties are the data",
       "file": "Models/Project.cs",
       "start": 4,
-      "end": 26,
+      "end": 31,
       "simple": "A class says what each object can hold and do. These declarations give every Project its own identity, one task, one milestone and one risk. Inventory and Training use the same definitions but hold different values. No separate Task, Milestone or Risk class is created in this design.",
       "technical": "Id and the two ratings are int properties; names, owners, titles, scenario and plan are strings; the dates are DateTime? nullable value types; statuses use ItemStatus. get reads a property and set assigns it. The status setters are private; the others are public. Auto-properties have compiler-generated backing storage. An instance property is different from a local variable inside a method.",
       "why": "Grouping the data on one Project makes one project easy to pass to health and AI methods. It is intentionally limited to one of each item. Supporting many risks later would call for a collection and usually a separate item type, rather than RiskTitle2, RiskTitle3, and so on.",
@@ -1475,8 +1577,8 @@
     {
       "title": "ShowProjects: a loop, a calculation and counters",
       "file": "Program.cs",
-      "start": 40,
-      "end": 54,
+      "start": 57,
+      "end": 74,
       "simple": "This method prints a row for every project. Before the loop the three category counters start at zero. Each project supplies a calculated health, then the matching counter increases by one. The summary prints after every project has been visited.",
       "technical": "foreach iterates existing references in List<Project>. CalculateHealth returns one HealthStatus value. openRisks is either zero or one because the domain has exactly one risk. onTrack++, atRisk++, and offTrack++ increment integers. else if ensures each project contributes to one category. The counters are local values recalculated on every call.",
       "why": "Computing the list output when requested means status edits are reflected immediately. An array of cached display strings could be shorter to print but would become stale unless explicitly refreshed.",
@@ -1485,28 +1587,28 @@
     {
       "title": "ViewProject: select, get text, print",
       "file": "Program.cs",
-      "start": 73,
-      "end": 78,
+      "start": 101,
+      "end": 107,
       "simple": "Menu option two selects one project. If selection returns null, it stops. Otherwise it asks the object for a full description and prints the returned text. Nothing is changed by this view operation.",
-      "technical": "The nested selectedProject.GetDetails() call finishes before Console.WriteLine receives its string argument. The null guard avoids dereferencing a missing selection. Both this method and ShowProjects return void because their result is displayed output rather than a value handed to a caller.",
+      "technical": "SelectProject returns a nullable reference. A null guard exits safely. GetDetails returns a string into details; Console.WriteLine then displays it.",
       "why": "Reusing SelectProject keeps view/update/AI selection behavior consistent. GetDetails can produce its string separately from the console, so the rule/data class is not responsible for the UI.",
       "say": "ViewProject selects one existing object, asks for its details string, and displays it. Selection and formatting are separate reusable methods."
     },
     {
       "title": "GetDetails: compose the complete project description",
       "file": "Models/Project.cs",
-      "start": 78,
-      "end": 84,
+      "start": 101,
+      "end": 110,
       "simple": "The returned text combines the project name, manager, health, task, milestone and risk information. CalculateHealth supplies one part; GetRiskDetails supplies the risk part. These methods are being reused, not duplicated.",
-      "technical": "Interpolated strings evaluate their property reads and method calls in order. The :d format specifier uses a short date representation for a date value; an absent nullable date formats without a date value. String concatenation appends GetRiskDetails’s return value. The method returns string and performs no console or network operation.",
+      "technical": "Two local variables store the results of CalculateHealth and GetRiskDetails before interpolation builds the full details string. GetDetails returns text; ViewProject prints it. No property changes occur.",
       "why": "Keeping one description builder avoids repeating the same labels in every caller. In a larger application the display formatting might move out of the data class; here keeping it near the data is an explicit simplicity tradeoff.",
       "say": "GetDetails returns the full description. It calls the existing health and risk-detail methods so those rules and labels have one implementation."
     },
     {
       "title": "Sample data: why the three starting outcomes differ",
       "file": "Program.cs",
-      "start": 222,
-      "end": 257,
+      "start": 311,
+      "end": 368,
       "simple": "The method creates three independent Project objects. Website has completed work and a closed risk, so it is OnTrack. Inventory has an open impact-five risk, so it is OffTrack. Training has a closed risk but an overdue unfinished milestone, so it is AtRisk.",
       "technical": "Object initializers assign public properties after each constructor. Work defaults to NotStarted; risk defaults to Closed. Explicit ChangeStatus calls override selected defaults. DateTime.Today.AddDays creates dates relative to the run date, so the late/future relationships stay consistent. The final list holds these existing references in order.",
       "why": "Fixed fictional examples demonstrate every health category without a database or interactive data-entry form. They make a reproducible classroom demo. They are not real project telemetry and the risk ratings are not measured by AI.",
@@ -1529,7 +1631,7 @@
       "q": "How did you add AI to this C# application?",
       "answer": "I connected the console app to a separately running local model through Bionic’s HTTP API. C# builds a message from the selected project, sends it, and prints the returned explanation.",
       "technical": "Main creates an HttpClient. ReviewRiskAsync selects and confirms. ExplainRiskAsync validates input, awaits GetLoadedModelAsync, serializes the request, POSTs /api/v1/chat, parses output entries of type message, and returns a string that the caller prints. The model is not embedded in the C# process.",
-      "follow": "If asked for proof, point to Program.cs line 185, then lines 189–198 and 135–136.",
+      "follow": "Point to Program.cs line 266, then the replyText/message loop and Console.WriteLine(answer).",
       "route": "ai",
       "step": 7,
       "part": 0
@@ -1548,7 +1650,7 @@
       "category": "AI integration",
       "q": "What did you write, and what did the libraries/runtime provide?",
       "answer": "Our application chooses the data, constructs the request, handles the result, and prints it. .NET handles HTTP and JSON. Bionic’s runtime runs the downloaded Qwen model.",
-      "technical": "Program and Project are the two authored application classes. HttpClient, StringContent, JsonSerializer, JsonDocument and StringBuilder are library types. The request uses an anonymous compiler-generated type. There is no custom inference engine, training loop, provider SDK or cloud fallback.",
+      "technical": "Program and Project are the two authored application classes. HttpClient, StringContent, JsonSerializer and JsonDocument are .NET library types. The request uses an anonymous compiler-generated type. Qwen generates text in the separate local runtime; this app does not train a model.",
       "follow": "Two authored classes does not mean only two types or objects exist during execution.",
       "route": "ai",
       "step": 1,
@@ -1598,7 +1700,7 @@
       "category": "Requests",
       "q": "What exactly is a prompt in this application?",
       "answer": "It is a string containing the facts we want Qwen to explain: the fictional project name, C# health, and its risk details.",
-      "technical": "Program line 169 builds that string using interpolation, CalculateHealth and GetRiskDetails. The request’s input property receives it. system_prompt is a separate instruction string describing the desired response format and boundaries. Both are text sent to the runtime, not model training data updates.",
+      "technical": "CalculateHealth and GetRiskDetails provide values, interpolation builds a header, and prompt += riskDetails joins the strings. input receives that prompt. system_prompt receives the separate instructions string. Both are text sent to the runtime.",
       "follow": "The wire example shows the full resulting prompt rather than only the code that constructs it.",
       "route": "ai",
       "step": 5,
@@ -1609,7 +1711,7 @@
       "q": "Does input = prompt read something from the keyboard?",
       "answer": "No. It puts the existing prompt string into a request property called input.",
       "technical": "This assignment is inside an anonymous object initializer. input is the property name required by the API schema; prompt is the local string value. Console.ReadLine is the method that reads keyboard input elsewhere. Identical or similar names do not make these the same thing.",
-      "follow": "Likewise, model, is shorthand for creating a model property from the local model variable.",
+      "follow": "Likewise, model = loadedModelId creates the API field named model using the string stored in our loadedModelId variable.",
       "route": "ai",
       "step": 6,
       "part": 0
@@ -1628,7 +1730,7 @@
       "category": "Requests",
       "q": "Explain every type in the AI call.",
       "answer": "client is the sender object. body is the packaged request. response is the returned HTTP response object. The final answer string is extracted afterward.",
-      "technical": "client has type HttpClient. body has concrete type StringContent, usable as HttpContent. PostAsync returns Task<HttpResponseMessage>; await obtains its HttpResponseMessage result. The response content is later read as string, parsed into JsonDocument, and its message text is collected with StringBuilder.",
+      "technical": "client has type HttpClient. body is StringContent, usable as HttpContent. PostAsync returns Task<HttpResponseMessage>; await obtains its HttpResponseMessage result. The response body becomes replyText, a string; Parse creates a JsonDocument; the loop collects message content in another string named answer.",
       "follow": "An HTTP response includes status and content; it is not already the plain model-answer string.",
       "route": "ai",
       "step": 7,
@@ -1678,7 +1780,7 @@
       "category": "Responses",
       "q": "How does the answer appear in the console?",
       "answer": "The helper extracts message text and returns it. The waiting console method receives that string and prints it.",
-      "technical": "ReadAsStringAsync → JsonDocument.Parse → output array → type == \"message\" → content → StringBuilder → labelled return string. ReviewRiskAsync line 135 receives the result; line 136 calls Console.WriteLine. Main then resumes its menu loop.",
+      "technical": "ReadAsStringAsync → replyText string → JsonDocument.Parse → outputs array → type check → message string → answer string → return. ReviewRiskAsync receives that returned text and calls Console.WriteLine(answer). Main then resumes the menu.",
       "follow": "Returning a value and printing it are different operations.",
       "route": "ai",
       "step": 8,
@@ -1687,8 +1789,8 @@
     {
       "category": "Responses",
       "q": "What if output contains more than one entry?",
-      "answer": "The loop checks every entry and appends the content of entries marked message.",
-      "technical": "Well-formed reasoning or other non-message entries are skipped. Multiple messages are appended in order with line breaks. If there is no non-whitespace message text, the helper returns an explicit empty-answer message. Unexpected JSON shapes can trigger the format-error catches.",
+      "answer": "It checks every entry and joins the message text into one answer. Non-message entries are skipped.",
+      "technical": "The loop checks each entry’s type and reads content only for message entries. Each message is concatenated to the answer string with Environment.NewLine. Other output types are ignored. For this short reply, a regular string keeps the code simple; very large repeated concatenation would copy more text.",
       "follow": "The illustrative response in the wire panel contains an ignored entry so you can predict the output.",
       "route": "ai",
       "step": 8,
@@ -1698,7 +1800,7 @@
       "category": "Responses",
       "q": "What if the API returns HTTP 500?",
       "answer": "The response-status check stops the normal path and a catch returns a readable failure message.",
-      "technical": "EnsureSuccessStatusCode at line 186 throws HttpRequestException for an unsuccessful HTTP status. The catch at line 200 handles it, so the message-content loop is not reached. The caller prints that error string and the menu returns.",
+      "technical": "EnsureSuccessStatusCode at line 267 throws HttpRequestException for an unsuccessful HTTP status. The catch at line 289 handles it, so the message-content loop is not reached. The caller prints that error string and the menu returns.",
       "follow": "A 200 response can still contain invalid JSON or inaccurate advice; HTTP success is only one level of success.",
       "route": "ai",
       "step": 9,
@@ -1797,8 +1899,8 @@
     {
       "category": "Verification",
       "q": "How do you know the integration works?",
-      "answer": "The previous application verification included 101 checks and a separate real Qwen reply through the console. This guide revision changes the teaching page, not the C# implementation.",
-      "technical": "The checks used simulated HTTP responses to verify request construction, selected model ID, expected output extraction, state preservation and failure paths. The separate live call checked the installed runtime/model combination at that time. Neither proves every future setup or every generated statement is correct.",
+      "answer": "The readability refactor builds cleanly and passes 106 checks using simulated API replies. An earlier version also received a real Qwen reply through this console integration.",
+      "technical": "The current checks cover status and health behavior, invalid selections, cancellation, request fields, exact loaded-model selection, multiple message entries, ignored non-message entries, empty/malformed replies and error paths. A new live model call was not made for this refactor; the recorded reply is explicitly a previous test.",
       "follow": "You should distinguish simulated checks from a real model call and a saved reply from the current live reply.",
       "route": "ai",
       "step": 8,
@@ -1826,7 +1928,7 @@
     },
     {
       "kind": "C# method call",
-      "where": "Already compiled in Program.cs, line 185",
+      "where": "Already compiled in Program.cs, line 266",
       "command": "await client.PostAsync(BionicUrl + \"/api/v1/chat\", body)",
       "what": "Send an HTTP POST containing the prepared JSON body.",
       "expect": "Awaiting PostAsync returns an HttpResponseMessage, even when the server reports HTTP 500. Connection failures or cancellation can throw. The following EnsureSuccessStatusCode call rejects unsuccessful HTTP status codes.",
@@ -1887,5 +1989,424 @@
       "generation": "This text alone does nothing until sent in the POST body.",
       "why": "Natural-language model instructions are not shell commands, C# method names, or a training operation."
     }
-  ]
+  ],
+  "study": [
+    {
+      "title": "Start here: two classes and one starting point",
+      "minutes": 1,
+      "read": "A class defines what an object can hold and do. Project defines one project’s information and rules. Program controls the sequence. Execution starts inside Main, which creates sample projects and one HTTP client before showing the menu.",
+      "technical": "List<Project> is a list type; projects is a variable holding a reference to that list. CreateSampleProjects() is a method call returning it. static means Main runs without a Program object; async supports await, and Task represents asynchronous completion. new HttpClient creates the sender without sending a request.",
+      "why": "Two classes keep the project rules together and the console/AI actions together. The source files are containers for code; .cs does not mean every file is a class.",
+      "say": "“Main starts the application. It creates the example projects and prepares one client that later sends the AI requests.”",
+      "blocks": [
+        {
+          "file": "Program.cs",
+          "start": 13,
+          "end": 21,
+          "label": "Start in Main; comments explain the setup"
+        }
+      ],
+      "methods": [
+        "Main"
+      ]
+    },
+    {
+      "title": "Follow creation: one Project object has its own values",
+      "minutes": 1,
+      "read": "CreateSampleProjects uses new Project to create Website, Inventory and Training. The constructor copies the ID, name and manager into each object. The initializer supplies its other properties. The method returns a list containing these three objects.",
+      "technical": "A constructor runs when new creates the object. Properties such as RiskImpact belong to that instance. ItemStatus and HealthStatus are enums: fixed named choices. They are not extra classes. Neither authored class inherits from the other.",
+      "why": "Fictional sample data gives a repeatable demo without a database. Objects live in memory, so changes reset after restarting. The other two examples follow Inventory’s pattern.",
+      "say": "“Project is the definition. Inventory System is one object created from it, with its own manager, statuses and risk ratings.”",
+      "blocks": [
+        {
+          "file": "Program.cs",
+          "start": 332,
+          "end": 332,
+          "label": "new Project calls the constructor before the initializer"
+        },
+        {
+          "file": "Models/Project.cs",
+          "start": 33,
+          "end": 39,
+          "label": "The constructor copies the incoming values"
+        },
+        {
+          "file": "Program.cs",
+          "start": 333,
+          "end": 336,
+          "label": "After the constructor returns, assign the remaining properties"
+        }
+      ],
+      "methods": [
+        "CreateSampleProjects",
+        "Project constructor"
+      ]
+    },
+    {
+      "title": "Menu 1: list projects and count their health",
+      "minutes": 1,
+      "read": "Main repeats a menu. Choosing 1 calls ShowProjects. Its foreach loop visits every project, asks it for health, prints one row and adds one to the appropriate counter. After the loop it prints the totals.",
+      "technical": "foreach reads each object reference from the list. CalculateHealth returns a HealthStatus enum. ++ adds one to an integer. ShowProjects returns void, meaning it supplies no result value. Main continues after the call.",
+      "why": "A loop performs the same steps for all three objects. Fresh calculations reflect a status you changed earlier; a stored health label could become outdated.",
+      "say": "“This method lists the projects and counts the health categories. Each Project calculates its own health; the console method displays it.”",
+      "blocks": [
+        {
+          "file": "Program.cs",
+          "start": 57,
+          "end": 74,
+          "label": "One loop displays rows and builds the summary"
+        }
+      ],
+      "methods": [
+        "ShowProjects"
+      ]
+    },
+    {
+      "title": "Menu 2: select the existing object, get text, print it",
+      "minutes": 1,
+      "read": "ViewProject calls SelectProject, which displays the IDs and reads your choice. It converts the text safely and searches for a matching ID. ViewProject receives that existing object, gets its details text and prints the text.",
+      "technical": "Project? allows a project reference or null. Zero, end-of-input or an invalid choice returns null. The null guard stops ViewProject before it uses a missing object. GetDetails calls CalculateHealth and GetRiskDetails, then returns a formatted string.",
+      "why": "Selection is shared by viewing, updating and AI. Returning the existing reference lets later updates affect the same object in the list. Formatting text and printing it are separate actions.",
+      "say": "“SelectProject finds the object. GetDetails prepares its description. Console.WriteLine puts that description on screen.”",
+      "blocks": [
+        {
+          "file": "Program.cs",
+          "start": 101,
+          "end": 107,
+          "label": "The three visible actions: select, format, print"
+        },
+        {
+          "file": "Models/Project.cs",
+          "start": 101,
+          "end": 110,
+          "label": "Project prepares the description"
+        }
+      ],
+      "methods": [
+        "ViewProject",
+        "SelectProject",
+        "GetDetails"
+      ]
+    },
+    {
+      "title": "Menu 3: turn typed text into a safe menu choice",
+      "minutes": 1.5,
+      "read": "For Inventory’s risk, choose 3 → 2 → 3 → 2. The last 2 is text from the keyboard. TryParse attempts to turn it into integer 2. A separate check rejects numbers outside the displayed menu.",
+      "technical": "TryParse returns a bool into isStatusNumber and assigns the integer through out statusNumber. The bool answers “did conversion work?”; the integer answers “which number?”. return stops this update early when a check fails.",
+      "why": "Separating conversion from range checking makes each decision readable. Letters and a number such as 99 fail for different reasons. No object changes until all selections have passed.",
+      "say": "“I first check that the input is a number. Then I check that it names one of the choices. This keeps invalid input from changing a status.”",
+      "blocks": [
+        {
+          "file": "Program.cs",
+          "start": 146,
+          "end": 159,
+          "label": "Conversion and range checking are separate steps"
+        }
+      ],
+      "methods": [
+        "UpdateStatus"
+      ]
+    },
+    {
+      "title": "Apply the change, then calculate the new health",
+      "minutes": 1.5,
+      "read": "GetAllowedStatuses returns [Open, Closed] for section 3. Menu number 2 becomes list index 1, giving Closed. ChangeStatus checks the allowed list and assigns RiskStatus. Inventory’s future milestone and closed risk then produce OnTrack.",
+      "technical": "The menu number, list index, enum value and bool success result are different values. private set restricts direct status assignment to Project. Health checks an open high-impact risk first, then other open risks, then a late unfinished milestone.",
+      "why": "Project validates its own rules even if another caller skips the console checks. Named Booleans make the health decision readable. HasValue protects a missing date; due today is not late.",
+      "say": "“The selected enum changes one property on the existing object. CalculateHealth then reads the updated facts and returns the current health category.”",
+      "blocks": [
+        {
+          "file": "Program.cs",
+          "start": 159,
+          "end": 164,
+          "label": "Menu number → index → enum → method result"
+        },
+        {
+          "file": "Models/Project.cs",
+          "start": 51,
+          "end": 63,
+          "label": "The object validates and assigns"
+        },
+        {
+          "file": "Models/Project.cs",
+          "start": 71,
+          "end": 90,
+          "label": "Read the named facts and apply the health rules"
+        }
+      ],
+      "methods": [
+        "GetAllowedStatuses",
+        "ChangeStatus",
+        "CalculateHealth"
+      ]
+    },
+    {
+      "title": "Menu 4: preview the facts and confirm AI",
+      "minutes": 1,
+      "read": "Reopen Inventory with 3 → 2 → 3 → 1; then choose 4 → 2 → y. ReviewRiskAsync previews the open risk and confirms AI. GetRiskDetails builds the description. CalculateRiskScore gives 4 × 5 = 20, a ranking rather than a failure probability.",
+      "technical": "This score is a ranking, not an 80% failure probability, and health uses separate rules. Confirmation text is trimmed and lowercased. On y, ExplainRiskAsync receives the selected Project and the shared HttpClient.",
+      "why": "The preview lets you see what is sent. Reusing GetRiskDetails keeps the displayed facts and prompt consistent. C# keeps authority over ratings and health; AI supplies an explanation.",
+      "say": "“The score is ordinary multiplication in C#. I show the risk facts, confirm the request, and pass those facts to the AI method.”",
+      "blocks": [
+        {
+          "file": "Models/Project.cs",
+          "start": 65,
+          "end": 69,
+          "label": "C# calculates the priority score"
+        },
+        {
+          "file": "Models/Project.cs",
+          "start": 92,
+          "end": 99,
+          "label": "The same risk text supports display and AI"
+        }
+      ],
+      "methods": [
+        "ReviewRiskAsync",
+        "CalculateRiskScore",
+        "GetRiskDetails"
+      ]
+    },
+    {
+      "title": "AI readiness: locate the loaded Qwen instance",
+      "minutes": 1,
+      "read": "Bionic runs separately from the tracker. The API listens at 127.0.0.1:51500. GetLoadedModelAsync sends GET /api/v1/models, finds qwen/qwen3.5-9b and returns a loaded instance ID. No matching loaded instance means no chat request.",
+      "technical": "ModelKey identifies the model; it is not a password. loadedModelId is the returned instance identifier. Task<string?> means this async method eventually supplies text or null. The five-second cancellation token limits the readiness wait.",
+      "why": "The app checks the exact intended model instead of choosing whichever model appears first. A model downloaded on disk is not necessarily loaded in memory. GET asks about readiness; POST requests generation.",
+      "say": "“The tracker talks to a local API. First it checks that Qwen is loaded and obtains the identifier needed for the chat request.”",
+      "blocks": [
+        {
+          "file": "Program.cs",
+          "start": 235,
+          "end": 240,
+          "label": "The caller receives a loaded ID or returns a setup message"
+        },
+        {
+          "file": "Program.cs",
+          "start": 208,
+          "end": 219,
+          "label": "Look through model entries and loaded instances"
+        }
+      ],
+      "methods": [
+        "GetLoadedModelAsync"
+      ]
+    },
+    {
+      "title": "Build the AI request: facts, instructions and JSON",
+      "minutes": 1.5,
+      "read": "ExplainRiskAsync stores the health and risk description in named variables. prompt joins those facts into text. instructions asks for Risk, Why and Next action. A temporary request object labels those strings and the settings; Serialize turns it into JSON.",
+      "technical": "In model = loadedModelId, model is the API field name and loadedModelId is our variable. input receives prompt; system_prompt receives instructions. JSON is structured text that the other program understands. It is not the live Project object.",
+      "why": "Separate strings expose what information is sent and what answer is requested. Serialization handles quotes and escaping. The API request uses an anonymous object, so no extra authored request class is needed.",
+      "say": "“I package the facts and instructions in the format Bionic expects. The local model receives text about this risk, not access to my whole program.”",
+      "blocks": [
+        {
+          "file": "Program.cs",
+          "start": 240,
+          "end": 244,
+          "label": "First build the prompt from named results"
+        },
+        {
+          "file": "Program.cs",
+          "start": 251,
+          "end": 262,
+          "label": "Then serialize the request fields"
+        }
+      ],
+      "methods": [
+        "ExplainRiskAsync"
+      ]
+    },
+    {
+      "title": "Send the request, then unpack the reply",
+      "minutes": 1.5,
+      "read": "StringContent packages the JSON as an HTTP body. PostAsync sends it to /api/v1/chat. await receives the response. After checking HTTP success, the code reads replyText, parses its JSON and collects only message content into answer.",
+      "technical": "PostAsync returns Task<HttpResponseMessage>; await supplies the response object. Parse reads the JSON structure. A foreach loop checks type before reading content. += joins each message to an ordinary string. Trim removes outside whitespace.",
+      "why": "This is the actual generation request. GET, new HttpClient and WriteLine do not generate answers. A regular string is enough for this short reply. Selecting message entries keeps unrelated output out of the displayed answer.",
+      "say": "“PostAsync sends the real request. I parse the reply and keep the message text. The AI method returns that string, and ReviewRiskAsync prints it.”",
+      "blocks": [
+        {
+          "file": "Program.cs",
+          "start": 264,
+          "end": 267,
+          "label": "The exact local AI call"
+        },
+        {
+          "file": "Program.cs",
+          "start": 269,
+          "end": 286,
+          "label": "Read → parse → select messages → return text"
+        }
+      ],
+      "methods": []
+    },
+    {
+      "title": "Finish the path: failures, the menu, and exit",
+      "minutes": 1,
+      "read": "If networking or JSON reading fails, an appropriate catch returns a readable message. It is printed through the same path as an answer. After the menu action finishes, Main shows the menu again. Choosing 5 exits.",
+      "technical": "return in ExplainRiskAsync supplies a string to its caller. return in Main ends the program. break exits the switch, allowing while to repeat. The console waits while its AI call is pending. No assignment applies generated text to Project properties.",
+      "why": "Expected API failures should not terminate the whole tracker. There is no fake live-answer fallback. A timeout ends the client’s wait but does not prove the separate model stopped generating.",
+      "say": "“A request can return advice or an error message. Either way the user gets the menu back. Option five returns from Main and ends the program.”",
+      "blocks": [
+        {
+          "file": "Program.cs",
+          "start": 198,
+          "end": 199,
+          "label": "Returned text reaches the same console"
+        },
+        {
+          "file": "Program.cs",
+          "start": 289,
+          "end": 293,
+          "label": "One example of a handled failure"
+        },
+        {
+          "file": "Program.cs",
+          "start": 45,
+          "end": 48,
+          "label": "Exit returns from Main"
+        }
+      ],
+      "methods": []
+    },
+    {
+      "title": "Check your understanding, then rehearse for eight minutes",
+      "minutes": 1,
+      "read": "Try three predictions before revealing the answers. Explain the sequence in your own words rather than memorizing punctuation. Then open Rehearse for the timed script and demo. This short path covers each method’s role; the detailed tabs explain individual expressions.",
+      "technical": "Comments beginning with // explain intent to readers and do not run. The displayed code is copied from the application, including its comments and current file/line locations. Select a code block when a step contains more than one.",
+      "why": "An eight-minute talk can cover the complete design, the important statements, every method’s role and a demo. Reading every source line aloud would take longer. The detailed reference remains available for follow-up questions.",
+      "say": "“I can follow one input from the menu to the changed object, and one risk from its facts to the local model and back to the console.”",
+      "blocks": [],
+      "methods": []
+    }
+  ],
+  "predictions": [
+    {
+      "q": "Inventory’s open risk has impact 5. You close it; its milestone is in the future. What health is returned?",
+      "a": "OnTrack. The open-risk branch no longer applies, and the milestone is not late. The ratings still exist, but a closed risk no longer triggers the risk-health rule."
+    },
+    {
+      "q": "The model file is downloaded, but loaded_instances is empty. Does the tracker send POST?",
+      "a": "No. The readiness method returns null, and ExplainRiskAsync returns a setup message before reaching PostAsync."
+    },
+    {
+      "q": "Qwen writes “this project is safe” even though C# says OffTrack. Which project value changes?",
+      "a": "None. The reply is collected into a string and printed. There is no assignment from model output to health, ratings or status; C# still returns OffTrack."
+    }
+  ],
+  "coverage": [
+    {
+      "file": "Program.cs",
+      "start": 13,
+      "end": 55,
+      "name": "Main",
+      "role": "Starts the program, routes menu choices and exits."
+    },
+    {
+      "file": "Program.cs",
+      "start": 311,
+      "end": 368,
+      "name": "CreateSampleProjects",
+      "role": "Creates and returns the three fictional objects."
+    },
+    {
+      "file": "Models/Project.cs",
+      "start": 33,
+      "end": 39,
+      "name": "Project constructor",
+      "role": "Initializes one new object’s ID, name and manager."
+    },
+    {
+      "file": "Program.cs",
+      "start": 57,
+      "end": 74,
+      "name": "ShowProjects",
+      "role": "Lists objects and counts their calculated health."
+    },
+    {
+      "file": "Program.cs",
+      "start": 76,
+      "end": 99,
+      "name": "SelectProject",
+      "role": "Validates an ID and returns the existing object or null."
+    },
+    {
+      "file": "Program.cs",
+      "start": 101,
+      "end": 107,
+      "name": "ViewProject",
+      "role": "Selects an object, obtains details and prints them."
+    },
+    {
+      "file": "Models/Project.cs",
+      "start": 101,
+      "end": 110,
+      "name": "GetDetails",
+      "role": "Returns the full project description as text."
+    },
+    {
+      "file": "Program.cs",
+      "start": 109,
+      "end": 169,
+      "name": "UpdateStatus",
+      "role": "Reads and validates section/status choices; requests a change."
+    },
+    {
+      "file": "Models/Project.cs",
+      "start": 42,
+      "end": 49,
+      "name": "GetAllowedStatuses",
+      "role": "Returns the choices permitted for a section."
+    },
+    {
+      "file": "Models/Project.cs",
+      "start": 51,
+      "end": 63,
+      "name": "ChangeStatus",
+      "role": "Validates and assigns a status, returning success or failure."
+    },
+    {
+      "file": "Models/Project.cs",
+      "start": 71,
+      "end": 90,
+      "name": "CalculateHealth",
+      "role": "Reads risk/milestone facts and returns a health enum."
+    },
+    {
+      "file": "Models/Project.cs",
+      "start": 65,
+      "end": 69,
+      "name": "CalculateRiskScore",
+      "role": "Returns likelihood multiplied by impact."
+    },
+    {
+      "file": "Models/Project.cs",
+      "start": 92,
+      "end": 99,
+      "name": "GetRiskDetails",
+      "role": "Returns the reusable risk description."
+    },
+    {
+      "file": "Program.cs",
+      "start": 171,
+      "end": 200,
+      "name": "ReviewRiskAsync",
+      "role": "Previews/confirm facts, awaits the helper and prints its result."
+    },
+    {
+      "file": "Program.cs",
+      "start": 225,
+      "end": 309,
+      "name": "ExplainRiskAsync",
+      "role": "Validates facts, gets readiness, builds/sends/reads the request."
+    },
+    {
+      "file": "Program.cs",
+      "start": 203,
+      "end": 223,
+      "name": "GetLoadedModelAsync",
+      "role": "Finds an exact matching loaded model ID through GET."
+    }
+  ],
+  "studyMinutes": 14
 }

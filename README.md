@@ -26,16 +26,19 @@ From PowerShell in this repository, start the local guide:
 
 Open **[the learning page on localhost](http://127.0.0.1:8765/)**. The launcher uses the bundled Python runtime on this computer, or Python on PATH elsewhere. It reuses an existing guide server. Run it again after restarting the computer. The server listens only on this computer and serves the guide, not the repository. You can also open [presentation/learn.html](presentation/learn.html) directly without a server.
 
-The six study sections provide a suggested 20-minute first rehearsal and deeper reference material:
+Start with **14-minute study**, then use the separate **8-minute talk**. The short study path covers every menu option and all 15 methods plus the Project constructor. Its 872 words of plain/technical explanation and 77 primary source lines are a first pass; additional excerpts, design reasoning and speaking cues are optional. The seven sections are:
 
+- **14-minute study:** twelve chronological learning steps with current commented source, a complete method map, and three final prediction questions. Next advances directly to the next study step.
 - **Big picture:** what C#, .NET, Visual Studio and Bionic do; the two classes; and the exact meaning of `List<Project> projects = CreateSampleProjects();`.
-- **Follow the code:** a chronological run from Main through calls and returns, including the concrete change from typed text `"2"` to Closed status and OnTrack health.
-- **Understand the AI:** ten chapters covering the actual connection. Each block has plain-English and technical explanations, reasons for the choice, example input/output values, and clickable syntax. A separate seven-stage display shows the full prompt, JSON request, illustrative reply and printed result.
+- **Code detail:** a chronological run from Main through calls and returns, including the concrete change from typed text `"2"` to integer `2`, index `1`, Closed status and OnTrack health.
+- **AI detail:** ten chapters covering the actual connection. Each block has plain-English and technical explanations, reasons for the choice, example input/output values, and clickable syntax. A separate seven-stage display shows the full prompt, JSON request, illustrative reply and printed result.
 - **Questions & commands:** 28 audience questions with answers, technical follow-ups and links to the relevant code; nine examples distinguish Visual Studio shortcuts, console input, C# calls, HTTP operations and PowerShell commands.
-- **Rehearse:** an eight-minute talk and repeatable demo, with a timer.
+- **8-minute talk:** a 556-word script covering the complete program's responsibilities, plus a repeatable demo and timer. Explaining the design and important statements fits this route; reading every source line aloud takes longer.
 - **Practice quiz:** four multiple-choice questions and one written answer per round. Written scoring is an explicit self-check. Below 70% starts repeat practice until at least 90%; this does not certify understanding.
 
 The guide server on port **8765** and Bionic's model API on port **51500** are separate. The page does not call AI or edit the app. All source shown is embedded from the three application files. Regenerate it using `python presentation/build_guide.py` after code edits and manually review explanations and line ranges for changed meaning. The complete request/reply examples are labelled teaching examples; the earlier real test reply is separately labelled as recorded.
+
+The readability revision separates conversion from range checks, names intermediate values, expands menu actions and sample assignments onto separate lines, and adds purpose comments. It uses a regular string for the short AI answer. More statements are visible, so the source has more lines; there are still two authored classes and the same application features.
 
 ## Two classes, three C# files
 
@@ -74,6 +77,7 @@ Start a fresh session. Each arrow below means press Enter after typing the prece
 | Input | Result |
 |---|---|
 | `1` | Website OnTrack, Inventory OffTrack, Training AtRisk. |
+| `2 → 2` | View Inventory's full details. |
 | `3 → 2 → 3 → 2` | Update Inventory's risk to Closed; Inventory becomes OnTrack. |
 | `3 → 3 → 2 → 3` | Update Training's milestone to Completed; Training becomes OnTrack. |
 | `1` | All three are OnTrack. |
@@ -95,4 +99,4 @@ dotnet build ProjectHealthTracker.slnx -c Release
 dotnet run --project Tests/TrackerChecks.csproj -c Release
 ```
 
-The updated runner passed 101 assertions using simulated HTTP responses without model inference. A separate live console run completed the demo status changes and received a real Qwen answer. See [presentation/REVIEW.md](presentation/REVIEW.md) for the independent code/teaching review and verification record.
+The readability revision passed 106 assertions using simulated HTTP responses without model inference. A separate live console run before this refactor completed the demo status changes and received a real Qwen answer. This revision did not make another live model request. See [presentation/REVIEW.md](presentation/REVIEW.md) for the independent code/teaching review and verification record.
