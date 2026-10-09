@@ -2,20 +2,20 @@
 
 ## Approved classroom scope
 
-Keep the command-line app and local Bionic / Qwen integration. Use two authored application classes, `Program` and `Project`. Each Project holds exactly one task, one milestone, and one risk directly in its properties. Multiple items of each kind are deliberately outside this version's scope.
+Keep the command-line app. Remove the local-model API integration. Use two authored application classes, `Program` and `Project`. Each Project holds exactly one task, one milestone, and one risk directly in its properties. Multiple items of each kind are deliberately outside this version's scope.
 
 Remove ProjectItem, the item list, ItemType, item IDs and item selection. Keep project IDs, names, managers, task/milestone/risk titles and owners, optional task/milestone dates, validated statuses, likelihood/impact ratings, scenario, and mitigation plan. Keep ItemStatus and HealthStatus as enums. They are not classes. No custom inheritance, database, cloud credentials, extra NuGet package, or model training is needed.
 
 ## Structure and behavior
 
-- Program: entry point, console menu, input validation, sample data, readiness check, and local AI request/response.
+- Program: entry point, console menu, input validation, and sample data.
 - Project: identity, direct fields as properties, constructor, allowed statuses, validated changes, risk score, health and details text.
 - Status setters are private. `ChangeStatus(section, newStatus)` rejects incompatible values or invalid sections before mutation. The update menu maps 1 to Task, 2 to Milestone, and 3 to Risk.
 - Task and milestone statuses: NotStarted, InProgress, Completed, Blocked. Risk statuses: Open, Closed. Initial defaults are NotStarted work and a Closed risk, changed explicitly for selected samples.
-- Other fields remain simple public properties. Ratings must be 1–5 before AI submission; this is not validation on every assignment.
+- Other fields remain simple public properties. The samples use ratings from 1–5; public setters do not validate every assignment.
 - Lists of Project objects remain. The app uses .NET classes and test helper classes in addition to its two authored application classes.
 
-Menu: list projects/health, view details, update a status, explain a risk with local AI, exit. Invalid selections, cancellation and end-of-input must return safely or exit as appropriate. No changes persist after restart.
+Menu: list projects/health, view details, update a status, exit (menu options 1–4). Invalid selections, cancellation and end-of-input must return safely or exit as appropriate. No changes persist after restart.
 
 ## Data and health
 
@@ -25,22 +25,10 @@ Health uses direct checks in priority order: Open risk with impact >=4 → OffTr
 
 Priority score = likelihood × impact. It is a classroom ranking, not a probability or percentage. It does not directly determine health.
 
-## Bionic / Qwen
+## Offline operation and teaching
 
-Use `http://127.0.0.1:51500` and model key `qwen/qwen3.5-9b` for this installation. Bionic's local API uses the LM Studio runtime. Use the loaded-instance ID from GET `/api/v1/models` for POST `/api/v1/chat` after the user selects an Open risk's project and confirms `y`. No separate item selection is needed.
+The application has no model endpoint, API key, HTTP client, or model request. Risk scores and health remain ordinary C# calculations. Do not present these rule-based results as generated AI advice.
 
-Send the fictional project name, calculated health, and risk title/owner/status/ratings/score/scenario/plan. JSON includes instructions for a short Risk / Why / Next action answer, with reasoning off, stream false, store false and no integrations. Format/accuracy instructions are requests to the model, not guarantees.
+Keep the locally hosted guide with full code blocks in execution order, plain and technical explanations, presentation notes, and multiple-choice/written practice. A score below 70% activates repeated practice until at least 90%. Written answers use disclosed self-assessment. Keep the server's allowlist so it only serves the teaching page and health endpoint.
 
-The app sends no model-load/download commands and does not silently choose another model. A runtime state change between preflight and chat can still cause a reload. GET timeout is five seconds; the HTTP client request timeout is 120 seconds. Expected network/HTTP/timeout/JSON-shape/empty-answer failures return friendly text and the menu. No stored fallback answer is presented as live AI. Only final message content is printed; the response never modifies project data. The console waits for the operation before accepting another menu choice.
-
-## Teaching and completion
-
-One locally hosted visual aid must offer a 10–15-minute first study path followed by a separate roughly eight-minute presentation and demo. Cover every menu action and each method's role, including listing and viewing details. Serve the standalone page on loopback port 8765; keep direct-file use available. Use short commented excerpts with current file/line numbers, visible plain-English and technical explanations, and optional reasons, speaking cues and related code. Next advances directly between short study steps. Keep the deeper chronological walkthrough, concrete before/after values, clickable syntax and explicit calls/returns available separately. Begin at Main; distinguish reference declarations from execution steps. A brief first pass is preparation rather than a guarantee of understanding every line.
-
-Favor readable named steps over minimum line count: separate conversion from bounds checks, name intermediate values, place menu actions and sample assignments on separate lines, and add comments explaining intent. Keep related steps in the existing methods and retain the two-class design, validated status rules, optional-date guards, API readiness check, timeouts and error handling. A regular string is sufficient for the bounded AI reply.
-
-Give extra depth to the local AI integration: settings, .NET HttpClient, readiness GET, prompt, anonymous request properties, JSON serialization, StringContent, actual PostAsync call, await, response parsing, message extraction, return, WriteLine, and errors. Show the full prompt and request plus an explicitly illustrative response and printed result. Clearly distinguish a class, object, variable, property, method, enum, and API request. Prepare audience questions with plain and technical answers and likely follow-ups. Explain where each shortcut, console input, C# call, HTTP operation and shell command belongs, what it does, and whether it generates an AI answer.
-
-Include a short presentation script, a repeatable demo that runs AI last, and multiple-choice/written practice. Written scoring is disclosed self-assessment. Below 70% repeats until at least 90%, with no claim that a score or reviewer proves the learner's understanding. The page itself makes no model requests.
-
-Completion requires a successful build, focused behavior checks, a live local model test when available and authorized, independent code and teaching reviews with substantive findings addressed, source-aligned documentation/guide, and Git publication without private settings or generated build artifacts.
+Build the application, run focused offline behavior checks, regenerate the guide from current code, and publish to GitHub without local credentials or build artifacts.

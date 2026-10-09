@@ -1,0 +1,32 @@
+.chronology{overflow-wrap:anywhere}
+.chronology .journey-intro{max-width:1000px}
+.chronology .journey-intro p{margin:8px 0}
+.chronology .routebar select{max-width:100%;min-width:0;flex:1}
+.chronology .routebar{align-items:center}
+.chronology .route-controls{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.chronology .step-grid{display:grid;grid-template-columns:minmax(0,1.18fr) minmax(0,1fr);gap:24px;align-items:start}
+.chronology .explanation{position:sticky;top:14px;min-width:0}
+.chronology .whole-code{min-width:0}
+.chronology .code-scroll{max-height:none;overflow:visible}
+.chronology .code-box{margin-top:0}
+.chronology .source{font-size:14px}
+.chronology .block-comment{padding:12px 16px;margin:0 0 8px;background:#e4f1e8;border-radius:7px;color:#174d3b}
+.chronology .block-comment code{background:none;color:inherit}
+.chronology .steps{padding-left:24px}
+.chronology .steps li{margin-bottom:12px}
+.chronology .explanation h3{font-size:20px;margin-top:20px}
+.chronology .explanation .plain{font-size:20px}
+.chronology .technical p{margin:0 0 13px}
+.chronology .technical p:last-child{margin:0}
+.chronology .terms dt{font:600 15px/1.6 Consolas,monospace;overflow-wrap:anywhere}
+.chronology .terms dd{margin:4px 0 14px}
+.chronology .locate{overflow-wrap:anywhere}
+.chronology .path{display:flex;gap:8px;flex-wrap:wrap;margin:16px 0}
+.chronology .path span{background:white;border:1px solid var(--line);padding:6px 10px;border-radius:6px;font-size:14px}
+.chronology .path span.active{background:var(--green);color:white}
+.chronology .flow-note{font-size:15px;color:var(--muted)}
+.chronology .route-counter{font-variant-numeric:tabular-nums;white-space:nowrap}
+.chronology .code-head strong{color:white}
+.chronology .after-code{border-top:1px solid var(--line);padding-top:14px;margin-top:20px}
+@media(max-width:1000px){.chronology .step-grid{grid-template-columns:1fr}.chronology .explanation{position:static;grid-row:1}.chronology .whole-code{grid-row:2}.chronology .routebar{display:flex}.chronology .routebar select{flex-basis:100%}.chronology .source{font-size:14px}}
+@media(max-width:520px){.chronology .route-controls{width:100%;justify-content:space-between}.chronology .route-controls button{padding:8px 10px;font-size:14px}.chronology .num{flex-basis:34px;padding-right:8px}.chronology .path{gap:5px}.chronology .path span{font-size:13px}.chronology h2{font-size:25px}}

@@ -1,5 +1,6 @@
-"""Serve only the teaching page on loopback; never expose the repository."""
+"""Serve only the teaching page; default to this computer unless a host is given."""
 import argparse
+import ipaddress
 import json
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
@@ -36,9 +37,10 @@ class GuideHandler(BaseHTTPRequestHandler):
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--port', type=int, default=8765)
+    parser.add_argument('--host', type=ipaddress.IPv4Address, default=ipaddress.IPv4Address('127.0.0.1'))
     args = parser.parse_args()
-    server = ThreadingHTTPServer(('127.0.0.1', args.port), GuideHandler)
-    print(f'Guide: http://127.0.0.1:{args.port}/', flush=True)
+    server = ThreadingHTTPServer((str(args.host), args.port), GuideHandler)
+    print(f'Guide: http://{args.host}:{args.port}/', flush=True)
     try:
         server.serve_forever()
     except KeyboardInterrupt:

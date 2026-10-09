@@ -1,4 +1,4 @@
-// Enums are fixed sets of named choices. They are not classes or methods.
+
 
 namespace ProjectHealthTracker.Models;
 

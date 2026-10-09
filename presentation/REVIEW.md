@@ -50,3 +50,11 @@ The 556-word speaking script covers data and startup (one minute), listing/detai
 The local server remains bound to 127.0.0.1:8765 and serves only the guide and its health endpoint. Its existing service marker is version 3; the embedded guide content is version 4. Bionic's model API uses the separate port 51500. The guide makes no model requests, executes no copied commands and sends no quiz answers anywhere.
 
 After future C# edits, run `python presentation/build_guide.py` and review the explanations, ranges and script again. Source embedding cannot determine whether an explanation still means the right thing.
+
+## 2026-10-09 — remove the local-model connection
+
+This revision supersedes the model setup and AI teaching notes in the historical reviews above. Removed the local endpoint/model constants, HttpClient, async model methods, and AI menu option. Menu option 4 now exits. Cleared the unused local API-key entry without including the environment file in Git.
+
+Kept the two application classes, status validation, C# risk score and health rules, sample data, and the user's existing comment edits. Updated the PRD, README, and chronological guide to match the offline app; the guide has ten blocks plus presentation notes, questions, and practice.
+
+Validation: Release build passed with zero warnings/errors; 70 offline assertions passed, covering domain rules, the complete console demo, input validation, cancellation, end-of-input, and exit numbering. Guide rebuilt from current sources; all ten blocks rendered in the browser with no console errors. JavaScript syntax and a credential-pattern scan passed. Historical reviews below/above apply to their own earlier revisions, not an independent review of this removal.

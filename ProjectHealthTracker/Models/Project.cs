@@ -3,25 +3,24 @@ namespace ProjectHealthTracker.Models;
 
 public class Project
 {
-    // Each object has its own values. The constructor fills these three identity properties.
+    // Each object has its own values
     public int Id { get; set; }
     public string Name { get; set; }
     public string Manager { get; set; }
 
-    // One task: what someone needs to do. A ? date can be missing (null).
+    // One task: what someone needs to do
     public string TaskTitle { get; set; } = "";
     public string TaskOwner { get; set; } = "";
     public DateTime? TaskDueDate { get; set; }
     public ItemStatus TaskStatus { get; private set; } = ItemStatus.NotStarted;
 
-    // One milestone: a checkpoint with a date that can affect project health.
+    // One milestone: a checkpoint with a date 
     public string MilestoneTitle { get; set; } = "";
     public string MilestoneOwner { get; set; } = "";
     public DateTime? MilestoneDueDate { get; set; }
     public ItemStatus MilestoneStatus { get; private set; } = ItemStatus.NotStarted;
 
-    // One risk: a possible problem, its ratings, scenario and response plan.
-    // private set keeps status assignment inside this class, through ChangeStatus.
+    
     public string RiskTitle { get; set; } = "";
     public string RiskOwner { get; set; } = "";
     public ItemStatus RiskStatus { get; private set; } = ItemStatus.Closed;
@@ -50,12 +49,12 @@ public class Project
 
     public bool ChangeStatus(int section, ItemStatus newStatus)
     {
-        // Reject a status that does not belong to the chosen section.
+       
         List<ItemStatus> allowedStatuses = GetAllowedStatuses(section);
         bool isAllowed = allowedStatuses.Contains(newStatus);
         if (isAllowed == false) return false;
 
-        // Change one property on this same Project object.
+        
         if (section == 1) TaskStatus = newStatus;
         if (section == 2) MilestoneStatus = newStatus;
         if (section == 3) RiskStatus = newStatus;
@@ -64,13 +63,13 @@ public class Project
 
     public int CalculateRiskScore()
     {
-        // This priority score is a ranking, not a percentage or a failure probability.
+       
         return RiskLikelihood * RiskImpact;
     }
 
     public HealthStatus CalculateHealth()
     {
-        // Check the most serious rule first. return ends this method immediately.
+        
         bool riskIsOpen = RiskStatus == ItemStatus.Open;
         if (riskIsOpen)
         {
@@ -78,7 +77,7 @@ public class Project
             return HealthStatus.AtRisk;
         }
 
-        // Only read the date's Value after confirming that a date exists.
+        
         bool milestoneIsLate = false;
         if (MilestoneDueDate.HasValue)
         {
@@ -91,7 +90,7 @@ public class Project
 
     public string GetRiskDetails()
     {
-        // Return display/prompt text; this method does not change the project.
+       
         int score = CalculateRiskScore();
         return $"Risk: {RiskTitle} | Owner: {RiskOwner} | Status: {RiskStatus}\n" +
             $"Likelihood: {RiskLikelihood}/5 | Impact: {RiskImpact}/5 | Priority score: {score}/25 (not a percentage)\n" +
