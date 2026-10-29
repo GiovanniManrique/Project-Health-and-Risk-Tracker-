@@ -1,4 +1,32 @@
-# Readability refactor and teaching review — October 5, 2026
+# Local Gemma risk brief — October 28, 2026
+
+The current implementation supersedes the offline-only scope below. The application now has five small authored classes (`Program`, `Project`, `Risk`, `AiRiskService`, and `RiskEstimate`) and two enums. A Project still has one task and one milestone; its risk list supports several risks. The console's fourth option requests an AI brief and its fifth option exits.
+
+Nine fictional local fixtures supply an email, notes, and metrics for each of three projects. `Program` builds the sample records; `AiRiskService` reads the selected project's listed files from the shared `DemoData` folder on each request. The service sends one local request, validates risk IDs, allowed source IDs, rating ranges, and response text, then calculates and ranks the separate estimates. It leaves stored project records and health unchanged.
+
+## Current evidence
+
+- Final Release build passed with **zero warnings and zero errors**. The offline runner passed **121 checks in Debug and Release**, covering stored rules, response handling, dynamic schema constraints, and C# detection of a blank mitigation plan without live model inference.
+- A real console run used **Bionic at `127.0.0.1:1235/v1`**, with requested/returned model **`google/gemma-4-e2b`**. Inventory received scores of 20, 12, and 12 for `INV-1`, `INV-2`, and `INV-3` in that run. The reasons cited supplied supplier-delay, budget, and staffing evidence. These are observed examples, not fixed expected model ratings.
+- After closing `INV-1` through the console, stored health became AtRisk. A second live brief ranked only `INV-2` and `INV-3`, with scores of 12 each in that run and a revised summary. The transcript is [evaluation/live-console-demo.txt](../evaluation/live-console-demo.txt).
+- The full [five-scenario live run](../evaluation/live-model-checks.txt) passed structural checks: one request per scenario; correct open risk IDs; validated ratings and citations; correct C# multiplication and ordering; at most three risk actions; and unchanged stored data. Human review confirmed the multiple-risk, closed-risk, no-open-risk, and late-milestone cases. That run's missing-mitigation case did not explicitly flag its blank plan, despite passing structural checks.
+- After adding an explicit MISSING marker to the snapshot and a separately labeled C# recorded-data-gap check, the [targeted scenario 5 rerun](../evaluation/live-model-checks-5.txt) succeeded in **49.4 seconds with one request**. The model explicitly reported “Missing mitigation plan for INV-2”; C# separately reported the same missing recorded field. Stored data was unchanged. The five scenarios are supported by the full run plus this targeted rerun, not by a claim that all five were rerun together on the final source.
+- The guide was regenerated with **15 teaching blocks and all six current application C# files**. Embedded source text and SHA-256 hashes match the current files, block ranges are valid, and no template markers remain. JavaScript syntax and `git diff --check` passed.
+- Browser checks exercised code-block navigation and the quiz: a 0% score activated remedial practice, and a later 100% score cleared it. The final page reload displayed the JsonNode schema block correctly with no browser console warnings or errors. Guide routes `/` and `/health` returned 200; `/README.md` and `/../ProjectHealthTracker/Program.cs` returned 404. The page makes no model requests.
+
+The local request uses a JSON schema, a 120-second timeout, and direct response mode (`reasoning_effort: "none"`). A JsonNode copy of the schema constrains the result to the current number of open risks and allowed IDs; healthy projects with no open risks also require an empty missing-information list. Runtime validation remains necessary. The separate **Recorded data gaps (C# checks)** section reports blank mitigation plans directly from stored data, while model-generated missing-information notes are displayed separately.
+
+Model explanations can still be incomplete or ask for additional details that overlap with supplied facts. Neither a schema nor valid source IDs proves factual reasoning. The manager must review judgments and citations. The 1–25 score is an ordinal priority ranking rather than a calibrated probability.
+
+## Teaching changes
+
+The guide now follows startup, sample creation, object definitions, the menu, status updates, evidence loading, prompt construction, the model request, response validation, ranking, and exit. It separates model judgment from C# arithmetic, shows the actual fixture filenames and IDs, explains how a closed risk is excluded, and retains the below-70% / until-90% quiz rule with disclosed written self-assessment. The guide server's route allowlist is unchanged. The page itself does not call the model.
+
+Regenerate with `python presentation/build_guide.py` after C# changes, then review both the code blocks and their explanations. Historical reports below describe their own earlier revisions and are not evidence for the current model setup.
+
+---
+
+# Historical review — October 5, 2026
 
 The application still has two authored classes, Program and Project, plus two enums in a third C# file. It has 15 methods and one Project constructor. Each Project holds one task, one milestone and one risk. No features or authored application classes were added or removed by this revision.
 

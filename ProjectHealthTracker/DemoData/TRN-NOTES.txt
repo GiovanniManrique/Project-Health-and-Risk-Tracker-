@@ -1,0 +1,13 @@
+Evidence ID: TRN-NOTES
+FICTIONAL DEMO ONLY - Employee Training Plan meeting notes
+Snapshot timing is relative to a fresh demo session.
+
+Task: Write training guide; owner Riley; InProgress; due in four days.
+Milestone: Manager review; owner Morgan; InProgress; was due three days ago.
+TRN-1: Not enough training computers. Owner Riley. Closed because the shared lab is reserved for every training session.
+Current plan: use the reserved computer lab.
+The overdue manager review is separate from the closed computer risk. Follow up with Morgan to finish the review.
+Budget: $5,000 approved; $2,200 spent; $4,800 forecast total.
+Progress: 60% complete against 80% planned.
+Staffing: two of two planned team members available.
+Supplier: no external delivery needed; internal computer lab confirmed.

@@ -1,0 +1,41 @@
+{
+  "evidenceId": "TRN-METRICS",
+  "fictionalDemo": true,
+  "projectId": 3,
+  "projectName": "Employee Training Plan",
+  "snapshot": "Timing is relative to the start of a fresh demo session.",
+  "budget": {
+    "currency": "USD",
+    "approved": 5000,
+    "spent": 2200,
+    "forecastTotal": 4800
+  },
+  "progress": {
+    "actualPercent": 60,
+    "plannedPercent": 80
+  },
+  "staffing": {
+    "plannedPeople": 2,
+    "availablePeople": 2
+  },
+  "supplier": {
+    "item": "Internal computer lab",
+    "deliveryStatus": "Not applicable; lab reservation confirmed",
+    "daysLate": 0,
+    "replacementDateConfirmed": true
+  },
+  "task": {
+    "title": "Write training guide",
+    "status": "InProgress",
+    "dueDaysFromStart": 4
+  },
+  "milestone": {
+    "title": "Manager review",
+    "status": "InProgress",
+    "dueDaysFromStart": -3
+  },
+  "riskIds": [
+    "TRN-1"
+  ],
+  "computerAvailability": "Confirmed for every session; TRN-1 is closed"
+}
