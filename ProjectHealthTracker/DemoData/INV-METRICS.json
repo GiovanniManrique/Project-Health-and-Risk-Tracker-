@@ -1,0 +1,49 @@
+{
+  "evidenceId": "INV-METRICS",
+  "fictionalDemo": true,
+  "projectId": 2,
+  "projectName": "Inventory System",
+  "snapshot": "Timing is relative to the start of a fresh demo session.",
+  "budget": {
+    "currency": "USD",
+    "approved": 10000,
+    "spent": 7200,
+    "forecastTotal": 12500,
+    "extraCostApproval": "Pending"
+  },
+  "progress": {
+    "actualPercent": 40,
+    "plannedPercent": 65
+  },
+  "staffing": {
+    "plannedTesters": 3,
+    "availableTesters": 1,
+    "temporarySupportApproved": false
+  },
+  "supplier": {
+    "item": "Scanner hardware",
+    "deliveryStatus": "Overdue, replacement date unconfirmed",
+    "daysLate": 6,
+    "replacementDateConfirmed": false,
+    "extraShippingApproved": false
+  },
+  "testing": {
+    "scannerIntegration": "Not started",
+    "manualEntry": "Can be prepared before delivery"
+  },
+  "task": {
+    "title": "Create item classes",
+    "status": "InProgress",
+    "dueDaysFromStart": 7
+  },
+  "milestone": {
+    "title": "First working demo",
+    "status": "NotStarted",
+    "dueDaysFromStart": 10
+  },
+  "riskIds": [
+    "INV-1",
+    "INV-2",
+    "INV-3"
+  ]
+}

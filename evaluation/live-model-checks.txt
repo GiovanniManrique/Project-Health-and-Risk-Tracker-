@@ -1,0 +1,159 @@
+LIVE LOCAL MODEL EVALUATION
+Started (computer local time): 2026-10-28T23:45:21.3513661-04:00
+Model requested: google/gemma-4-e2b
+Input data: fictional local email, notes, and metrics. No real inbox used.
+Each scenario makes one request. Ratings may vary between model runs.
+
+=== 1. Inventory: multiple open risks ===
+Before: stored health OffTrack; open risks: INV-1, INV-2, INV-3
+AI RISK BRIEF - Inventory System
+Model requested: google/gemma-4-e2b | Model returned: google/gemma-4-e2b
+Stored tracker health: OffTrack (unchanged)
+Fictional evidence read: INV-EMAIL, INV-NOTES, INV-METRICS
+AI-estimated ratings: likelihood 1 (rare) to 5 (very likely); impact 1 (minor) to 5 (critical).
+C# priority score = likelihood x impact, from 1 to 25; not a probability or percentage.
+These are model judgments for review, not measured predictions. Saved ratings remain unchanged.
+
+AI summary: The project is currently OffTrack, with the first working demo milestone not yet started. Several open risks related to hardware delivery, budget forecast, and staffing capacity are actively impacting the timeline. The team has not yet approved necessary extra costs or testing support, which creates uncertainty for upcoming deliverables.
+
+1. INV-1: Scanner hardware may arrive late | Owner: Chris
+Likelihood: 5/5 | Impact: 4/5 | Priority score: 20/25
+Evidence: INV-EMAIL, INV-METRICS
+AI reason: The supplier is six days late and has not confirmed a replacement date, directly threatening the demo timeline. The current mitigation relies on manual entry which may not prove scanner integration works.
+
+2. INV-2: Forecast cost may exceed the budget | Owner: Taylor
+Likelihood: 4/5 | Impact: 3/5 | Priority score: 12/25
+Evidence: INV-NOTES, INV-METRICS
+AI reason: The forecast cost of $12,500 exceeds the approved budget of $10,000, and extra costs are unapproved. This financial discrepancy threatens the project's budget adherence.
+
+3. INV-3: Limited staff may delay scanner testing | Owner: Alex
+Likelihood: 4/5 | Impact: 3/5 | Priority score: 12/25
+Evidence: INV-NOTES, INV-METRICS
+AI reason: Only one tester is available and testing has not started, which may delay integration work. The plan to request temporary support is pending approval, creating a potential bottleneck.
+
+Recommended actions (up to three, for the highest ranked risks):
+- [INV-1] Immediately follow up with the supplier to secure a firm replacement delivery date.
+- [INV-2] Request immediate approval for the forecast costs before placing any further orders.
+- [INV-3] Expedite the approval process for temporary test support immediately.
+Missing information:
+- Details on the planned schedule for scanner integration testing.
+- Specific details regarding the cost implications of expedited shipping.
+- The exact status of the request for temporary test support approval.
+
+PASS: one request; valid IDs, scores and order; at most three actions; unchanged data. Elapsed: 53.1s.
+
+=== 2. Inventory: after closing INV-1 ===
+Before: stored health AtRisk; open risks: INV-2, INV-3
+AI RISK BRIEF - Inventory System
+Model requested: google/gemma-4-e2b | Model returned: google/gemma-4-e2b
+Stored tracker health: AtRisk (unchanged)
+Fictional evidence read: INV-EMAIL, INV-NOTES, INV-METRICS
+AI-estimated ratings: likelihood 1 (rare) to 5 (very likely); impact 1 (minor) to 5 (critical).
+C# priority score = likelihood x impact, from 1 to 25; not a probability or percentage.
+These are model judgments for review, not measured predictions. Saved ratings remain unchanged.
+
+AI summary: The project is currently at Risk due to cost forecasting and staffing limitations, with the first working demo milestone not yet started. The team needs to address pending approvals for costs and testing support to mitigate future delays.
+
+1. INV-2: Forecast cost may exceed the budget | Owner: Taylor
+Likelihood: 4/5 | Impact: 3/5 | Priority score: 12/25
+Evidence: INV-NOTES, INV-METRICS
+AI reason: The forecast cost is $12,500 against a $10,000 budget, and extra costs are not approved. This indicates a high likelihood of budget overrun if costs are not controlled. The current plan to review costs may not be sufficient given the pending approval status.
+
+2. INV-3: Limited staff may delay scanner testing | Owner: Alex
+Likelihood: 4/5 | Impact: 3/5 | Priority score: 12/25
+Evidence: INV-NOTES, INV-METRICS
+AI reason: Only one of three planned testers is available, and testing has not started, creating a potential delay. The plan to prepare manual-entry tests now is a mitigation step but does not eliminate the risk of delayed integration testing.
+
+Recommended actions (up to three, for the highest ranked risks):
+- [INV-2] Review extra costs and request approval before placing new orders.
+- [INV-3] Request temporary test support and prepare manual-entry tests now.
+Missing information:
+- Details on the status of the request for extra scanner shipping and temporary test support approval.
+- Specific plan for manual-entry tests if testing is delayed due to limited staff.
+- The actual timeline for when the team expects to start integration testing once hardware arrives.
+
+PASS: one request; valid IDs, scores and order; at most three actions; unchanged data. Elapsed: 42.6s.
+
+=== 3. Website: no open risks ===
+Before: stored health OnTrack; open risks: 
+AI RISK BRIEF - Company Website Update
+Model requested: google/gemma-4-e2b | Model returned: google/gemma-4-e2b
+Stored tracker health: OnTrack (unchanged)
+Fictional evidence read: WEB-EMAIL, WEB-NOTES, WEB-METRICS
+AI-estimated ratings: likelihood 1 (rare) to 5 (very likely); impact 1 (minor) to 5 (critical).
+C# priority score = likelihood x impact, from 1 to 25; not a probability or percentage.
+These are model judgments for review, not measured predictions. Saved ratings remain unchanged.
+
+AI summary: The project is currently OnTrack with 100% progress against the plan, and all milestones are completed. There are no open risks to assess based on the provided evidence.
+No open risks to rank. Review the milestone and missing-information notes.
+
+Recommended actions (up to three, for the highest ranked risks):
+- No risk action proposed because there are no open risks.
+Missing information:
+- None flagged by the model.
+
+PASS: one request; valid IDs, scores and order; at most three actions; unchanged data. Elapsed: 11.3s.
+
+=== 4. Training: overdue milestone and no open risks ===
+Before: stored health AtRisk; open risks: 
+AI RISK BRIEF - Employee Training Plan
+Model requested: google/gemma-4-e2b | Model returned: google/gemma-4-e2b
+Stored tracker health: AtRisk (unchanged)
+Fictional evidence read: TRN-EMAIL, TRN-NOTES, TRN-METRICS
+AI-estimated ratings: likelihood 1 (rare) to 5 (very likely); impact 1 (minor) to 5 (critical).
+C# priority score = likelihood x impact, from 1 to 25; not a probability or percentage.
+These are model judgments for review, not measured predictions. Saved ratings remain unchanged.
+
+AI summary: The project is currently at risk, with a task in progress and an overdue milestone. The team has sufficient staffing but the manager review remains incomplete.
+No open risks to rank. Review the milestone and missing-information notes.
+
+Recommended actions (up to three, for the highest ranked risks):
+- No risk action proposed because there are no open risks.
+Missing information:
+- Details on the status of Morgan's manager review approval.
+- Specific steps required to complete the training guide.
+- Details regarding the remaining budget allocation.
+
+PASS: one request; valid IDs, scores and order; at most three actions; unchanged data. Elapsed: 14.2s.
+
+=== 5. Inventory: INV-2 mitigation plan deliberately missing ===
+Before: stored health OffTrack; open risks: INV-1, INV-2, INV-3
+AI RISK BRIEF - Inventory System
+Model requested: google/gemma-4-e2b | Model returned: google/gemma-4-e2b
+Stored tracker health: OffTrack (unchanged)
+Fictional evidence read: INV-EMAIL, INV-NOTES, INV-METRICS
+AI-estimated ratings: likelihood 1 (rare) to 5 (very likely); impact 1 (minor) to 5 (critical).
+C# priority score = likelihood x impact, from 1 to 25; not a probability or percentage.
+These are model judgments for review, not measured predictions. Saved ratings remain unchanged.
+
+AI summary: The project is currently OffTrack, with the first working demo milestone not yet started. There are three open risks related to hardware delivery, budget forecast, and staffing availability that require immediate attention.
+
+1. INV-1: Scanner hardware may arrive late | Owner: Chris
+Likelihood: 5/5 | Impact: 4/5 | Priority score: 20/25
+Evidence: INV-EMAIL, INV-METRICS
+AI reason: The supplier is six days late and has not confirmed a replacement date, directly impacting the demo timeline. The current mitigation relies on manual entry which may not prove scanner integration works.
+
+2. INV-2: Forecast cost may exceed the budget | Owner: Taylor
+Likelihood: 4/5 | Impact: 3/5 | Priority score: 12/25
+Evidence: INV-NOTES, INV-METRICS
+AI reason: The forecast cost ($12,500) exceeds the approved budget ($10,000), and necessary extra costs are not yet approved. This poses a direct threat to budget adherence.
+
+3. INV-3: Limited staff may delay scanner testing | Owner: Alex
+Likelihood: 4/5 | Impact: 3/5 | Priority score: 12/25
+Evidence: INV-NOTES, INV-METRICS
+AI reason: Only one of three planned testers is available, and testing has not started, creating a potential delay for the demo. The plan to request temporary support needs execution.
+
+Recommended actions (up to three, for the highest ranked risks):
+- [INV-1] Immediately follow up with the supplier to secure a firm replacement delivery date.
+- [INV-2] Obtain immediate approval for the forecasted extra scanner shipping and temporary test support costs.
+- [INV-3] Execute the plan to request temporary test support immediately and prepare manual-entry tests.
+Missing information:
+- Details on why extra scanner shipping and temporary test support have not been approved for INV-2.
+- The specific plan for handling the integration testing if manual entry is used instead of scanners for INV-1.
+- The current status or plan regarding the availability of the other two planned testers for INV-3.
+
+PASS: one request; valid IDs, scores and order; at most three actions; unchanged data. Elapsed: 52.7s.
+
+PASS: all five live scenarios. Total model requests: 5
+Human review: confirm factual grounding, useful actions, change after closing INV-1, explicit late-milestone mention, and missing INV-2 mitigation flag.
+Unavailable-model, timeout, malformed-response, and citation failures are covered by the offline suite; they are not simulated successful AI results here.

@@ -1,0 +1,14 @@
+Evidence ID: INV-NOTES
+FICTIONAL DEMO ONLY - Inventory System meeting notes
+Snapshot timing is relative to a fresh demo session.
+
+Task: Create item classes; owner Alex; InProgress; due in seven days.
+Milestone: First working demo; owner Taylor; NotStarted; due in ten days.
+INV-1: Scanner hardware may arrive late. Owner Chris. Open. Delivery is six days late with no confirmed replacement date.
+Current plan: use manual item numbers until the scanners arrive. Manual entry cannot prove scanner integration works.
+INV-2: Forecast cost may exceed the budget. Owner Taylor. Open. Approved budget is $10,000; spent is $7,200; forecast total is $12,500.
+Extra scanner shipping and temporary test support are included in the forecast but have not been approved.
+Current plan: review extra costs and request approval before placing new orders.
+INV-3: Limited staff may delay scanner testing. Owner Alex. Open. One of three planned testers is available. Scanner integration tests have not started.
+Current plan: request temporary test support and prepare manual-entry tests now.
+Progress is 40% complete against 65% planned. The team has not yet approved the extra staff or costs.

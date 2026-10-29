@@ -1,16 +1,18 @@
-"""Embed current C# source and the offline walkthrough. Run with Python 3."""
+"""Embed current C# source and the local-AI walkthrough. Run with Python 3."""
 import hashlib
 import json
 from pathlib import Path
 from chronological import build_chronology
 
 HERE = Path(__file__).resolve().parent
-FILES = ["Program.cs", "Models/Project.cs", "Models/StatusTypes.cs"]
+APP = HERE.parent / "ProjectHealthTracker"
 
 def build():
     sources = {}
-    for name in FILES:
-        text = (HERE.parent / "ProjectHealthTracker" / name).read_text(encoding="utf-8-sig")
+    files = sorted(path for path in APP.rglob("*.cs") if not {"bin", "obj"}.intersection(path.relative_to(APP).parts))
+    for path in files:
+        name = path.relative_to(APP).as_posix()
+        text = path.read_text(encoding="utf-8-sig")
         sources[name] = dict(text=text, sha256=hashlib.sha256(text.encode()).hexdigest())
     guide = json.loads((HERE / "lessons.json").read_text(encoding="utf-8"))
     guide["chronology"] = build_chronology(sources)

@@ -1,0 +1,41 @@
+{
+  "evidenceId": "WEB-METRICS",
+  "fictionalDemo": true,
+  "projectId": 1,
+  "projectName": "Company Website Update",
+  "snapshot": "Timing is relative to the start of a fresh demo session.",
+  "budget": {
+    "currency": "USD",
+    "approved": 12000,
+    "spent": 11600,
+    "forecastTotal": 11600
+  },
+  "progress": {
+    "actualPercent": 100,
+    "plannedPercent": 100
+  },
+  "staffing": {
+    "plannedPeople": 2,
+    "availablePeople": 2
+  },
+  "supplier": {
+    "item": "Approved image collection",
+    "deliveryStatus": "Received and accepted",
+    "daysLate": 0,
+    "replacementDateConfirmed": true
+  },
+  "task": {
+    "title": "Create page layout",
+    "status": "Completed",
+    "dueDaysFromStart": -5
+  },
+  "milestone": {
+    "title": "Design approved",
+    "status": "Completed",
+    "dueDaysFromStart": -2
+  },
+  "riskIds": [
+    "WEB-1"
+  ],
+  "imageQualityCheck": "Passed; WEB-1 is closed"
+}

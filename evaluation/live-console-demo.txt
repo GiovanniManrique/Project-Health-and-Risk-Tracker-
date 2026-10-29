@@ -1,0 +1,115 @@
+PROJECT HEALTH AND RISK TRACKER
+Fictional demo data: one task, one milestone, and a risk list per project.
+Changes reset on restart. AI suggestions do not change the recorded ratings or health.
+
+1. List projects and health
+2. View project details
+3. Update a status
+4. AI risk brief
+5. Exit
+Choose an option: 1. Company Website Update | Manager: Jordan Lee | OnTrack | Open risks: 0
+2. Inventory System | Manager: Taylor Smith | OffTrack | Open risks: 3
+3. Employee Training Plan | Manager: Morgan Davis | AtRisk | Open risks: 0
+Summary: 1 OnTrack, 1 AtRisk, 1 OffTrack
+Project ID (0 to cancel): Reading this project's fictional evidence and asking the local model for a risk brief...
+AI RISK BRIEF - Inventory System
+Model requested: google/gemma-4-e2b | Model returned: google/gemma-4-e2b
+Stored tracker health: OffTrack (unchanged)
+Fictional evidence read: INV-EMAIL, INV-NOTES, INV-METRICS
+AI-estimated ratings: likelihood 1 (rare) to 5 (very likely); impact 1 (minor) to 5 (critical).
+C# priority score = likelihood x impact, from 1 to 25; not a probability or percentage.
+These are model judgments for review, not measured predictions. Saved ratings remain unchanged.
+
+AI summary: The project is currently behind schedule with the 'First working demo' milestone not started, and there are open risks related to hardware delivery, budget forecast, and testing capacity. The team has not yet approved necessary extra costs or staffing support.
+
+1. INV-1: Scanner hardware may arrive late | Owner: Chris
+Likelihood: 5/5 | Impact: 4/5 | Priority score: 20/25
+Evidence: INV-EMAIL, INV-METRICS
+AI reason: The supplier is six days late and has not confirmed a replacement date, directly impacting the timeline for testing. This uncertainty threatens the upcoming demo.
+
+2. INV-2: Forecast cost may exceed the budget | Owner: Taylor
+Likelihood: 4/5 | Impact: 3/5 | Priority score: 12/25
+Evidence: INV-NOTES, INV-METRICS
+AI reason: The forecast cost is $12,500 against a $10,000 budget, and extra costs are unapproved. This poses a direct threat to the budget.
+
+3. INV-3: Limited staff may delay scanner testing | Owner: Alex
+Likelihood: 4/5 | Impact: 3/5 | Priority score: 12/25
+Evidence: INV-NOTES, INV-METRICS
+AI reason: Only one tester is available and testing has not started, which may delay the demo. The team has not yet approved temporary test support.
+
+Recommended actions (up to three, for the highest ranked risks):
+- [INV-1] Immediately follow up with the supplier to secure a firm replacement delivery date.
+- [INV-2] Request immediate approval for the forecast costs before placing any further orders.
+- [INV-3] Expedite the request for temporary test support to ensure testing can commence promptly.
+Missing information:
+- Details on the requested temporary test support approval process.
+- Specific details regarding the cost implications of expedited shipping.
+- Timeline for when scanner integration testing can realistically begin.
+- Status of the request for extra staff/costs approval.
+- Plan for handling manual entry validation against final system requirements.
+
+
+1. List projects and health
+2. View project details
+3. Update a status
+4. AI risk brief
+5. Exit
+Choose an option: 1. Company Website Update | Manager: Jordan Lee | OnTrack | Open risks: 0
+2. Inventory System | Manager: Taylor Smith | OffTrack | Open risks: 3
+3. Employee Training Plan | Manager: Morgan Davis | AtRisk | Open risks: 0
+Summary: 1 OnTrack, 1 AtRisk, 1 OffTrack
+Project ID (0 to cancel): 1. Task
+2. Milestone
+3. Risk
+Section number (0 to cancel): INV-1. Scanner hardware may arrive late | Open
+INV-2. Forecast cost may exceed the budget | Open
+INV-3. Limited staff may delay scanner testing | Open
+Risk ID (0 to cancel): 1. Open
+2. Closed
+New status number (0 to cancel): Updated to Closed. Project health: AtRisk
+
+1. List projects and health
+2. View project details
+3. Update a status
+4. AI risk brief
+5. Exit
+Choose an option: 1. Company Website Update | Manager: Jordan Lee | OnTrack | Open risks: 0
+2. Inventory System | Manager: Taylor Smith | AtRisk | Open risks: 2
+3. Employee Training Plan | Manager: Morgan Davis | AtRisk | Open risks: 0
+Summary: 1 OnTrack, 2 AtRisk, 0 OffTrack
+Project ID (0 to cancel): Reading this project's fictional evidence and asking the local model for a risk brief...
+AI RISK BRIEF - Inventory System
+Model requested: google/gemma-4-e2b | Model returned: google/gemma-4-e2b
+Stored tracker health: AtRisk (unchanged)
+Fictional evidence read: INV-EMAIL, INV-NOTES, INV-METRICS
+AI-estimated ratings: likelihood 1 (rare) to 5 (very likely); impact 1 (minor) to 5 (critical).
+C# priority score = likelihood x impact, from 1 to 25; not a probability or percentage.
+These are model judgments for review, not measured predictions. Saved ratings remain unchanged.
+
+AI summary: The project is currently AtRisk, with the first working demo milestone not started and facing cost and staffing uncertainties. The team has not yet approved extra costs or staff support, which impacts testing timelines.
+
+1. INV-2: Forecast cost may exceed the budget | Owner: Taylor
+Likelihood: 4/5 | Impact: 3/5 | Priority score: 12/25
+Evidence: INV-NOTES, INV-METRICS
+AI reason: The forecast cost is $12,500 against a $10,000 budget, and extra costs are pending approval. This directly threatens the budget.
+
+2. INV-3: Limited staff may delay scanner testing | Owner: Alex
+Likelihood: 4/5 | Impact: 3/5 | Priority score: 12/25
+Evidence: INV-NOTES, INV-METRICS
+AI reason: Only one of three planned testers is available, and testing has not started, creating a potential delay for the demo. The team has not approved temporary support.
+
+Recommended actions (up to three, for the highest ranked risks):
+- [INV-2] Review the extra costs and request approval before placing new orders.
+- [INV-3] Ask for temporary test support and prepare manual-entry tests now.
+Missing information:
+- Details on why extra scanner shipping and temporary test support have not been approved.
+- The specific plan for handling manual-entry tests if the scanners arrive late.
+- The timeline for when the team expects to approve the pending costs or staff requests.
+
+
+1. List projects and health
+2. View project details
+3. Update a status
+4. AI risk brief
+5. Exit
+Choose an option: Goodbye.

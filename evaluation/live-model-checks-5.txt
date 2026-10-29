@@ -1,0 +1,48 @@
+LIVE LOCAL MODEL EVALUATION
+Started (computer local time): 2026-10-28T23:51:35.0235696-04:00
+Model requested: google/gemma-4-e2b
+Input data: fictional local email, notes, and metrics. No real inbox used.
+Each scenario makes one request. Ratings may vary between model runs.
+
+=== 5. Inventory: INV-2 mitigation plan deliberately missing ===
+Before: stored health OffTrack; open risks: INV-1, INV-2, INV-3
+AI RISK BRIEF - Inventory System
+Model requested: google/gemma-4-e2b | Model returned: google/gemma-4-e2b
+Stored tracker health: OffTrack (unchanged)
+Fictional evidence read: INV-EMAIL, INV-NOTES, INV-METRICS
+AI-estimated ratings: likelihood 1 (rare) to 5 (very likely); impact 1 (minor) to 5 (critical).
+C# priority score = likelihood x impact, from 1 to 25; not a probability or percentage.
+These are model judgments for review, not measured predictions. Saved ratings remain unchanged.
+
+Recorded data gaps (C# checks):
+- [INV-2] No mitigation plan recorded.
+
+AI summary: The project is currently behind schedule with a 'NotStarted' milestone and faces several unresolved risks regarding hardware delivery, budget, and staffing. The team needs to address the pending cost approvals and testing delays immediately to stay on track for the demo.
+
+1. INV-1: Scanner hardware may arrive late | Owner: Chris
+Likelihood: 5/5 | Impact: 4/5 | Priority score: 20/25
+Evidence: INV-EMAIL, INV-METRICS
+AI reason: The supplier is six days late and has not confirmed a replacement date, directly impacting the demo timeline. The current mitigation relies on manual entry which may not prove scanner integration works.
+
+2. INV-2: Forecast cost may exceed the budget | Owner: Taylor
+Likelihood: 4/5 | Impact: 3/5 | Priority score: 12/25
+Evidence: INV-NOTES, INV-METRICS
+AI reason: The forecast cost ($12,500) exceeds the approved budget ($10,000), and necessary extra costs are not yet approved. This poses a direct threat to the budget constraint.
+
+3. INV-3: Limited staff may delay scanner testing | Owner: Alex
+Likelihood: 4/5 | Impact: 3/5 | Priority score: 12/25
+Evidence: INV-NOTES, INV-METRICS
+AI reason: Only one tester is available, and testing has not started, creating a potential bottleneck for the upcoming demo. The plan to request support must be executed quickly.
+
+Recommended actions (up to three, for the highest ranked risks):
+- [INV-1] Immediately follow up with the supplier to secure a firm replacement delivery date.
+- [INV-2] Obtain immediate approval for the extra scanner shipping and temporary test support costs.
+- [INV-3] Execute the plan to ask for temporary test support and prepare manual-entry tests now.
+Missing information:
+- Missing mitigation plan for INV-2
+
+PASS: one request; valid IDs, scores and order; at most three actions; unchanged data. Elapsed: 49.4s.
+
+PASS: selected live scenario 5. Total model requests: 1
+Human review: confirm factual grounding, useful actions, change after closing INV-1, explicit late-milestone mention, and missing INV-2 mitigation flag.
+Unavailable-model, timeout, malformed-response, and citation failures are covered by the offline suite; they are not simulated successful AI results here.

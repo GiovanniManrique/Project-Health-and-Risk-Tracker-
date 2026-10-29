@@ -1,0 +1,12 @@
+Evidence ID: WEB-NOTES
+FICTIONAL DEMO ONLY - Company Website Update meeting notes
+Snapshot timing is relative to a fresh demo session.
+
+Task: Create page layout; owner Sam; completed; due five days ago.
+Milestone: Design approved; owner Jordan; completed; due two days ago.
+WEB-1: Old images may be low quality. Owner Mia. Closed after the new images were reviewed.
+The approved image collection is available to the team. No unresolved image-quality issue is recorded.
+Budget: $12,000 approved; $11,600 spent; $11,600 forecast total.
+Progress: 100% complete against 100% planned.
+Staffing: two of two planned team members available.
+Supplier: replacement image collection received and accepted; no outstanding delivery.

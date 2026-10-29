@@ -1,25 +1,13 @@
 {
-  "version": 6,
+  "version": 8,
   "questions": [
-    {
-      "category": "C# foundations",
-      "q": "Why can you change a project through selectedProject?",
-      "answer": "selectedProject points to the same object stored in the list. Selection does not make a copy of that object.",
-      "technical": "The Project class is a reference type. SelectProject returns a copied reference value, and the receiving variable can reach the same object. Mutating its RiskStatus through ChangeStatus is visible on later list reads. Reassigning the local selectedProject variable to a different object would be a different operation.",
-      "follow": "The list, each Project, and each variable referring to them are separate concepts.",
-      "route": "run",
-      "step": 4,
-      "part": 1
-    },
-    {
-      "category": "C# foundations",
-      "q": "Why two classes instead of putting everything in Main?",
-      "answer": "Project keeps one project’s data and rules together. Program handles user input, output and the API connection.",
-      "technical": "This separates domain operations from interaction. It also limits the data model to one task, milestone and risk per project. One giant Main method could use fewer method declarations but would interleave validation, calculations, sample data, HTTP and display code.",
-      "follow": "There is no claim that two classes is the best design for a larger application.",
-      "route": "run",
-      "step": 0,
-      "part": 0
-    }
+    {"q": "Which part is AI, and which part is ordinary C#?", "answer": "Gemma proposes likelihood and impact from the evidence. C# validates the reply, multiplies and orders the ratings, displays saved plans, and checks whether any open risk's plan is blank.", "technical": "AiRiskService sends one local request. RiskEstimate stores proposed values separately from Risk. CalculateScore multiplies ratings; FormatBrief orders scores and checks Risk.Plan directly. Plan presence is not a judgment of plan adequacy."},
+    {"q": "Does a score of 20 out of 25 mean an 80% chance of failure?", "answer": "No. It is a priority ranking made by multiplying two ordinal ratings.", "technical": "The project has no trained probability model, calibration data, or validation of real-world failure rates. Model ratings are judgments for review."},
+    {"q": "Is this connected to a real email account?", "answer": "No. It reads fictional .eml, .txt, and .json files from DemoData each time a brief is requested.", "technical": "LoadEvidence reads explicitly listed local files and assigns source IDs from their filenames. No mail API or message-sending code is used."},
+    {"q": "Why does closing one Inventory risk not make it OnTrack?", "answer": "Other risks are still open. Closing INV-1 leaves INV-2 and INV-3, which keep Inventory AtRisk.", "technical": "CalculateHealth scans the whole risk list. Any open risk with stored impact at least 4 takes precedence; otherwise any open risk gives AtRisk."},
+    {"q": "Why have both Risk and RiskEstimate?", "answer": "Risk stores the project's original record; RiskEstimate holds separate model advice.", "technical": "The service does not assign model ratings back into Risk. It validates and sorts the estimate list, so stored health and ratings are unchanged by inference."},
+    {"q": "What does a valid citation prove?", "answer": "It proves the model named a permitted source for that risk. A person must still check whether the explanation is supported by the source.", "technical": "ValidateEstimates checks that source IDs exist in the evidence dictionary and are assigned to the matching risk. It does not independently verify every sentence."},
+    {"q": "Why can selectedProject change the project in the list?", "answer": "It refers to the same Project object, not a new copy.", "technical": "Project is a reference type. SelectProject returns a reference to an existing object. ChangeStatus mutates that object after validating the supplied choice."},
+    {"q": "What happens when there are no open risks or Bionic is unavailable?", "answer": "An empty risk list can still receive a brief about health and milestones. If the local request fails, the app displays an error and returns to the menu.", "technical": "The model must return no risk estimates when there are no open risks. Timeouts, connection problems, and invalid reply data are handled without inventing an assessment."}
   ]
 }

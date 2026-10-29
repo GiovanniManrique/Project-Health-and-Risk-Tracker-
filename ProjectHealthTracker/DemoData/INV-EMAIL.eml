@@ -1,0 +1,15 @@
+From: supplier@scanner.example
+To: chris@inventory.example
+Subject: FICTIONAL DEMO - scanner delivery remains unconfirmed
+Content-Type: text/plain; charset=utf-8
+
+Evidence ID: INV-EMAIL
+Project: Inventory System
+FICTIONAL DEMO ONLY. This email is a local teaching fixture, not a real message.
+All timing is relative to the beginning of a fresh demo session.
+
+The scanner shipment is six days late. We cannot confirm a replacement delivery date.
+We know your first working demo is in ten days. Expedited shipping is being considered, but its extra cost has not been approved.
+This affects risk INV-1. The scanners still need integration testing after delivery.
+Please continue planning around the uncertain arrival.
+Fictional scanner supplier
