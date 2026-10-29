@@ -1,6 +1,7 @@
 using System.Net;
 using System.Text;
 using System.Text.Json;
+using System.Text.Json.Nodes;
 using ProjectHealthTracker;
 using ProjectHealthTracker.Models;
 using Tracker = ProjectHealthTracker.Program;
@@ -143,7 +144,7 @@ try
     }
     string Reply(params object[] risks)
     {
-        return JsonSerializer.Serialize(new { summary = "Review the supplied evidence with the owners.", missingInformation = new[] { "Mitigation plan details are missing." }, risks });
+        return JsonSerializer.Serialize(new { summary = "Review the supplied evidence with the owners.", risks });
     }
     string validReply = Reply(Rating("LOW-1", 2, 3, "DEMO-NOTES"), Rating("HIGH-1", 4, 5, "DEMO-EMAIL"));
     Project inputProject = MakeProject();
@@ -157,6 +158,10 @@ try
     {
         Check(request.RootElement.GetProperty("model").GetString() == "test-gemma", "Configured local model requested");
         Check(request.RootElement.GetProperty("response_format").GetProperty("type").GetString() == "json_schema", "Structured output requested");
+        JsonElement responseProperties = request.RootElement.GetProperty("response_format").GetProperty("json_schema")
+            .GetProperty("schema").GetProperty("properties");
+        Check(!responseProperties.TryGetProperty("missingInformation", out _) && responseProperties.EnumerateObject().Count() == 2,
+            "Model contract contains summary and risks, not missing-plan assertions");
         JsonElement riskSchema = request.RootElement.GetProperty("response_format").GetProperty("json_schema")
             .GetProperty("schema").GetProperty("properties").GetProperty("risks");
         Check(riskSchema.GetProperty("minItems").GetInt32() == 2 && riskSchema.GetProperty("maxItems").GetInt32() == 2,
@@ -171,13 +176,13 @@ try
     Check(brief.Contains("1. HIGH-1:") && brief.Contains("2. LOW-1:"), "C# ranks scores despite the model's response order");
     Check(brief.Contains("20/25") && brief.Contains("6/25"), "C# multiplies model likelihood and impact");
     Check(brief.Contains("test-gemma") && brief.Contains("DEMO-EMAIL"), "Model and evidence citations displayed");
-    Check(brief.Contains("Mitigation plan details are missing"), "Missing mitigation information displayed");
+    Check(brief.Contains("Recorded mitigation plans (C# from saved data):") && brief.Contains("- [LOW-1] Ask the manager"),
+        "Recorded mitigation text is displayed directly from saved data");
     Check(JsonSerializer.Serialize(inputProject) == before, "AI estimates do not mutate project, base ratings, or health");
 
     string omittedGapReply = JsonSerializer.Serialize(new
     {
         summary = "Review the supplied evidence.",
-        missingInformation = Array.Empty<string>(),
         risks = new[] { Rating("HIGH-1", 4, 5, "DEMO-EMAIL"), Rating("LOW-1", 2, 3, "DEMO-NOTES") }
     });
     using StubHandler omittedGap = new StubHandler(omittedGapReply);
@@ -186,7 +191,33 @@ try
         .CreateBriefAsync(MakeProject(), evidenceDirectory);
     Check(gapBrief.Contains("Recorded data gaps (C# checks):") && gapBrief.Contains("- [HIGH-1] No mitigation plan recorded."),
         "C# always discloses an empty open-risk plan even when the model omits it");
-    Check(gapBrief.Contains("- None flagged by the model."), "Recorded C# gaps are not misrepresented as model-generated notes");
+    Check(!gapBrief.Contains("Missing information:") && !gapBrief.Contains("None flagged by the model"),
+        "The brief has no model-owned missing-information section");
+    Check(!gapBrief.Contains("- [LOW-1] No mitigation plan recorded.") && !gapBrief.Contains("- [CLOSED-1] No mitigation plan recorded."),
+        "C# does not flag an existing plan or a closed risk's blank plan");
+
+    Project plannedProject = MakeProject();
+    plannedProject.Risks[0].Id = "INV-1";
+    plannedProject.Risks[0].Plan = "Use manual item numbers until the scanners arrive.";
+    string plannedReply = Reply(Rating("INV-1", 4, 5, "DEMO-EMAIL"), Rating("LOW-1", 2, 3, "DEMO-NOTES"));
+    using StubHandler planned = new StubHandler(plannedReply);
+    using HttpClient plannedClient = new HttpClient(planned);
+    string plannedBrief = await new AiRiskService(plannedClient, "http://127.0.0.1:1234/v1", "test-gemma")
+        .CreateBriefAsync(plannedProject, evidenceDirectory);
+    Check(plannedBrief.Contains("- [INV-1] Use manual item numbers until the scanners arrive."),
+        "The actual INV-1 scanner mitigation is authoritative in the brief");
+    Check(plannedBrief.Contains("None: every open risk has a recorded mitigation plan.") &&
+        !plannedBrief.Contains("No mitigation plan recorded."), "Existing plans never produce a C# missing-plan flag");
+    Check(planned.Calls == 1, "Authoritative plan output does not add another model request");
+
+    Project whitespacePlan = MakeProject();
+    whitespacePlan.Risks[0].Plan = " \t\r\n";
+    using StubHandler whitespace = new StubHandler(validReply);
+    using HttpClient whitespaceClient = new HttpClient(whitespace);
+    string whitespaceBrief = await new AiRiskService(whitespaceClient, "http://127.0.0.1:1234/v1", "test-gemma")
+        .CreateBriefAsync(whitespacePlan, evidenceDirectory);
+    Check(whitespaceBrief.Contains("- [HIGH-1] (blank)") && whitespaceBrief.Contains("- [HIGH-1] No mitigation plan recorded."),
+        "Whitespace-only plans are genuinely missing even when the model reports no gap");
 
     inputProject.Risks[0].ChangeStatus(ItemStatus.Closed);
     using StubHandler afterClose = new StubHandler(Reply(Rating("LOW-1", 2, 3, "DEMO-NOTES")));
@@ -203,7 +234,6 @@ try
         string noRiskReply = JsonSerializer.Serialize(new
         {
             summary = "Review the supplied milestone and tracker health.",
-            missingInformation = late ? new[] { "The next review date is not confirmed." } : Array.Empty<string>(),
             risks = Array.Empty<object>()
         });
         using StubHandler noRisks = new StubHandler(noRiskReply);
@@ -216,19 +246,19 @@ try
                 .GetProperty("schema").GetProperty("properties").GetProperty("risks");
             Check(riskSchema.GetProperty("minItems").GetInt32() == 0 && riskSchema.GetProperty("maxItems").GetInt32() == 0,
                 "Generation requires an empty risk list when the tracker has no open risks");
-            int missingLimit = request.RootElement.GetProperty("response_format").GetProperty("json_schema")
-                .GetProperty("schema").GetProperty("properties").GetProperty("missingInformation").GetProperty("maxItems").GetInt32();
-            Check(late ? missingLimit > 0 && missingLimit <= 5 : missingLimit == 0,
-                late ? "Overdue milestone still permits relevant information gaps" : "Healthy no-risk project cannot generate information gaps");
+            JsonElement properties = request.RootElement.GetProperty("response_format").GetProperty("json_schema")
+                .GetProperty("schema").GetProperty("properties");
+            Check(!properties.TryGetProperty("missingInformation", out _),
+                "Neither healthy nor late-milestone projects ask the model to detect missing plans");
         }
         Check(empty.CalculateHealth() == (late ? HealthStatus.AtRisk : HealthStatus.OnTrack), "No-open-risk brief preserves milestone-based health");
         if (late)
             Check(noRisks.Body.Contains("Demo checkpoint") && noRisks.Body.Contains("AtRisk"), "Late milestone context reaches the model");
     }
 
-    async Task Reject(string response, string label, HttpStatusCode status = HttpStatusCode.OK, Exception? failure = null)
+    async Task Reject(string response, string label, HttpStatusCode status = HttpStatusCode.OK, Exception? failure = null, Project? suppliedProject = null)
     {
-        Project rejectedProject = MakeProject();
+        Project rejectedProject = suppliedProject ?? MakeProject();
         string unchanged = JsonSerializer.Serialize(rejectedProject);
         using StubHandler handler = new StubHandler(response, status, failure);
         using HttpClient rejectedClient = new HttpClient(handler);
@@ -256,7 +286,28 @@ try
     await Reject("", "empty content");
     await Reject("not JSON", "malformed JSON");
     await Reject("{}", "missing required fields");
-    await Reject("{\"summary\":\"Test\",\"missingInformation\":[],\"risks\":[null,null]}", "null risk entries");
+    await Reject("{\"summary\":\"Test\",\"risks\":[null,null]}", "null risk entries");
+
+    // Simulate a server ignoring the schema and returning the exact historical false claim.
+    JsonNode falseMissing = JsonNode.Parse(plannedReply)!;
+    falseMissing["missingInformation"] = new JsonArray("Missing mitigation plan for INV-1");
+    await Reject(falseMissing.ToJsonString(), "historical false missing INV-1 plan", suppliedProject: plannedProject);
+    falseMissing["missingInformation"] = new JsonArray();
+    await Reject(falseMissing.ToJsonString(), "legacy missingInformation even when empty", suppliedProject: plannedProject);
+    foreach (string field in new[] { "mitigationPlanMissing", "recordedPlan", "recordedDataGaps" })
+    {
+        JsonNode unexpected = JsonNode.Parse(plannedReply)!;
+        unexpected[field] = "Missing mitigation plan for INV-1";
+        await Reject(unexpected.ToJsonString(), "unexpected top-level " + field, suppliedProject: plannedProject);
+    }
+    foreach (string field in new[] { "missingInformation", "plan", "planStatus", "priorityScore" })
+    {
+        JsonNode unexpected = JsonNode.Parse(plannedReply)!;
+        unexpected["risks"]![0]![field] = "Missing mitigation plan for INV-1";
+        await Reject(unexpected.ToJsonString(), "unexpected risk field " + field, suppliedProject: plannedProject);
+    }
+    await Reject(validReply.Insert(1, "\"summary\":\"Missing mitigation plan for INV-1\","), "duplicate top-level summary");
+    await Reject(validReply.Replace("\"id\":\"LOW-1\"", "\"id\":\"LOW-1\",\"id\":\"LOW-1\""), "duplicate risk field");
     await Reject(validReply, "unavailable model", HttpStatusCode.ServiceUnavailable);
     await Reject(validReply, "connection failure", failure: new HttpRequestException("Offline test"));
     await Reject(validReply, "timeout", failure: new TaskCanceledException("Offline test timeout"));

@@ -1,0 +1,33 @@
+LIVE LOCAL MODEL EVALUATION
+Started (computer local time): 2026-10-29T00:14:53.0079982-04:00
+Model requested: google/gemma-4-e2b
+Input data: fictional local email, notes, and metrics. No real inbox used.
+Each scenario makes one request. Ratings may vary between model runs.
+
+=== 3. Website: no open risks ===
+Before: stored health OnTrack; open risks:
+AI RISK BRIEF - Company Website Update
+Model requested: google/gemma-4-e2b | Model returned: google/gemma-4-e2b
+Stored tracker health: OnTrack (unchanged)
+Fictional evidence read: WEB-EMAIL, WEB-NOTES, WEB-METRICS
+AI-estimated ratings: likelihood 1 (rare) to 5 (very likely); impact 1 (minor) to 5 (critical).
+C# priority score = likelihood x impact, from 1 to 25; not a probability or percentage.
+These are model judgments for review, not measured predictions. Saved ratings remain unchanged.
+
+Recorded mitigation plans (C# from saved data):
+- No open risks to check.
+Recorded data gaps (C# checks):
+- No open risks to check.
+This check tests whether a plan is recorded, not whether it is adequate.
+
+AI summary: The project is currently OnTrack with 100% progress against the plan, and all milestones are completed. There are no open risks to report based on the provided evidence.
+No open risks to rank. Review the milestone and stored health.
+
+Recommended actions (up to three, for the highest ranked risks):
+- No risk action proposed because there are no open risks.
+
+PASS: one request; valid IDs, scores and order; at most three actions; exact recorded plans and C# gap checks; unchanged data. Elapsed: 10.4s.
+
+PASS: selected live scenario 3. Total model requests: 1
+Human review: confirm factual grounding, useful actions, change after closing INV-1, and explicit late-milestone mention. Missing-plan flags are checked directly against stored Risk.Plan by C#.
+Unavailable-model, timeout, malformed-response, and citation failures are covered by the offline suite; they are not simulated successful AI results here.

@@ -6,7 +6,7 @@
 
 **Proposal due:** October 21 | **Presentation:** October 29
 
-**Current design:** October 28, 2026
+**Current design:** October 29, 2026
 
 ## Existing project and proposed enhancement
 
@@ -18,8 +18,8 @@ A project manager selects a project and sees a ranked assessment based on fictio
 
 - **Model:** `google/gemma-4-e2b`, served by Bionic's local model API. The model must be loaded and the API running. The application uses the local endpoint and does not require a paid cloud API or model training.
 - **Evidence:** Read the selected project's listed `.eml`, `.txt`, and `*-METRICS.json` files from the shared `DemoData` folder on each brief. These are fictional local fixtures, not a live mailbox connection.
-- **Prompt:** Supply project identity, stored health, open risk IDs, owners, scenarios, plans, dates, metrics, and source filenames. Give a 1–5 rubric and request one likelihood/impact estimate for each open risk, a short rationale with valid citations, missing-information notes, and at most three actions. Treat evidence as data and use only supplied facts.
-- **C# responsibility:** Use `HttpClient` and JSON with no extra packages. Validate IDs, citations, and ratings; multiply likelihood × impact; rank the estimates. Display 1–25 priority scores without presenting them as calibrated probabilities.
+- **Prompt:** Supply project identity, stored health, open risk IDs, owners, scenarios, plans, dates, metrics, and source filenames. Give a 1–5 rubric and request one likelihood/impact estimate for each open risk, a short rationale with valid citations, a summary, and at most three displayed actions. Treat evidence as data and use only supplied facts.
+- **C# responsibility:** Use `HttpClient` and JSON with no extra packages. Validate exact response fields, IDs, citations, and ratings; multiply likelihood × impact; rank the estimates. Display 1–25 priority scores without presenting them as calibrated probabilities. Show the actual recorded mitigation plans and detect blank plans directly from saved data; the model does not decide whether a plan exists.
 - **Model boundary:** One bounded request per brief. The model generates advice and cannot modify records or call tools. AI estimates remain separate from stored ratings and health.
 - **Console:** Menu option 4 creates the brief; option 5 exits. Show the model and sources. Handle no open risks, missing evidence, unavailable models, timeouts, and empty or invalid output clearly.
 

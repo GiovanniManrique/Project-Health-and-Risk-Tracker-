@@ -40,9 +40,6 @@ public class AiRiskService
         JsonNode riskSchema = schema["properties"]!["risks"]!;
         riskSchema["minItems"] = openRisks.Count;
         riskSchema["maxItems"] = openRisks.Count;
-        // A healthy project with no open risks does not need invented information gaps.
-        if (openRisks.Count == 0 && project.CalculateHealth() == HealthStatus.OnTrack)
-            schema["properties"]!["missingInformation"]!["maxItems"] = 0;
         if (openRisks.Count > 0)
         {
             JsonArray ids = new JsonArray();
@@ -89,24 +86,24 @@ public class AiRiskService
 
             using JsonDocument brief = JsonDocument.Parse(content);
             JsonElement result = brief.RootElement;
+            // Check the contract ourselves even when the server ignores its JSON schema.
+            ValidateFields(result, "summary", "risks");
             string summary = ReadText(result, "summary", 1200);
-            List<string>? missing = result.GetProperty("missingInformation").Deserialize<List<string>>();
-            List<RiskEstimate>? estimates = result.GetProperty("risks").Deserialize<List<RiskEstimate>>(new JsonSerializerOptions(JsonSerializerDefaults.Web));
-            ValidateEstimates(openRisks, estimates, evidence);
-            if (missing == null || missing.Count > 5 ||
-                (openRisks.Count == 0 && project.CalculateHealth() == HealthStatus.OnTrack && missing.Count != 0))
-                throw new InvalidOperationException("The model returned invalid missing-information notes.");
-            foreach (string note in missing)
+            JsonElement riskResults = result.GetProperty("risks");
+            if (riskResults.ValueKind != JsonValueKind.Array)
+                throw new InvalidOperationException("The model must return an array of risk estimates.");
+            foreach (JsonElement riskResult in riskResults.EnumerateArray())
             {
-                if (string.IsNullOrWhiteSpace(note) || note.Length > 500)
-                    throw new InvalidOperationException("The model returned an invalid missing-information note.");
+                ValidateFields(riskResult, "id", "likelihood", "impact", "reason", "sourceIds", "action");
             }
+            List<RiskEstimate>? estimates = riskResults.Deserialize<List<RiskEstimate>>(new JsonSerializerOptions(JsonSerializerDefaults.Web));
+            ValidateEstimates(openRisks, estimates, evidence);
 
             string servedModel = model;
             if (envelope.RootElement.TryGetProperty("model", out JsonElement returnedModel) &&
                 returnedModel.ValueKind == JsonValueKind.String && !string.IsNullOrWhiteSpace(returnedModel.GetString()))
                 servedModel = returnedModel.GetString()!;
-            return FormatBrief(project, estimates!, evidence, summary, missing, servedModel);
+            return FormatBrief(project, estimates!, evidence, summary, servedModel);
         }
         catch (HttpRequestException)
         {
@@ -181,6 +178,21 @@ public class AiRiskService
         return text.ToString();
     }
 
+    private static void ValidateFields(JsonElement result, params string[] requiredNames)
+    {
+        if (result.ValueKind != JsonValueKind.Object)
+            throw new InvalidOperationException("The model returned an invalid assessment object.");
+        List<string> seen = new List<string>();
+        foreach (JsonProperty property in result.EnumerateObject())
+        {
+            if (!requiredNames.Contains(property.Name) || seen.Contains(property.Name))
+                throw new InvalidOperationException("The model returned unexpected or duplicate assessment fields. No assessment was accepted.");
+            seen.Add(property.Name);
+        }
+        if (seen.Count != requiredNames.Length)
+            throw new InvalidOperationException("The model omitted required assessment fields. No assessment was accepted.");
+    }
+
     private static string ReadText(JsonElement result, string name, int limit)
     {
         string? text = result.GetProperty(name).GetString();
@@ -220,7 +232,7 @@ public class AiRiskService
     }
 
     private string FormatBrief(Project project, List<RiskEstimate> estimates, Dictionary<string, string> evidence,
-        string summary, List<string> missing, string servedModel)
+        string summary, string servedModel)
     {
         // Simple selection sort: highest calculated score first, ID breaks ties.
         for (int i = 0; i < estimates.Count; i++)
@@ -245,18 +257,31 @@ public class AiRiskService
         text.AppendLine("AI-estimated ratings: likelihood 1 (rare) to 5 (very likely); impact 1 (minor) to 5 (critical).");
         text.AppendLine("C# priority score = likelihood x impact, from 1 to 25; not a probability or percentage.");
         text.AppendLine("These are model judgments for review, not measured predictions. Saved ratings remain unchanged.");
+        text.AppendLine("\nRecorded mitigation plans (C# from saved data):");
+        int openCount = 0;
+        foreach (Risk risk in project.Risks)
+        {
+            if (risk.Status != ItemStatus.Open) continue;
+            openCount++;
+            string recordedPlan = string.IsNullOrWhiteSpace(risk.Plan) ? "(blank)" : risk.Plan;
+            text.AppendLine($"- [{risk.Id}] {recordedPlan}");
+        }
+        if (openCount == 0) text.AppendLine("- No open risks to check.");
+        text.AppendLine("Recorded data gaps (C# checks):");
         bool foundGap = false;
         foreach (Risk risk in project.Risks)
         {
             if (risk.Status == ItemStatus.Open && string.IsNullOrWhiteSpace(risk.Plan))
             {
-                if (!foundGap) text.AppendLine("\nRecorded data gaps (C# checks):");
                 text.AppendLine($"- [{risk.Id}] No mitigation plan recorded.");
                 foundGap = true;
             }
         }
+        if (!foundGap && openCount > 0) text.AppendLine("- None: every open risk has a recorded mitigation plan.");
+        if (openCount == 0) text.AppendLine("- No open risks to check.");
+        text.AppendLine("This check tests whether a plan is recorded, not whether it is adequate.");
         text.AppendLine("\nAI summary: " + summary);
-        if (estimates.Count == 0) text.AppendLine("No open risks to rank. Review the milestone and missing-information notes.");
+        if (estimates.Count == 0) text.AppendLine("No open risks to rank. Review the milestone and stored health.");
         for (int i = 0; i < estimates.Count; i++)
         {
             RiskEstimate estimate = estimates[i];
@@ -270,9 +295,6 @@ public class AiRiskService
         for (int i = 0; i < estimates.Count && i < 3; i++)
             text.AppendLine($"- [{estimates[i].Id}] {estimates[i].Action}");
         if (estimates.Count == 0) text.AppendLine("- No risk action proposed because there are no open risks.");
-        text.AppendLine("Missing information:");
-        if (missing.Count == 0) text.AppendLine("- None flagged by the model.");
-        foreach (string note in missing) text.AppendLine("- " + note);
         return text.ToString();
     }
 
@@ -297,13 +319,10 @@ public class AiRiskService
         short practical action. Ratings are judgments, not proven probabilities. Do NOT calculate scores;
         C# will calculate and rank them. Do not copy a score from evidence. Do not put extra actions in summary.
         Keep summary to two sentences, each reason to two sentences, each action to one sentence.
-        Flag missing mitigation details and important unknowns in missingInformation (up to five short notes).
-        If a current mitigation field is marked MISSING, explicitly include "Missing mitigation plan for"
-        followed by that risk's ID in missingInformation, even if older documents suggest possible actions.
-        List only facts truly absent from the input. Do not ask for supplied budget, progress or staffing
-        numbers again. actualPercent and plannedPercent describe overall project progress, not a milestone.
-        Do not pad missingInformation: zero to three useful notes is enough; return [] if nothing is missing.
-        Missing notes must matter to an OPEN risk or overdue unfinished milestone. If neither exists, return [].
+        C# alone checks whether a mitigation plan is recorded and displays the saved plan text.
+        Do not report plan presence/absence in your summary or reasons; assess the risk and practical next action.
+        Do not return missing-information or plan-status fields. Return only the requested summary and risks.
+        actualPercent and plannedPercent describe overall project progress, not a milestone.
         Explicitly mention an overdue unfinished milestone in the summary when present.
         """;
 
@@ -312,7 +331,6 @@ public class AiRiskService
           "type":"object", "additionalProperties":false,
           "properties":{
             "summary":{"type":"string"},
-            "missingInformation":{"type":"array","items":{"type":"string"},"maxItems":5},
             "risks":{"type":"array","items":{
               "type":"object","additionalProperties":false,
               "properties":{
@@ -326,7 +344,7 @@ public class AiRiskService
               "required":["id","likelihood","impact","reason","sourceIds","action"]
             }}
           },
-          "required":["summary","missingInformation","risks"]
+          "required":["summary","risks"]
         }
         """;
 }

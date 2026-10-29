@@ -38,11 +38,13 @@ dotnet run --project ProjectHealthTracker/ProjectHealthTracker.csproj
 
 The application reads the selected project's files from its `DemoData` folder on each request. For Inventory these are `INV-EMAIL.eml`, `INV-NOTES.txt`, and `INV-METRICS.json`. They simulate an email message, project notes, and numeric observations. No mailbox is read, and no email is sent. These files are copied with the application when it builds; rebuild after editing the source fixtures.
 
-One brief uses one bounded local model request with a 120-second timeout. Local inference speed depends on the computer. The output identifies the requested and returned model and source IDs (filenames without extensions), shows proposed likelihood and impact ratings from 1–5, calculates a 1–25 priority score for each open risk, and lists up to three next actions. It also identifies missing evidence. The model cannot run tools, update project records, or change stored ratings and health. With no open risks, a brief can still discuss health and the milestone; its risk list must be empty.
+One brief uses one bounded local model request with a 120-second timeout. Local inference speed depends on the computer. The output identifies the requested and returned model and source IDs (filenames without extensions), shows proposed likelihood and impact ratings from 1–5, calculates a 1–25 priority score for each open risk, and lists up to three next actions. C# also displays recorded mitigation plans and checks for blank plans. The model cannot run tools, update project records, or change stored ratings and health. With no open risks, a brief can still discuss health and the milestone; its risk list must be empty.
 
 **A score of 20/25 is a priority ranking, not an 80% probability of failure.** The AI ratings are estimates from fictional evidence, not measured or calibrated probabilities. The stored tracker health and the separate AI estimates serve different purposes.
 
-C# separately reports a missing recorded mitigation plan under **Recorded data gaps (C# checks)**. Model-generated reasons and missing-information notes still need review: they can be incomplete or ask for details already supplied. Validating an evidence ID does not independently verify a claim.
+**Recorded mitigation plans (C# from saved data)** shows each open risk's actual `Risk.Plan`. **Recorded data gaps (C# checks)** reports only blank or whitespace-only plans. This checks whether a plan exists, not whether it is adequate. Gemma returns a summary, ratings, reasons, citations, and actions; it does not own a missing-information or plan-status field. C# rejects unexpected or duplicate response fields, including the former `missingInformation`, even if the server ignores the requested schema.
+
+AI explanations and recommendations remain judgments for review. Validating fields and evidence IDs does not prove every generated sentence is true; compare the narrative with the recorded plans and source files.
 
 If the model is unavailable, a request times out, evidence is missing, or a response fails validation, the app explains the problem and returns to the menu. It does not substitute a made-up successful AI response.
 
@@ -91,4 +93,4 @@ dotnet run --project Tests/TrackerChecks.csproj -c Release -- --live
 python presentation/build_guide.py
 ```
 
-The normal test command runs offline checks of C# rules and simulated model responses. The optional `--live` command calls Bionic for five scenarios and saves `evaluation/live-model-checks.txt`; it needs the local server and model running. Current verification evidence is recorded in [presentation/REVIEW.md](presentation/REVIEW.md); historical model runs do not prove that the current setup is running.
+The normal test command runs offline checks of C# rules and simulated model responses. The optional `--live` command calls Bionic for five scenarios and saves a timestamped `evaluation/live-model-checks-*.txt` transcript; it needs the local server and model running. Add a scenario number, such as `--live 5`, to run only that case. Current verification evidence is recorded in [presentation/REVIEW.md](presentation/REVIEW.md); historical model runs do not prove that the current setup is running.

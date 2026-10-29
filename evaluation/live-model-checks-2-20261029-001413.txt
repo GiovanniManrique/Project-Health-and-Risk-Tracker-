@@ -1,0 +1,44 @@
+LIVE LOCAL MODEL EVALUATION
+Started (computer local time): 2026-10-29T00:14:13.4082658-04:00
+Model requested: google/gemma-4-e2b
+Input data: fictional local email, notes, and metrics. No real inbox used.
+Each scenario makes one request. Ratings may vary between model runs.
+
+=== 2. Inventory: after closing INV-1 ===
+Before: stored health AtRisk; open risks: INV-2, INV-3
+AI RISK BRIEF - Inventory System
+Model requested: google/gemma-4-e2b | Model returned: google/gemma-4-e2b
+Stored tracker health: AtRisk (unchanged)
+Fictional evidence read: INV-EMAIL, INV-NOTES, INV-METRICS
+AI-estimated ratings: likelihood 1 (rare) to 5 (very likely); impact 1 (minor) to 5 (critical).
+C# priority score = likelihood x impact, from 1 to 25; not a probability or percentage.
+These are model judgments for review, not measured predictions. Saved ratings remain unchanged.
+
+Recorded mitigation plans (C# from saved data):
+- [INV-2] Review the extra costs and request approval before placing new orders.
+- [INV-3] Ask for temporary test support and prepare manual-entry tests now.
+Recorded data gaps (C# checks):
+- None: every open risk has a recorded mitigation plan.
+This check tests whether a plan is recorded, not whether it is adequate.
+
+AI summary: The project is currently at Risk due to cost forecasting and staffing limitations, with the first working demo milestone not yet started. The team needs to address pending approvals for costs and testing support to mitigate future delays.
+
+1. INV-2: Forecast cost may exceed the budget | Owner: Taylor
+Likelihood: 4/5 | Impact: 4/5 | Priority score: 16/25
+Evidence: INV-NOTES, INV-METRICS
+AI reason: The forecast cost is $12,500 against a $10,000 budget, and extra costs are not yet approved. This directly threatens the budget constraint mentioned in INV-NOTES.
+
+2. INV-3: Limited staff may delay scanner testing | Owner: Alex
+Likelihood: 4/5 | Impact: 3/5 | Priority score: 12/25
+Evidence: INV-NOTES, INV-METRICS
+AI reason: Only one of three planned testers is available, and testing has not started, which may delay the demo. The plan to prepare manual entry tests now is a mitigation step.
+
+Recommended actions (up to three, for the highest ranked risks):
+- [INV-2] Review the extra costs and request approval before placing new orders.
+- [INV-3] Ask for temporary test support and prepare manual-entry tests now.
+
+PASS: one request; valid IDs, scores and order; at most three actions; exact recorded plans and C# gap checks; unchanged data. Elapsed: 33.8s.
+
+PASS: selected live scenario 2. Total model requests: 1
+Human review: confirm factual grounding, useful actions, change after closing INV-1, and explicit late-milestone mention. Missing-plan flags are checked directly against stored Risk.Plan by C#.
+Unavailable-model, timeout, malformed-response, and citation failures are covered by the offline suite; they are not simulated successful AI results here.

@@ -22,8 +22,9 @@ static class LiveChecks
         string evidenceDirectory = Path.Combine(repository, "ProjectHealthTracker", "DemoData");
         string evaluationDirectory = Path.Combine(repository, "evaluation");
         Directory.CreateDirectory(evaluationDirectory);
+        string timestamp = DateTimeOffset.Now.ToString("yyyyMMdd-HHmmss");
         string outputFile = Path.Combine(evaluationDirectory,
-            scenario == null ? "live-model-checks.txt" : $"live-model-checks-{scenario}.txt");
+            scenario == null ? $"live-model-checks-{timestamp}.txt" : $"live-model-checks-{scenario}-{timestamp}.txt");
         string temporaryEvidence = Path.Combine(Path.GetTempPath(), "tracker-live-" + Guid.NewGuid());
         Directory.CreateDirectory(temporaryEvidence);
         StringBuilder transcript = new StringBuilder();
@@ -57,6 +58,16 @@ static class LiveChecks
             Record(brief);
             Require(handler.Calls == callsBefore + 1, "Exactly one model request");
             Require(before == JsonSerializer.Serialize(project), "Model leaves all stored data and health unchanged");
+            string recordedSection = brief.Split("Recorded mitigation plans (C# from saved data):", StringSplitOptions.None)[1]
+                .Split("AI summary:", StringSplitOptions.None)[0];
+            foreach (Risk risk in project.Risks)
+            {
+                bool needsPlan = risk.Status == ItemStatus.Open && string.IsNullOrWhiteSpace(risk.Plan);
+                Require(recordedSection.Contains($"- [{risk.Id}] No mitigation plan recorded.") == needsPlan,
+                    "C# missing-plan result matches current stored data: " + risk.Id);
+                if (risk.Status == ItemStatus.Open && !needsPlan)
+                    Require(recordedSection.Contains($"- [{risk.Id}] {risk.Plan}"), "Actual recorded plan is visible: " + risk.Id);
+            }
             List<string> expectedIds = project.Risks.Where(risk => risk.Status == ItemStatus.Open).Select(risk => risk.Id).ToList();
             MatchCollection rows = Regex.Matches(brief,
                 @"^\d+\. (\S+): [^\r\n]*\r?\nLikelihood: (\d)/5 \| Impact: (\d)/5 \| Priority score: (\d+)/25", RegexOptions.Multiline);
@@ -73,11 +84,10 @@ static class LiveChecks
                 previousScore = score;
             }
             string actionsSection = brief.Split("Recommended actions", StringSplitOptions.None)[1]
-                .Split("Missing information:", StringSplitOptions.None)[0]
                 .Split("Recorded data gaps", StringSplitOptions.None)[0];
             int actions = Regex.Matches(actionsSection, @"^- \[", RegexOptions.Multiline).Count;
             Require(actions <= 3, "At most three risk actions");
-            Record($"PASS: one request; valid IDs, scores and order; at most three actions; unchanged data. Elapsed: {elapsed.Elapsed.TotalSeconds:F1}s.");
+            Record($"PASS: one request; valid IDs, scores and order; at most three actions; exact recorded plans and C# gap checks; unchanged data. Elapsed: {elapsed.Elapsed.TotalSeconds:F1}s.");
         }
 
         try
@@ -108,7 +118,7 @@ static class LiveChecks
 
             Record((scenario == null ? "\nPASS: all five live scenarios." : $"\nPASS: selected live scenario {scenario}.") +
                 " Total model requests: " + handler.Calls);
-            Record("Human review: confirm factual grounding, useful actions, change after closing INV-1, explicit late-milestone mention, and missing INV-2 mitigation flag.");
+            Record("Human review: confirm factual grounding, useful actions, change after closing INV-1, and explicit late-milestone mention. Missing-plan flags are checked directly against stored Risk.Plan by C#.");
             Record("Unavailable-model, timeout, malformed-response, and citation failures are covered by the offline suite; they are not simulated successful AI results here.");
         }
         catch (Exception error)

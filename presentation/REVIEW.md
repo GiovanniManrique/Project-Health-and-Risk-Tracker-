@@ -1,4 +1,47 @@
-# Local Gemma risk brief — October 28, 2026
+# Recorded mitigation plan correction — October 29, 2026
+
+A live presentation run incorrectly said "Missing mitigation plan for INV-1" even though the scanner risk already stored "Use manual item numbers until the scanners arrive." The previous free-form model-owned missingInformation section allowed this contradiction. This revision replaces that output responsibility with an exact C# check of the current Risk.Plan; it does not depend on wording filters or another prompt-only correction.
+
+## Current behavior
+
+- **Recorded mitigation plans (C# from saved data)** displays each open risk's actual plan text.
+- **Recorded data gaps (C# checks)** flags only an empty or whitespace-only plan. Fresh Inventory has no such gaps. The check establishes presence, not adequacy.
+- Gemma returns only a summary and risk estimates with ratings, reasons, citations, and actions. Its contract has no missing-information or plan-status field.
+- C# validates the exact required keys at the top level and inside each estimate, rejecting unknown or duplicate fields even when a server ignores the requested schema. The historical false claim in a legacy missingInformation field is rejected as an invalid response, without a retry or substitute result.
+- One request per brief, real fixture ingestion, rating/citation validation, C# arithmetic and ordering, and immutable stored records remain in place.
+
+## Verification on this revision
+
+The Release build passed with **zero warnings and zero errors**. The offline runner passed **160 checks in both Debug and Release**. Regressions cover the exact false INV-1 claim, a genuinely empty plan, a whitespace-only plan, existing and closed-risk plans, legacy fields even when empty, contradictory extra root/risk fields, duplicate JSON keys, one request, and unchanged records.
+
+Six real Bionic calls covered all five scenarios, including a repeated fresh Inventory run, using **google/gemma-4-e2b** at **127.0.0.1:1235/v1**:
+
+| Scenario | Transcript | Elapsed | Observed result |
+|---|---|---|---|
+| Fresh Inventory, first run | [live-model-checks-1-20261029-001028.txt](../evaluation/live-model-checks-1-20261029-001028.txt) | 28.7 seconds | All three recorded plans displayed; no C# missing-plan flags; no false missing-plan narrative. |
+| Fresh Inventory, second run | [live-model-checks-1-20261029-001100.txt](../evaluation/live-model-checks-1-20261029-001100.txt) | 21.0 seconds | Same correct recorded-plan result; the model explicitly recognized the manual-entry mitigation. |
+| Deliberately blank INV-2 plan | [live-model-checks-5-20261029-001226.txt](../evaluation/live-model-checks-5-20261029-001226.txt) | 25.5 seconds | Only INV-2 was flagged by C#; the existing INV-1 and INV-3 plans remained visible. |
+| Inventory after closing INV-1 | [live-model-checks-2-20261029-001413.txt](../evaluation/live-model-checks-2-20261029-001413.txt) | 33.8 seconds | Only INV-2 and INV-3 ranked, at 16 and 12; their plans shown; stored health remained AtRisk. |
+| Website with no open risks | [live-model-checks-3-20261029-001452.txt](../evaluation/live-model-checks-3-20261029-001452.txt) | 10.4 seconds | OnTrack summary, empty ranked-risk list, no risk actions or plan gaps. |
+| Training with overdue milestone | [live-model-checks-4-20261029-001515.txt](../evaluation/live-model-checks-4-20261029-001515.txt) | 10.6 seconds | AtRisk summary explicitly names overdue Manager review; empty risk list. The narrative imprecision noted below remains. |
+
+Each call passed checks for one request, correct open risk IDs, valid ratings and citations, correct multiplication and descending order, at most three actions, exact recorded-plan/gap results, and unchanged stored data. Fresh Inventory and the deliberately missing-plan scenario returned priority scores of 20, 12, and 12 in these runs; these are observations, not fixed required model ratings. Narrative review found the Inventory supplier, budget, and staffing explanations grounded in the supplied fictional facts and no false missing-plan claim in the six outputs.
+
+All five scenarios were run individually against this revision, with fresh Inventory repeated. The older five-scenario and console transcripts below remain evidence for their earlier revisions. The live helper now writes timestamped transcripts so repeated evaluations preserve prior results.
+
+The teaching guide was regenerated with **15 blocks and all six current application C# files**, including ValidateFields and the authoritative recorded-plan output. All embedded source text and SHA-256 hashes match; block ranges are valid and no template markers remain. JavaScript syntax and git diff whitespace checks passed. The guide continues to separate model judgment from C# validation, arithmetic, ordering, and recorded-plan checks.
+
+## Limits
+
+The fix makes recorded-plan presence deterministic. It does not guarantee arbitrary AI summaries, reasons, or actions are factually perfect, and it does not judge whether a nonempty plan is sufficient. A valid source ID proves that a supplied source was named, not that every sentence follows from it. The user should compare AI judgments with the displayed saved plans and evidence. A 1–25 priority score remains an ordinal ranking, not a calibrated probability.
+
+An observed example remains in the new Training transcript: its summary assigns the 60% actual / 80% planned progress to the training-guide task, while the source metrics describe overall project progress. Its overdue-milestone statement and C# recorded-plan checks are correct. This is a model narrative imprecision, not evidence that all semantic output is verified by the structural tests.
+
+The sections below are historical and describe their own source revisions and observed runs.
+
+---
+
+# Historical local Gemma review — October 28, 2026
 
 The current implementation supersedes the offline-only scope below. The application now has five small authored classes (`Program`, `Project`, `Risk`, `AiRiskService`, and `RiskEstimate`) and two enums. A Project still has one task and one milestone; its risk list supports several risks. The console's fourth option requests an AI brief and its fifth option exits.
 

@@ -1,0 +1,33 @@
+LIVE LOCAL MODEL EVALUATION
+Started (computer local time): 2026-10-29T00:15:15.3682306-04:00
+Model requested: google/gemma-4-e2b
+Input data: fictional local email, notes, and metrics. No real inbox used.
+Each scenario makes one request. Ratings may vary between model runs.
+
+=== 4. Training: overdue milestone and no open risks ===
+Before: stored health AtRisk; open risks:
+AI RISK BRIEF - Employee Training Plan
+Model requested: google/gemma-4-e2b | Model returned: google/gemma-4-e2b
+Stored tracker health: AtRisk (unchanged)
+Fictional evidence read: TRN-EMAIL, TRN-NOTES, TRN-METRICS
+AI-estimated ratings: likelihood 1 (rare) to 5 (very likely); impact 1 (minor) to 5 (critical).
+C# priority score = likelihood x impact, from 1 to 25; not a probability or percentage.
+These are model judgments for review, not measured predictions. Saved ratings remain unchanged.
+
+Recorded mitigation plans (C# from saved data):
+- No open risks to check.
+Recorded data gaps (C# checks):
+- No open risks to check.
+This check tests whether a plan is recorded, not whether it is adequate.
+
+AI summary: The project is currently at risk, with the 'Manager review' milestone being overdue. The task to write the training guide is 60% complete against an 80% plan.
+No open risks to rank. Review the milestone and stored health.
+
+Recommended actions (up to three, for the highest ranked risks):
+- No risk action proposed because there are no open risks.
+
+PASS: one request; valid IDs, scores and order; at most three actions; exact recorded plans and C# gap checks; unchanged data. Elapsed: 10.6s.
+
+PASS: selected live scenario 4. Total model requests: 1
+Human review: confirm factual grounding, useful actions, change after closing INV-1, and explicit late-milestone mention. Missing-plan flags are checked directly against stored Risk.Plan by C#.
+Unavailable-model, timeout, malformed-response, and citation failures are covered by the offline suite; they are not simulated successful AI results here.
